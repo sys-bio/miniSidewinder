@@ -22,3 +22,14 @@ __history/ufMain.dfm.~6~
 Win32/Debug/miniSidewinder.exe
 Win32/Debug/TMSWebRunner.ini
 TMSWeb/Debug/index.html
+miniSidewinder.dproj.local
+miniSidewinder.identcache
+TMSWeb/Debug/math/euler_solver.js
+TMSWeb/Debug/math/RK4solver.js
+TMSWeb/Debug/miniSidewinder.js
+TMSWeb/Debug/miniSidewinder.js.map
+TMSWeb/Debug/sbml/libsbml.js
+TMSWeb/Debug/sbml/libsbml.wasm
+TMSWeb/Debug/sbml/readSBMLmodel.js
+TMSWeb/Debug/sbml/writeSBMLmodel.js
+TMSWeb/Debug/ufMain.html
