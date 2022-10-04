@@ -33,3 +33,10 @@ TMSWeb/Debug/sbml/libsbml.wasm
 TMSWeb/Debug/sbml/readSBMLmodel.js
 TMSWeb/Debug/sbml/writeSBMLmodel.js
 TMSWeb/Debug/ufMain.html
+*.~10~
+*.~101~
+*.~9~
+*.~8~
+__history/
+Win32/Debug/
+TMSWeb/Debug/
