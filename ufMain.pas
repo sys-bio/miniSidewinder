@@ -749,7 +749,7 @@ begin
   if self.numbPlots > DEFAULT_NUMB_PLOTS then
   begin  // Adjust plots to new height:
     for i := 0 to self.numbPlots - 1 do
-      self.graphPanelList[i].adjustPlotHeight(self.numbPlots, newHeight);
+      self.graphPanelList[i].adjustPanelHeight(newHeight);
 
   end;
  end;

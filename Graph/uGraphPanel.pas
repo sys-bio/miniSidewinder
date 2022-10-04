@@ -34,6 +34,9 @@ private
   procedure editGraphListBoxClick(Sender: TObject);
 
 public
+  userDeleteGraph: boolean; // true, user can delete graph (OnEditGraphEvent method required)
+  userChangeVarSeries: boolean; // true, user can change var of series (OnEditGraphEvent method required)
+
   constructor create(newParent: TWebPanel; graphPosition: integer; yMax: double);
   procedure initializePlot(newVarStrList: TList<string>; newYMax: double; newYMin: double;
   newAutoUp: boolean; newAutoDown: boolean; newDelta: double; newBkgrndColor: TColor);
@@ -42,7 +45,8 @@ public
   procedure addChartSerie(varStr: string; maxYVal: double); // need max Y if autoScale off
   procedure setTimer(newTimer: TWebTimer); // Not sure this is necessary
   procedure setPanelColor( val: TColor ); // background color for TGraphPanel
-  procedure setPanelHeight( val: integer ); // Set height for panel that contains chart
+  procedure setPanelHeight( newHeight: integer ); // Set height for panel that contains chart
+  procedure setPanelTop( val: integer ); // set Top  relative to top of parent panel
   procedure setSeriesColors();
   procedure setSerieColor(index: integer; newColor: TColor);
   procedure deleteChartSerie(index: integer);
@@ -57,7 +61,7 @@ public
   function  getChartTimeInterval(): double;
   procedure setYMax(newYMax: double);
   function  getYMax(): double;
-  procedure adjustPlotHeight(numPlots: integer; newHeight: integer);// adjust height based on numbre of plots
+  procedure adjustPanelHeight(newHeight: integer); // adjust height and top, uses self.tag as well
   procedure getVals( newTime: Double; newVals: TVarNameValList);// Get new values (species amt) from simulation run
   procedure notifyGraphEvent(plot_id: integer; eventType: integer);
   property OnEditGraphEvent: TEditGraphEvent read fEditGraphEvent write fEditGraphEvent;
@@ -67,23 +71,24 @@ implementation
 
 constructor TGraphPanel.create(newParent: TWebPanel; graphPosition: integer; yMax: double);
 begin
-  //self.pnlChart := TWebPanel.Create(owner);
   inherited create(newParent);
   self.SetParent(newParent);
   self.OnMouseDown := graphEditMouseDown;
-  self.tag := graphPosition;
+  if graphPosition > -1 then self.tag := graphPosition
+  else self.tag := 0;
   self.Width := newParent.Width;
   self.Anchors := [akLeft,akRight,akTop];
-  self.Height := round(newParent.height/2);
-  self.Left := 10; //10 gap between the network canvas and plot
+  self.Height := round(newParent.height/2); // Default
+  self.Left := 10; // gap between panel to left and plot
   self.Top := 4 + self.Height*(graphPosition -1);
   self.Color := clwhite; // default
   self.chartBackGroundColor := -1;
+  self.userDeleteGraph := false;
+  self.userChangeVarSeries := false;
   self.yMinimum := 0;
   if yMax > 0 then self.yMaximum := yMax
   else self.yMaximum := DEFAULT_Y_MAX;
   self.createChart();
- // self.setUpEditListBox();
 end;
 
  procedure TGraphPanel.createChart();
@@ -157,15 +162,34 @@ begin
   Result := self.yMaximum;
 end;
 
-procedure TGraphPanel.setPanelHeight( val: integer ); // Set height for panel that contains chart
+procedure TGraphPanel.setPanelHeight( newHeight: integer ); // Set height for panel that contains chart
 begin
-  if val >0 then self.Height := val;
+  if newHeight >0 then
+    begin
+    self.Height := newHeight;
+    self.chart.Height := self.Height;
+    end;
   self.Invalidate;
+end;
+
+procedure TGraphPanel.adjustPanelHeight( newHeight: integer );// adjusts based on tag value
+begin
+  self.Height:= newHeight;
+  self.Top:= 5 + newHeight*(self.tag -1);
+  self.chart.Height := newHeight;
+  self.invalidate;
+
 end;
 
 procedure TGraphPanel.setChartWidth(newWidth: integer);
 begin
   if newWidth <= self.width then self.chart.width := newWidth;
+end;
+
+procedure TGraphPanel.setPanelTop( val: integer ); // set Top  relative to top of parent panel
+begin
+  if val > -1 then self.Top := val
+  else self.Top := 4;
 end;
 
 procedure TGraphPanel.setPanelColor( val: TColor); // background color for TGraphPanel
@@ -239,16 +263,6 @@ if newDelta >0 then self.chart.DeltaX := newDelta  // integrator stepsize
 else console.log('TGraphPanel.setChartDelta value is not greater than zero');
 end;
 
-procedure TGraphPanel.adjustPlotHeight(numPlots: integer; newHeight: integer);
-begin
- // height := round(self.Height/numPlots);
-
-  self.Height:= newHeight;
-  self.Top:= 5 + newHeight*(self.tag -1);
-  self.invalidate;
-
-end;
-
 procedure TGraphPanel.addChartSerie(varStr: string; maxYVal: double);
 begin
   if maxYVal > self.chart.YAxisMax then self.chart.YAxisMax := maxYVal;
@@ -307,8 +321,10 @@ begin
   editList.Add('Toggle legend.');
   editList.Add('Toggle autoscale.');
   editList.Add('Set Y max/min.');
-  editList.Add('Change plot species.');
-  editList.Add('Delete plot.');
+  if self.userChangeVarSeries then
+    editList.Add('Change plot species.');
+  if self.userDeleteGraph then
+    editList.Add('Delete plot.');
   editList.Add('Cancel');
   self.lbEditGraph.Items := editList;
   self.lbEditGraph.Top := 10;
@@ -321,6 +337,33 @@ end;
 
 procedure TGraphPanel.editGraphListBoxClick(Sender: TObject);
 begin
+  case self.lbEditGraph.ItemIndex of
+    0: if self.chart.getLegendVisible then   // toggle legend
+        self.chart.SetLegendVisible(false)
+      else self.chart.SetLegendVisible(true);
+    1: if self.chart.autoScaleUp then        // toggle autoscale
+        begin
+        self.chart.autoScaleUp := false;
+        self.chart.autoScaleDown := false;
+        end
+      else
+        begin
+        self.chart.autoScaleUp := true;
+        self.chart.autoScaleDown := true;
+        end;
+    2: self.chart.userUpdateMinMax;         // Set Y max/min
+    3: begin                  // Done external to TGraphPanel
+       if self.userChangeVarSeries then
+         self.notifyGraphEvent(self.tag, EDIT_TYPE_SPECIES)
+       else if self.userDeleteGraph then
+         self.notifyGraphEvent(self.tag, EDIT_TYPE_DELETEPLOT);
+       end;
+    4: if self.userDeleteGraph then  // Done external to TGraphPanel
+         self.notifyGraphEvent(self.tag, EDIT_TYPE_DELETEPLOT);
+  end;
+
+  self.lbEditGraph.Destroy;
+  {
   if self.lbEditGraph.ItemIndex < 3 then  // Handle these actions locally
     begin
     if self.lbEditGraph.ItemIndex = 0 then // toggle legend
@@ -348,17 +391,22 @@ begin
       end;
     self.lbEditGraph.Destroy;
     end
-  else    // Handle these actions with external main form:
+  else    // Handle these actions with external method:
     begin
     if self.lbEditGraph.ItemIndex = 3 then // Change plot species. Done external to TGraphPanel
-      self.notifyGraphEvent(self.tag, EDIT_TYPE_SPECIES)
+      begin
+      if self.userChangeVarSeries then
+        self.notifyGraphEvent(self.tag, EDIT_TYPE_SPECIES);
+      //else self.lbEditGraph.Destroy;
+      end
 
     else if self.lbEditGraph.ItemIndex = 4 then // Delete plot
       self.notifyGraphEvent(self.tag, EDIT_TYPE_DELETEPLOT)
       else if self.lbEditGraph.ItemIndex = 5 then // Cancel
-        self.lbEditGraph.Destroy;
+        //self.lbEditGraph.Destroy;
+    self.lbEditGraph.Destroy;
     end;
-
+           }
 end;
 
 

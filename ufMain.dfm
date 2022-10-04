@@ -8,7 +8,6 @@ object MainForm: TMainForm
     Width = 241
     Height = 633
     Align = alLeft
-    ExplicitHeight = 627
     object labelInitVals: TWebLabel
       Left = 24
       Top = 64
@@ -77,8 +76,6 @@ object MainForm: TMainForm
     Height = 633
     Align = alClient
     ChildOrder = 1
-    ExplicitWidth = 503
-    ExplicitHeight = 627
     object SliderEditLB: TWebListBox
       Left = 328
       Top = 264
@@ -98,8 +95,6 @@ object MainForm: TMainForm
     Height = 633
     Align = alRight
     ChildOrder = 2
-    ExplicitLeft = 744
-    ExplicitHeight = 627
   end
   object pnlTop: TWebPanel
     Left = 0
@@ -108,7 +103,6 @@ object MainForm: TMainForm
     Height = 60
     Align = alTop
     ChildOrder = 3
-    ExplicitWidth = 932
     object btnRunPause: TWebButton
       Left = 241
       Top = 16
