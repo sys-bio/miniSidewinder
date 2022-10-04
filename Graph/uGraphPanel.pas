@@ -41,6 +41,8 @@ public
   procedure setAutoScaleDown(autoScale: boolean); // true: autoscale
   procedure addChartSerie(varStr: string; maxYVal: double); // need max Y if autoScale off
   procedure setTimer(newTimer: TWebTimer); // Not sure this is necessary
+  procedure setPanelColor( val: TColor ); // background color for TGraphPanel
+  procedure setPanelHeight( val: integer ); // Set height for panel that contains chart
   procedure setSeriesColors();
   procedure setSerieColor(index: integer; newColor: TColor);
   procedure deleteChartSerie(index: integer);
@@ -72,9 +74,10 @@ begin
   self.tag := graphPosition;
   self.Width := newParent.Width;
   self.Anchors := [akLeft,akRight,akTop];
-  self.Height := round(newParent.height/3); // 3 plots
+  self.Height := round(newParent.height/2);
   self.Left := 10; //10 gap between the network canvas and plot
   self.Top := 4 + self.Height*(graphPosition -1);
+  self.Color := clwhite; // default
   self.chartBackGroundColor := -1;
   self.yMinimum := 0;
   if yMax > 0 then self.yMaximum := yMax
@@ -87,6 +90,7 @@ end;
  begin
    try
      self.chart := TWebScrollingChart.Create(self);
+     self.chart.Height := self.Height;
      self.chart.OnMouseClickEvent := self.graphEditMouseDown;
      self.chart.Parent := self;
      self.chart.YAxisMax := self.yMaximum;
@@ -108,7 +112,7 @@ begin
   self.autoDown := newAutoDown;
   self.timeDelta := newDelta;
   self.chartBackGroundColor := newBkgrndColor;
-  self.Color := clBlack;
+  //self.Color := clBlack;
   self.setupChart();
 end;
 
@@ -153,9 +157,21 @@ begin
   Result := self.yMaximum;
 end;
 
+procedure TGraphPanel.setPanelHeight( val: integer ); // Set height for panel that contains chart
+begin
+  if val >0 then self.Height := val;
+  self.Invalidate;
+end;
+
 procedure TGraphPanel.setChartWidth(newWidth: integer);
 begin
   if newWidth <= self.width then self.chart.width := newWidth;
+end;
+
+procedure TGraphPanel.setPanelColor( val: TColor); // background color for TGraphPanel
+begin
+  if val >0 then self.color := val;
+  self.Invalidate;
 end;
 
 procedure TGraphPanel.setSeriesColors();

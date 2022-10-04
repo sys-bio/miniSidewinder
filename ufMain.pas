@@ -7,7 +7,7 @@ uses
   JS, Web, WEBLib.Graphics, WEBLib.Controls, WEBLib.Forms, WEBLib.Dialogs,
   Vcl.Controls, WEBLib.ExtCtrls, Vcl.StdCtrls, WEBLib.StdCtrls, uSimulation,
   uControllerMain, ufVarSelect, uParamSliderLayout, uSidewinderTypes, uGraphPanel,
-  uModel;
+  uModel, uSBMLClasses, uSBMLClasses.rule;
 
 const SIDEWINDER_VERSION = 'Version 0.1 alpha';
       DEFAULT_RUNTIME = 10000;
@@ -28,6 +28,10 @@ type
     SBMLOpenDialog: TWebOpenDialog;
     SliderEditLB: TWebListBox;
     pnlTop: TWebPanel;
+    lb_InitVals: TWebListBox;
+    lbRateLaws: TWebListBox;
+    labelInitVals: TWebLabel;
+    labelRateLaws: TWebLabel;
     procedure WebFormCreate(Sender: TObject);
     procedure btnSimResetClick(Sender: TObject);
     procedure btnLoadModelClick(Sender: TObject);
@@ -69,10 +73,13 @@ type
     procedure deleteAllPlots();
     function  getEmptyPlotPosition(): Integer;
     function  getPlotPBIndex(plotTag: integer): Integer;
+    procedure setListBoxInitValues();
+    procedure setListBoxRateLaws();
 
   public
     { Public declarations }
     fileName: string;
+    simStarted: boolean; // true sim has been started
     currentGeneration: Integer; // Used by plots as current x axis point
     fPlotSpecies: TVarSelectForm;
     plotSpecies: TList<TSpeciesList>; // species to graph for each plot
@@ -125,6 +132,7 @@ begin
   self.mainController.createSimulation();
  // self.initializePlots;
   self.resetPlots;
+  self.simStarted := false;
   self.currentGeneration := 0;
 end;
 
@@ -157,6 +165,7 @@ begin
   self.numbPlots := 0;
   self.numbSliders := 0;
   self.stepSize := 0.1;
+  self.simStarted := false;
   self.mainController := TControllerMain.Create();
   self.mainController.setOnline(false);
   self.mainController.setODEsolver;
@@ -479,28 +488,29 @@ begin
  // self.btnAddPlot.Enabled := true;
 //  self.btnParamAddSlider.Enabled := true;
  // self.enableStepSizeEdit;
+    if self.simStarted = false then
  // if self.networkUpdated = true then
- //   begin
-    self.setUpSimulationUI;
-    self.btnRunPause.font.color := clgreen;
-    self.btnRunPause.ElementClassName := 'btn btn-danger btn-sm';
-    self.btnRunPause.caption := 'Simulation: Play';
-     // add a default plot:
-    if self.numbPlots < 1 then
       begin
+      self.setUpSimulationUI;
+      self.btnRunPause.font.color := clgreen;
+      self.btnRunPause.ElementClassName := 'btn btn-danger btn-sm';
+      self.btnRunPause.caption := 'Simulation: Play';
+     // add a default plot:
+      if self.numbPlots < 1 then
+        begin
         addPlotAll()
-      end ;
+        end ;
    // else self.btnAddPlotClick(nil);   Only 1 plot for now
       // add default param sliders:
-    if self.numbSliders < 1 then
-      begin
-      self.addAllParamSliders;
+      if self.numbSliders < 1 then
+        begin
+        self.addAllParamSliders;
       //if length( self.mainController.getModel.getP_Names ) < 11 then
         //self.btnParamAddSlider.Enabled := false;
-      end;
+        end;
     //else self.btnParamAddSliderClick(nil);
 
- //   end;
+      end;
 
   // ******************
   if self.mainController.IsModelLoaded then
@@ -522,7 +532,7 @@ begin
 //      self.mainController.SetTimerInterval(round(1000/self.trackBarSimSpeed.position));
        self.mainController.SetTimerInterval(100);
       self.mainController.SetStepSize(self.stepSize);
-      if self.mainController.getCurrTime = 0  then
+     // if self.mainController.getCurrTime = 0  then
     //    self.InitSimResultsTable();  // Set table of Sim results.
       //self.rightPanelType := SIMULATION_PANEL;
       //self.setRightPanels;
@@ -597,6 +607,7 @@ begin
   //self.RSimWPanel.invalidate;
   self.pnlPLot.invalidate; // ?
   self.pnlParamSliders.invalidate; // ?
+  self.simStarted := true;
 end;
 
 procedure TMainForm.SliderEditLBClick(Sender: TObject);
@@ -646,7 +657,6 @@ begin
       notifyUser(' SBML piecewise() function not supported at this time. Load a different SBML Model');
       //clearNetwork();
       end
-
   end;
  { if assigned(newModel.getSBMLLayout) then  // may want try/catch for layout not existing
     begin
@@ -656,7 +666,8 @@ begin
       self.networkPB1.Height := trunc(newModel.getSBMLLayout.getDims.getHeight);
       end;
     end;   }
-
+  self.setListBoxInitValues;
+  self.setListBoxRateLaws;
    // Loading new sbml model changes reaction network.
  // self.networkPB1.invalidate;
  // self.networkUpdated := true;
@@ -727,7 +738,7 @@ begin
   self.graphPanelList.Add( TGraphPanel.create(pnlPlot, plotPositionToAdd, yMax) );
   self.graphPanelList[plotPositionToAdd -1].setChartTimeInterval(self.stepSize);
   self.graphPanelList[plotPositionToAdd -1].OnEditGraphEvent := processGraphEvent;
-  newHeight := 300;  // default
+  newHeight := round( self.pnlPlot.Height/2 );  // default
   if self.numbPlots > DEFAULT_NUMB_PLOTS then
   begin
     newHeight := round(self.pnlPlot.Height/self.numbPlots);
@@ -1056,5 +1067,132 @@ begin
       end;
     end;
 end;
+
+
+procedure TMainForm.setListBoxInitValues();
+var i: integer;
+    curId, curAssign, temp: string;
+    curVal: double;
+    strListInitVals: TStringList;
+    paramAr: array of TSBMLparameter;
+    compAr: array of TSBMLCompartment;
+    floatSpeciesAr: array of TSBMLSpecies;
+    boundarySpeciesAr: array of TSBMLSpecies;
+begin
+  strListInitVals := TStringList.Create;
+  paramAr := self.mainController.getModel.getSBMLparameterAr;
+  for i := 0 to length(paramAr) -1 do
+    begin
+    temp := '';
+    curId := '';
+    curVal := 0.0;
+    curId := paramAr[i].getId;
+    if self.mainController.getModel.getInitialAssignmentWithSymbolId(curId) <> nil then
+      begin
+      temp := curId + ' = ' + self.mainController.getModel.getInitialAssignmentWithSymbolId(curId).getFormula;
+      strListInitVals.Add(temp);
+      end
+    else
+      begin
+      temp := curId+ ' = ' + floatToStr(paramAr[i].getValue);
+      strListInitVals.Add(temp);
+      end;
+    end;
+
+  compAr := self.mainController.getModel.getSBMLcompartmentsArr;
+  for i := 0 to length(compAr) -1 do
+    begin
+    temp := '';
+    curId := '';
+    curVal := 0.0;
+    temp := compAr[i].getID + ' = ' + floatToStr(compAr[i].getVolume);
+    strListInitVals.Add(temp);
+    end;
+
+  floatSpeciesAr := self.mainController.getModel.getSBMLFloatSpeciesAr;
+  for i := 0 to length(floatSpeciesAr) -1 do
+    begin
+    temp := '';
+    curId := '';
+    curVal := 0.0;
+    curId := floatSpeciesAr[i].getId;
+    if self.mainController.getModel.getInitialAssignmentWithSymbolId(curId) <> nil then
+      begin
+      temp := curId + ' = ' + self.mainController.getModel.getInitialAssignmentWithSymbolId(curId).getFormula;
+      strListInitVals.Add(temp);
+      end
+    else
+      begin
+      temp := curId+ ' = ';
+      if floatSpeciesAr[i].isSetInitialConcentration then
+        temp := temp + floatToStr(floatSpeciesAr[i].getInitialConcentration)
+      else temp := temp + floatToStr(floatSpeciesAr[i].getInitialAmount);
+      strListInitVals.Add(temp);
+      end;
+    end;
+
+  boundarySpeciesAr := self.mainController.getModel.getSBML_BC_SpeciesAr;
+  for i := 0 to length(boundarySpeciesAr) -1 do
+    begin
+    temp := '';
+    curId := '';
+    curVal := 0.0;
+    curId := boundarySpeciesAr[i].getId;
+    temp := 'Boundary species ' + curId + ' = ';
+    if self.mainController.getModel.getInitialAssignmentWithSymbolId(curId) <> nil then
+      begin
+      temp := temp + self.mainController.getModel.getInitialAssignmentWithSymbolId(curId).getFormula;
+      strListInitVals.Add(temp);
+      end
+    else
+      begin
+      //temp := curId+ ' = ';
+      if boundarySpeciesAr[i].isSetInitialConcentration then
+        temp := temp + floatToStr(boundarySpeciesAr[i].getInitialConcentration)
+      else temp := temp + floatToStr(boundarySpeciesAr[i].getInitialAmount);
+      strListInitVals.Add(temp);
+      end;
+    end;
+
+  self.lb_InitVals.Items := strListInitVals;
+end;
+
+procedure TMainForm.setListBoxRateLaws();
+var i: integer;
+    curVar, temp: string;
+    strListRates: TStringList;
+    rateAr: array of TSBMLrule;
+    rxnAr: array of SBMLReaction;
+begin
+  strListRates := TStringList.Create;
+  rateAr := self.mainController.getModel.getSBMLmodelRules;
+  for i := 0 to length(rateAr) -1 do
+    begin
+    temp := '';
+    curVar := '';
+    if rateAr[i].isRate then
+      begin
+      temp := rateAr[i].getVariable + ' : ';
+      temp := temp + rateAr[i].getFormula;
+      strListRates.Add(temp);
+      end;
+
+    end;
+
+  rxnAr := self.mainController.getModel.getReactions;
+  for i := 0 to length(rxnAr) -1 do
+    begin
+    temp := '';
+    curVar := '';
+    temp := rxnAr[i].getID + ' : ';
+    temp := temp + rxnAr[i].getKineticLaw.getFormula;
+    strListRates.Add(temp);
+
+
+    end;
+  self.lbRateLaws.Items := strListRates;
+
+end;
+
 
 end.
