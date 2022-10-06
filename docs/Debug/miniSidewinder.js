@@ -101333,9 +101333,9 @@ rtl.module("ufMain",["System","SysUtils","Classes","Generics.Collections","strut
       this.mainController.setODESolver();
       this.SliderEditLB.SetVisible(false);
       this.currentGeneration = 0;
-      console.log('File?: ',location.search.substring(1));
+      // console.log('File?: ',location.search.substring(1));
       this.strFileInput = location.search.substring(1);
-      console.log(this.strFileInput);
+      window.console.log("File passed in: ",this.strFileInput);
       this.btnSimReset.SetVisible(true);
       this.btnSimReset.SetEnabled(false);
       this.mainController.addSBMLListener(rtl.createCallback(this,"PingSBMLLoaded"));
