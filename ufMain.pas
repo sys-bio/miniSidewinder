@@ -182,10 +182,11 @@ begin
   self.currentGeneration := 0;
 
   asm
-    console.log('File?: ',location.search.substring(1));
+   // console.log('File?: ',location.search.substring(1));
     this.strFileInput = location.search.substring(1);
-    console.log(this.strFileInput);
   end;
+
+  console.log('File passed in: ', self.strFileInput);
 
   self.btnSimReset.Visible := true;
   self.btnSimReset.Enabled := false;
