@@ -741,7 +741,7 @@ begin
   self.graphPanelList.Add( TGraphPanel.create(pnlPlot, plotPositionToAdd, yMax) );
   self.graphPanelList[plotPositionToAdd -1].setChartTimeInterval(self.stepSize);
   self.graphPanelList[plotPositionToAdd -1].OnEditGraphEvent := processGraphEvent;
-  newHeight := round( self.pnlPlot.Height/2 );  // default
+  newHeight := round( self.pnlPlot.Height );  // default
   if self.numbPlots > DEFAULT_NUMB_PLOTS then
   begin
     newHeight := round(self.pnlPlot.Height/self.numbPlots);
