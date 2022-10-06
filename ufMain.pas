@@ -75,6 +75,7 @@ type
     function  getPlotPBIndex(plotTag: integer): Integer;
     procedure setListBoxInitValues();
     procedure setListBoxRateLaws();
+    //procedure checkIfFilePassedIn(); // See if model file name is passed to form as a string
 
   public
     { Public declarations }
@@ -94,6 +95,9 @@ type
     sliderPHLabelAr: array of TWebLabel; // Displays sliderPHighAr
     sliderPLLabelAr: array of TWebLabel; // Displays sliderPLowAr
     sliderPTBLabelAr: array of TWebLabel;
+
+    strFileInput: string;  // File name that may be passed to form.
+
     // Displays slider param name and current value
     paramUpdated: Boolean; // true if a parameter has been updated.
     mainController: TControllerMain;
@@ -164,6 +168,7 @@ begin
 end;
 
 procedure TMainForm.WebFormCreate(Sender: TObject);
+
 begin
   self.numbPlots := 0;
   self.numbSliders := 0;
@@ -175,12 +180,20 @@ begin
   self.SliderEditLB.Visible := false;
  // self.saveSimResults := false;
   self.currentGeneration := 0;
+
+  asm
+    console.log('File?: ',location.search.substring(1));
+    this.strFileInput = location.search.substring(1);
+    console.log(this.strFileInput);
+  end;
+
   self.btnSimReset.Visible := true;
   self.btnSimReset.Enabled := false;
   self.mainController.addSBMLListener( @self.PingSBMLLoaded );
   self.mainController.addSimListener( @self.getVals ); // notify when new Sim results
 
 end;
+
 
 procedure TMainForm.initializePlots();
   var i: Integer;

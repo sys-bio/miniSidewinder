@@ -101290,6 +101290,7 @@ rtl.module("ufMain",["System","SysUtils","Classes","Generics.Collections","strut
       this.sliderPHLabelAr = [];
       this.sliderPLLabelAr = [];
       this.sliderPTBLabelAr = [];
+      this.strFileInput = "";
       this.paramUpdated = false;
       this.mainController = null;
     };
@@ -101332,6 +101333,9 @@ rtl.module("ufMain",["System","SysUtils","Classes","Generics.Collections","strut
       this.mainController.setODESolver();
       this.SliderEditLB.SetVisible(false);
       this.currentGeneration = 0;
+      console.log('File?: ',location.search.substring(1));
+      this.strFileInput = location.search.substring(1);
+      console.log(this.strFileInput);
       this.btnSimReset.SetVisible(true);
       this.btnSimReset.SetEnabled(false);
       this.mainController.addSBMLListener(rtl.createCallback(this,"PingSBMLLoaded"));
@@ -101709,7 +101713,7 @@ rtl.module("ufMain",["System","SysUtils","Classes","Generics.Collections","strut
       this.graphPanelList.Add(pas.uGraphPanel.TGraphPanel.$create("create$4",[this.pnlPlot,plotPositionToAdd,yMax]));
       this.graphPanelList.GetItem(plotPositionToAdd - 1).setChartTimeInterval(this.stepSize);
       this.graphPanelList.GetItem(plotPositionToAdd - 1).fEditGraphEvent = rtl.createCallback(this,"processGraphEvent");
-      newHeight = Math.round(this.pnlPlot.GetHeight() / 2);
+      newHeight = Math.round(this.pnlPlot.GetHeight());
       if (this.numbPlots > 1) {
         newHeight = Math.round(this.pnlPlot.GetHeight() / this.numbPlots);
       };
