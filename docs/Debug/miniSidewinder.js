@@ -101383,6 +101383,9 @@ rtl.module("ufMain",["System","SysUtils","Classes","Generics.Collections","strut
       this.deleteAllPlots();
       this.deleteAllSliders();
       this.resetBtnOnLineSim();
+      this.simStarted = false;
+      this.mainController.clearModel();
+      this.mainController.clearSim();
       this.btnSimReset.SetEnabled(false);
       this.mainController.loadSBML(AText);
     };
@@ -101871,7 +101874,7 @@ rtl.module("ufMain",["System","SysUtils","Classes","Generics.Collections","strut
     };
     this.deleteAllPlots = function () {
       var i = 0;
-      for (var $l = this.numbPlots - 1; $l >= 1; $l--) {
+      for (var $l = this.numbPlots - 1; $l >= 0; $l--) {
         i = $l;
         this.deletePlot(i);
       };
@@ -102029,24 +102032,11 @@ rtl.module("ufMain",["System","SysUtils","Classes","Generics.Collections","strut
       this.setListBoxRateLaws();
     };
     this.getVals = function (newTime, newVals) {
-      var dataStr = "";
       var i = 0;
-      var newValsAr = [];
       var currentStepSize = 0.0;
-      newValsAr = newVals.getValAr();
-      dataStr = "";
-      dataStr = pas.SysUtils.FloatToStrF(newTime,pas.SysUtils.TFloatFormat.ffFixed,4,4) + ", ";
-      for (var $l = 0, $end = rtl.length(newValsAr) - 1; $l <= $end; $l++) {
-        i = $l;
-        if (!pas.strutils.ContainsText(newVals.getNameVal(i).getId(),"_Null")) {
-          if (i === (rtl.length(newValsAr) - 1)) {
-            dataStr = dataStr + pas.SysUtils.FloatToStrF(newValsAr[i],pas.SysUtils.TFloatFormat.ffExponent,6,2)}
-           else dataStr = dataStr + pas.SysUtils.FloatToStrF(newValsAr[i],pas.SysUtils.TFloatFormat.ffExponent,6,2) + ", ";
-        };
-      };
       if (this.graphPanelList.FLength > 0) {
-        for (var $l1 = 0, $end1 = this.graphPanelList.FLength - 1; $l1 <= $end1; $l1++) {
-          i = $l1;
+        for (var $l = 0, $end = this.graphPanelList.FLength - 1; $l <= $end; $l++) {
+          i = $l;
           this.graphPanelList.GetItem(i).getVals(newTime,newVals);
         };
       };
