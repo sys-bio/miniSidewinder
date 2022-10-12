@@ -101048,9 +101048,13 @@ rtl.module("uGraphPanel",["System","SysUtils","Classes","WEBLib.Graphics","WEBLi
       } else if ($tmp === 3) {
         if (this.userChangeVarSeries) {
           this.notifyGraphEvent(this.FTag$1,1)}
-         else if (this.userDeleteGraph) this.notifyGraphEvent(this.FTag$1,0);
+         else if (this.userDeleteGraph) {
+          this.notifyGraphEvent(this.FTag$1,0)}
+         else this.lbEditGraph.$destroy("Destroy");
       } else if ($tmp === 4) {
-        if (this.userDeleteGraph) this.notifyGraphEvent(this.FTag$1,0)}
+        if (this.userDeleteGraph) {
+          this.notifyGraphEvent(this.FTag$1,0)}
+         else this.lbEditGraph.$destroy("Destroy")}
        else {
         this.lbEditGraph.$destroy("Destroy");
       };
@@ -101202,8 +101206,9 @@ rtl.module("uGraphPanel",["System","SysUtils","Classes","WEBLib.Graphics","WEBLi
     };
     this.setChartDelta = function (newDelta) {
       if (newDelta > 0) {
-        this.chart.SetDeltaX(newDelta)}
-       else window.console.log("TGraphPanel.setChartDelta value is not greater than zero");
+        this.timeDelta = newDelta;
+        if (this.chart !== null) this.chart.SetDeltaX(newDelta);
+      } else window.console.log("TGraphPanel.setChartDelta value is not greater than zero");
     };
     this.setChartWidth = function (newWidth) {
       if (newWidth <= this.GetWidth()) this.chart.SetWidth(newWidth);
@@ -101245,10 +101250,10 @@ rtl.module("uGraphPanel",["System","SysUtils","Classes","WEBLib.Graphics","WEBLi
     rtl.addIntf(this,pas.System.IUnknown);
   });
 });
-rtl.module("ufMain",["System","SysUtils","Classes","Generics.Collections","strutils","JS","Web","WEBLib.Graphics","WEBLib.Controls","WEBLib.Forms","WEBLib.Dialogs","WEBLib.Controls","WEBLib.ExtCtrls","WEBLib.StdCtrls","WEBLib.StdCtrls","uSimulation","uControllerMain","ufVarSelect","uParamSliderLayout","uSidewinderTypes","uGraphPanel","uModel","uSBMLClasses","uSBMLClasses.rule"],function () {
+rtl.module("ufMain",["System","SysUtils","Classes","Generics.Collections","strutils","JS","Web","WEBLib.Graphics","WEBLib.Controls","WEBLib.Forms","WEBLib.Dialogs","WEBLib.Controls","WEBLib.ExtCtrls","WEBLib.StdCtrls","WEBLib.StdCtrls","uSimulation","uControllerMain","ufVarSelect","uParamSliderLayout","uSidewinderTypes","uGraphPanel","uModel","uSBMLClasses","uSBMLClasses.rule","WEBLib.Menus","WEBLib.Menus"],function () {
   "use strict";
   var $mod = this;
-  this.SIDEWINDER_VERSION = "Version 0.1 alpha";
+  this.SIDEWINDER_VERSION = "Version 0.2 alpha";
   this.DEFAULT_RUNTIME = 10000;
   this.EDITBOX_HT = 25;
   this.ZOOM_SCALE = 20;
@@ -101272,6 +101277,8 @@ rtl.module("ufMain",["System","SysUtils","Classes","Generics.Collections","strut
       this.lbRateLaws = null;
       this.labelInitVals = null;
       this.labelRateLaws = null;
+      this.lblStepSize = null;
+      this.edtStepSize = null;
       this.numbPlots = 0;
       this.numbSliders = 0;
       this.stepSize = 0.0;
@@ -101308,6 +101315,8 @@ rtl.module("ufMain",["System","SysUtils","Classes","Generics.Collections","strut
       this.lbRateLaws = undefined;
       this.labelInitVals = undefined;
       this.labelRateLaws = undefined;
+      this.lblStepSize = undefined;
+      this.edtStepSize = undefined;
       this.fPlotSpecies = undefined;
       this.plotSpecies = undefined;
       this.graphPanelList = undefined;
@@ -101327,36 +101336,56 @@ rtl.module("ufMain",["System","SysUtils","Classes","Generics.Collections","strut
       this.numbPlots = 0;
       this.numbSliders = 0;
       this.stepSize = 0.1;
+      this.edtStepSize.SetText(pas.SysUtils.FloatToStr(this.stepSize * 1000));
       this.simStarted = false;
       this.mainController = pas.uControllerMain.TControllerMain.$create("Create$1");
       this.mainController.SetOnline(false);
       this.mainController.setODESolver();
       this.SliderEditLB.SetVisible(false);
       this.currentGeneration = 0;
-      // console.log('File?: ',location.search.substring(1));
       this.strFileInput = location.search.substring(1);
       window.console.log("File passed in: ",this.strFileInput);
       this.btnSimReset.SetVisible(true);
       this.btnSimReset.SetEnabled(false);
+      this.btnRunPause.SetEnabled(false);
+      this.enableStepSizeEdit();
       this.mainController.addSBMLListener(rtl.createCallback(this,"PingSBMLLoaded"));
       this.mainController.addSimListener(rtl.createCallback(this,"getVals"));
     };
     this.btnSimResetClick = function (Sender) {
-      this.resetSliderPositions();
-      this.mainController.createSimulation();
-      this.resetPlots();
-      this.simStarted = false;
-      this.currentGeneration = 0;
+      try {
+        this.resetSliderPositions();
+        this.enableStepSizeEdit();
+        this.mainController.createSimulation();
+        this.resetPlots();
+        this.simStarted = false;
+        this.currentGeneration = 0;
+      } catch ($e) {
+        if (pas.SysUtils.Exception.isPrototypeOf($e)) {
+          var E = $e;
+          pas.uSidewinderTypes.notifyUser("Error resetting simulation, refresh browser.");
+        } else throw $e
+      };
     };
     this.btnLoadModelClick = function (Sender) {
       this.SBMLOpenDialog.Execute();
     };
     this.btnRunPauseClick = function (Sender) {
-      if (this.mainController.IsOnline() === false) {
-        this.runSim()}
-       else {
-        this.stopSim();
-      };
+      if (this.mainController.IsModelLoaded()) {
+        try {
+          this.disableStepSizeEdit();
+          if (this.mainController.IsOnline() === false) {
+            this.runSim()}
+           else {
+            this.stopSim();
+          };
+        } catch ($e) {
+          if (pas.SysUtils.Exception.isPrototypeOf($e)) {
+            var E = $e;
+            pas.uSidewinderTypes.notifyUser(E.fMessage);
+          } else throw $e
+        };
+      } else pas.uSidewinderTypes.notifyUser("Model not loaded, please load model or refresh browser window.");
     };
     this.ParamSliderOnChange = function (Sender) {
       var i = 0;
@@ -101405,6 +101434,27 @@ rtl.module("ufMain",["System","SysUtils","Classes","Generics.Collections","strut
       this.SliderEditLB.FTag$1 = -1;
       this.SliderEditLB.SetVisible(false);
       this.SliderEditLB.SetTop(40);
+    };
+    this.edtStepSizeExit = function (Sender) {
+      var newStep = 0;
+      var dblNewStep = 0.0;
+      try {
+        dblNewStep = pas.SysUtils.StrToFloat(this.edtStepSize.GetText());
+        if (dblNewStep > 0) {
+          this.stepSize = dblNewStep * 0.001;
+          this.mainController.SetStepSize(this.stepSize);
+        } else pas.uSidewinderTypes.notifyUser("Step size must be a positive integer");
+      } catch ($e) {
+        if (pas.SysUtils.EConvertError.isPrototypeOf($e)) {
+          var Exception = $e;
+          pas.uSidewinderTypes.notifyUser("Step size must be a positive integer");
+        } else throw $e
+      };
+      if (this.mainController.IsModelLoaded()) {
+        this.mainController.createSimulation();
+        if (this.numbPlots > 0) this.resetPlots();
+        this.currentGeneration = 0;
+      };
     };
     this.initializePlots = function () {
       var i = 0;
@@ -101528,7 +101578,7 @@ rtl.module("ufMain",["System","SysUtils","Classes","Generics.Collections","strut
       var sliderXposition = 0;
       var sliderYposition = 0;
       var editList = null;
-      sliderXposition = 350;
+      sliderXposition = this.pnlParamSliders.GetLeft() + 10;
       sliderYposition = this.pnlSliderAr[sn].GetTop() + 10;
       editList = pas.Classes.TStringList.$create("Create$1");
       editList.Add("Change slider parameter.");
@@ -101626,8 +101676,10 @@ rtl.module("ufMain",["System","SysUtils","Classes","Generics.Collections","strut
     this.resetBtnOnLineSim = function () {
       this.btnRunPause.SetElementClassName("btn btn-primary btn-sm");
       this.btnRunPause.SetCaption("Start Simulation");
+      this.enableStepSizeEdit();
     };
     this.runSim = function () {
+      this.enableStepSizeEdit();
       if (this.simStarted === false) {
         this.setUpSimulationUI();
         this.btnRunPause.FFont.SetColor(32768);
@@ -101643,6 +101695,7 @@ rtl.module("ufMain",["System","SysUtils","Classes","Generics.Collections","strut
       if (this.mainController.IsModelLoaded()) {
         this.mainController.SetOnline(true);
         this.btnSimReset.SetEnabled(false);
+        this.disableStepSizeEdit();
         this.btnRunPause.FFont.SetColor(255);
         this.btnRunPause.SetElementClassName("btn btn-success btn-sm");
         this.btnRunPause.SetCaption("Simulation: Pause");
@@ -101655,6 +101708,7 @@ rtl.module("ufMain",["System","SysUtils","Classes","Generics.Collections","strut
     this.stopSim = function () {
       this.mainController.SetOnline(false);
       this.btnSimReset.SetEnabled(true);
+      this.enableStepSizeEdit();
       this.mainController.SetTimerEnabled(false);
       this.btnRunPause.FFont.SetColor(32768);
       this.btnRunPause.SetElementClassName("btn btn-danger btn-sm");
@@ -101729,6 +101783,7 @@ rtl.module("ufMain",["System","SysUtils","Classes","Generics.Collections","strut
       var i = 0;
       for (var $l = 0, $end = this.graphPanelList.FLength - 1; $l <= $end; $l++) {
         i = $l;
+        this.graphPanelList.GetItem(i).setChartDelta(this.stepSize);
         this.graphPanelList.GetItem(i).deleteChart();
         this.graphPanelList.GetItem(i).createChart();
         this.graphPanelList.GetItem(i).setupChart();
@@ -102014,6 +102069,20 @@ rtl.module("ufMain",["System","SysUtils","Classes","Generics.Collections","strut
       };
       this.lbRateLaws.SetItems(strListRates);
     };
+    this.enableStepSizeEdit = function () {
+      var Result = false;
+      this.lblStepSize.SetEnabled(true);
+      this.edtStepSize.SetEnabled(true);
+      Result = true;
+      return Result;
+    };
+    this.disableStepSizeEdit = function () {
+      var Result = false;
+      this.lblStepSize.SetEnabled(false);
+      this.edtStepSize.SetEnabled(false);
+      Result = true;
+      return Result;
+    };
     this.PingSBMLLoaded = function (newModel) {
       var errList = "";
       var i = 0;
@@ -102032,6 +102101,7 @@ rtl.module("ufMain",["System","SysUtils","Classes","Generics.Collections","strut
           pas.uSidewinderTypes.notifyUser(" SBML piecewise() function not supported at this time. Load a different SBML Model");
         };
       };
+      this.btnRunPause.SetEnabled(true);
       this.setListBoxInitValues();
       this.setListBoxRateLaws();
     };
@@ -102064,11 +102134,13 @@ rtl.module("ufMain",["System","SysUtils","Classes","Generics.Collections","strut
       this.lb_InitVals = pas["WEBLib.StdCtrls"].TListBox.$create("Create$1",[this]);
       this.lbRateLaws = pas["WEBLib.StdCtrls"].TListBox.$create("Create$1",[this]);
       this.pnlPlot = pas["WEBLib.ExtCtrls"].TPanel.$create("Create$1",[this]);
-      this.SliderEditLB = pas["WEBLib.StdCtrls"].TListBox.$create("Create$1",[this]);
       this.pnlParamSliders = pas["WEBLib.ExtCtrls"].TPanel.$create("Create$1",[this]);
+      this.SliderEditLB = pas["WEBLib.StdCtrls"].TListBox.$create("Create$1",[this]);
       this.pnlTop = pas["WEBLib.ExtCtrls"].TPanel.$create("Create$1",[this]);
+      this.lblStepSize = pas["WEBLib.StdCtrls"].TLabel.$create("Create$1",[this]);
       this.btnRunPause = pas["WEBLib.StdCtrls"].TButton.$create("Create$1",[this]);
       this.btnSimReset = pas["WEBLib.StdCtrls"].TButton.$create("Create$1",[this]);
+      this.edtStepSize = pas["WEBLib.StdCtrls"].TEdit.$create("Create$1",[this]);
       this.SBMLOpenDialog = pas["WEBLib.Dialogs"].TOpenDialog.$create("Create$1",[this]);
       this.pnlModelInfo.BeforeLoadDFMValues();
       this.labelInitVals.BeforeLoadDFMValues();
@@ -102077,11 +102149,13 @@ rtl.module("ufMain",["System","SysUtils","Classes","Generics.Collections","strut
       this.lb_InitVals.BeforeLoadDFMValues();
       this.lbRateLaws.BeforeLoadDFMValues();
       this.pnlPlot.BeforeLoadDFMValues();
-      this.SliderEditLB.BeforeLoadDFMValues();
       this.pnlParamSliders.BeforeLoadDFMValues();
+      this.SliderEditLB.BeforeLoadDFMValues();
       this.pnlTop.BeforeLoadDFMValues();
+      this.lblStepSize.BeforeLoadDFMValues();
       this.btnRunPause.BeforeLoadDFMValues();
       this.btnSimReset.BeforeLoadDFMValues();
+      this.edtStepSize.BeforeLoadDFMValues();
       this.SBMLOpenDialog.BeforeLoadDFMValues();
       try {
         this.SetName("MainForm");
@@ -102159,13 +102233,21 @@ rtl.module("ufMain",["System","SysUtils","Classes","Generics.Collections","strut
         this.pnlPlot.SetName("pnlPlot");
         this.pnlPlot.SetLeft(241);
         this.pnlPlot.SetTop(60);
-        this.pnlPlot.SetWidth(436);
+        this.pnlPlot.SetWidth(364);
         this.pnlPlot.SetHeight(633);
         this.pnlPlot.SetAlign(pas["WEBLib.Controls"].TAlign.alClient);
         this.pnlPlot.SetChildOrderEx(1);
-        this.SliderEditLB.SetParentComponent(this.pnlPlot);
+        this.pnlParamSliders.SetParentComponent(this);
+        this.pnlParamSliders.SetName("pnlParamSliders");
+        this.pnlParamSliders.SetLeft(605);
+        this.pnlParamSliders.SetTop(60);
+        this.pnlParamSliders.SetWidth(260);
+        this.pnlParamSliders.SetHeight(633);
+        this.pnlParamSliders.SetAlign(pas["WEBLib.Controls"].TAlign.alRight);
+        this.pnlParamSliders.SetChildOrderEx(2);
+        this.SliderEditLB.SetParentComponent(this.pnlParamSliders);
         this.SliderEditLB.SetName("SliderEditLB");
-        this.SliderEditLB.SetLeft(328);
+        this.SliderEditLB.SetLeft(139);
         this.SliderEditLB.SetTop(264);
         this.SliderEditLB.SetWidth(121);
         this.SliderEditLB.SetHeight(97);
@@ -102174,14 +102256,6 @@ rtl.module("ufMain",["System","SysUtils","Classes","Generics.Collections","strut
         this.SliderEditLB.SetWidthPercent(100.000000000000000000);
         this.SetEvent$1(this.SliderEditLB,this,"OnClick","SliderEditLBClick");
         this.SliderEditLB.SetItemIndex(-1);
-        this.pnlParamSliders.SetParentComponent(this);
-        this.pnlParamSliders.SetName("pnlParamSliders");
-        this.pnlParamSliders.SetLeft(677);
-        this.pnlParamSliders.SetTop(60);
-        this.pnlParamSliders.SetWidth(188);
-        this.pnlParamSliders.SetHeight(633);
-        this.pnlParamSliders.SetAlign(pas["WEBLib.Controls"].TAlign.alRight);
-        this.pnlParamSliders.SetChildOrderEx(2);
         this.pnlTop.SetParentComponent(this);
         this.pnlTop.SetName("pnlTop");
         this.pnlTop.SetLeft(0);
@@ -102190,9 +102264,18 @@ rtl.module("ufMain",["System","SysUtils","Classes","Generics.Collections","strut
         this.pnlTop.SetHeight(60);
         this.pnlTop.SetAlign(pas["WEBLib.Controls"].TAlign.alTop);
         this.pnlTop.SetChildOrderEx(3);
+        this.lblStepSize.SetParentComponent(this.pnlTop);
+        this.lblStepSize.SetName("lblStepSize");
+        this.lblStepSize.SetLeft(501);
+        this.lblStepSize.SetTop(21);
+        this.lblStepSize.SetWidth(72);
+        this.lblStepSize.SetHeight(13);
+        this.lblStepSize.SetCaption("Step Size (ms):");
+        this.lblStepSize.SetHeightPercent(100.000000000000000000);
+        this.lblStepSize.SetWidthPercent(100.000000000000000000);
         this.btnRunPause.SetParentComponent(this.pnlTop);
         this.btnRunPause.SetName("btnRunPause");
-        this.btnRunPause.SetLeft(241);
+        this.btnRunPause.SetLeft(177);
         this.btnRunPause.SetTop(16);
         this.btnRunPause.SetWidth(128);
         this.btnRunPause.SetHeight(25);
@@ -102202,7 +102285,7 @@ rtl.module("ufMain",["System","SysUtils","Classes","Generics.Collections","strut
         this.SetEvent$1(this.btnRunPause,this,"OnClick","btnRunPauseClick");
         this.btnSimReset.SetParentComponent(this.pnlTop);
         this.btnSimReset.SetName("btnSimReset");
-        this.btnSimReset.SetLeft(624);
+        this.btnSimReset.SetLeft(376);
         this.btnSimReset.SetTop(16);
         this.btnSimReset.SetWidth(96);
         this.btnSimReset.SetHeight(25);
@@ -102211,6 +102294,19 @@ rtl.module("ufMain",["System","SysUtils","Classes","Generics.Collections","strut
         this.btnSimReset.SetHeightPercent(100.000000000000000000);
         this.btnSimReset.SetWidthPercent(100.000000000000000000);
         this.SetEvent$1(this.btnSimReset,this,"OnClick","btnSimResetClick");
+        this.edtStepSize.SetParentComponent(this.pnlTop);
+        this.edtStepSize.SetName("edtStepSize");
+        this.edtStepSize.SetLeft(579);
+        this.edtStepSize.SetTop(18);
+        this.edtStepSize.SetWidth(65);
+        this.edtStepSize.SetHeight(22);
+        this.edtStepSize.SetHint("Change step size for integrator.");
+        this.edtStepSize.SetChildOrderEx(3);
+        this.edtStepSize.SetHeightPercent(100.000000000000000000);
+        this.edtStepSize.SetShowHint(true);
+        this.edtStepSize.SetText("100");
+        this.edtStepSize.SetWidthPercent(100.000000000000000000);
+        this.SetEvent$1(this.edtStepSize,this,"OnExit","edtStepSizeExit");
         this.SBMLOpenDialog.SetParentComponent(this);
         this.SBMLOpenDialog.SetName("SBMLOpenDialog");
         this.SetEvent$1(this.SBMLOpenDialog,this,"OnChange","SBMLOpenDialogChange");
@@ -102225,11 +102321,13 @@ rtl.module("ufMain",["System","SysUtils","Classes","Generics.Collections","strut
         this.lb_InitVals.AfterLoadDFMValues();
         this.lbRateLaws.AfterLoadDFMValues();
         this.pnlPlot.AfterLoadDFMValues();
-        this.SliderEditLB.AfterLoadDFMValues();
         this.pnlParamSliders.AfterLoadDFMValues();
+        this.SliderEditLB.AfterLoadDFMValues();
         this.pnlTop.AfterLoadDFMValues();
+        this.lblStepSize.AfterLoadDFMValues();
         this.btnRunPause.AfterLoadDFMValues();
         this.btnSimReset.AfterLoadDFMValues();
+        this.edtStepSize.AfterLoadDFMValues();
         this.SBMLOpenDialog.AfterLoadDFMValues();
       };
     };
@@ -102248,6 +102346,8 @@ rtl.module("ufMain",["System","SysUtils","Classes","Generics.Collections","strut
     $r.addField("lbRateLaws",pas["WEBLib.StdCtrls"].$rtti["TListBox"]);
     $r.addField("labelInitVals",pas["WEBLib.StdCtrls"].$rtti["TLabel"]);
     $r.addField("labelRateLaws",pas["WEBLib.StdCtrls"].$rtti["TLabel"]);
+    $r.addField("lblStepSize",pas["WEBLib.StdCtrls"].$rtti["TLabel"]);
+    $r.addField("edtStepSize",pas["WEBLib.StdCtrls"].$rtti["TEdit"]);
     $r.addMethod("WebFormCreate",0,[["Sender",pas.System.$rtti["TObject"]]]);
     $r.addMethod("btnSimResetClick",0,[["Sender",pas.System.$rtti["TObject"]]]);
     $r.addMethod("btnLoadModelClick",0,[["Sender",pas.System.$rtti["TObject"]]]);
@@ -102256,6 +102356,7 @@ rtl.module("ufMain",["System","SysUtils","Classes","Generics.Collections","strut
     $r.addMethod("SBMLOpenDialogChange",0,[["Sender",pas.System.$rtti["TObject"]]]);
     $r.addMethod("SBMLOpenDialogGetFileAsText",0,[["Sender",pas.System.$rtti["TObject"]],["AFileIndex",rtl.longint],["AText",rtl.string]]);
     $r.addMethod("SliderEditLBClick",0,[["Sender",pas.System.$rtti["TObject"]]]);
+    $r.addMethod("edtStepSizeExit",0,[["Sender",pas.System.$rtti["TObject"]]]);
     $mod.$rtti.$DynArray("TMainForm.sliderParamAr$a",{eltype: rtl.longint});
     $mod.$rtti.$DynArray("TMainForm.pnlSliderAr$a",{eltype: pas["WEBLib.ExtCtrls"].$rtti["TPanel"]});
     $mod.$rtti.$DynArray("TMainForm.sliderPHighAr$a",{eltype: rtl.double});
