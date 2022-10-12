@@ -75,6 +75,7 @@ type
     function  getPlotPBIndex(plotTag: integer): Integer;
     procedure setListBoxInitValues();
     procedure setListBoxRateLaws();
+    //procedure checkIfFilePassedIn(); // See if model file name is passed to form as a string
 
   public
     { Public declarations }
@@ -94,6 +95,9 @@ type
     sliderPHLabelAr: array of TWebLabel; // Displays sliderPHighAr
     sliderPLLabelAr: array of TWebLabel; // Displays sliderPLowAr
     sliderPTBLabelAr: array of TWebLabel;
+
+    strFileInput: string;  // File name that may be passed to form.
+
     // Displays slider param name and current value
     paramUpdated: Boolean; // true if a parameter has been updated.
     mainController: TControllerMain;
@@ -170,12 +174,18 @@ begin
   self.deleteAllSliders;
   self.resetBtnOnLineSim;
 
+  self.simStarted := false;
+  self.mainController.clearModel;
+  self.mainController.clearSim;
+ //self.btnResetSimSpecies.enabled := false;
+
  // self.btnParamReset.enabled := false;
   self.btnSimReset.enabled := false;
   self.MainController.loadSBML(AText);
 end;
 
 procedure TMainForm.WebFormCreate(Sender: TObject);
+
 begin
   self.numbPlots := 0;
   self.numbSliders := 0;
@@ -187,6 +197,14 @@ begin
   self.SliderEditLB.Visible := false;
  // self.saveSimResults := false;
   self.currentGeneration := 0;
+
+  asm
+   // console.log('File?: ',location.search.substring(1));
+    this.strFileInput = location.search.substring(1);
+  end;
+
+  console.log('File passed in: ', self.strFileInput);
+
   self.btnSimReset.Visible := true;
   self.btnSimReset.Enabled := false;
   self.btnRunPause.Enabled := false;
@@ -194,6 +212,7 @@ begin
   self.mainController.addSimListener( @self.getVals ); // notify when new Sim results
 
 end;
+
 
 procedure TMainForm.initializePlots();
   var i: Integer;
@@ -744,7 +763,7 @@ begin
   self.graphPanelList.Add( TGraphPanel.create(pnlPlot, plotPositionToAdd, yMax) );
   self.graphPanelList[plotPositionToAdd -1].setChartTimeInterval(self.stepSize);
   self.graphPanelList[plotPositionToAdd -1].OnEditGraphEvent := processGraphEvent;
-  newHeight := round( self.pnlPlot.Height/2 );  // default
+  newHeight := round( self.pnlPlot.Height );  // default
   if self.numbPlots > DEFAULT_NUMB_PLOTS then
   begin
     newHeight := round(self.pnlPlot.Height/self.numbPlots);
@@ -913,7 +932,7 @@ end;
 procedure TMainForm.deleteAllPlots();
 var i: integer;
 begin
-  for i := self.numbPlots - 1 downto 1 do
+  for i := self.numbPlots - 1 downto 0 {1} do
     self.deletePlot(i);
   self.pnlPlot.Invalidate;
 end;
@@ -1036,15 +1055,15 @@ end;
 // Get new values (species amt) from simulation run (ODE integrator)
 procedure TMainForm.getVals( newTime: Double; newVals: TVarNameValList );
 var
-  dataStr: String;
+//  dataStr: String;
   i: Integer;
-  newValsAr: array of double;
+ // newValsAr: array of double;
   currentStepSize:double;
 begin
   // Update table of data;
-  newValsAr := newVals.getValAr;
-  dataStr := '';
-  dataStr := floatToStrf(newTime, ffFixed, 4, 4) + ', ';
+ // newValsAr := newVals.getValAr;
+//  dataStr := '';
+ { dataStr := floatToStrf(newTime, ffFixed, 4, 4) + ', ';
   for i := 0 to length(newValsAr) - 1 do
     begin
       if not containsText(newVals.getNameVal(i).getId, '_Null') then // do not show null nodes
@@ -1054,10 +1073,10 @@ begin
         else
           dataStr := dataStr + floatToStrf(newValsAr[i], ffExponent, 6, 2) + ', ';
         end;
-    end;
+    end;  }
  // simResultsMemo.Lines.Add(dataStr);  Not used
-  // Update plots:
 
+  // Update plots:
   if self.graphPanelList.count > 0 then
     begin
     for i := 0  to self.graphPanelList.count -1 do
