@@ -72,12 +72,22 @@ object MainForm: TMainForm
   object pnlPlot: TWebPanel
     Left = 241
     Top = 60
-    Width = 436
+    Width = 364
     Height = 633
     Align = alClient
     ChildOrder = 1
+    ExplicitWidth = 436
+  end
+  object pnlParamSliders: TWebPanel
+    Left = 605
+    Top = 60
+    Width = 260
+    Height = 633
+    Align = alRight
+    ChildOrder = 2
+    ExplicitLeft = 608
     object SliderEditLB: TWebListBox
-      Left = 328
+      Left = 139
       Top = 264
       Width = 121
       Height = 97
@@ -88,14 +98,6 @@ object MainForm: TMainForm
       ItemIndex = -1
     end
   end
-  object pnlParamSliders: TWebPanel
-    Left = 677
-    Top = 60
-    Width = 188
-    Height = 633
-    Align = alRight
-    ChildOrder = 2
-  end
   object pnlTop: TWebPanel
     Left = 0
     Top = 0
@@ -103,8 +105,17 @@ object MainForm: TMainForm
     Height = 60
     Align = alTop
     ChildOrder = 3
+    object lblStepSize: TWebLabel
+      Left = 501
+      Top = 21
+      Width = 72
+      Height = 13
+      Caption = 'Step Size (ms):'
+      HeightPercent = 100.000000000000000000
+      WidthPercent = 100.000000000000000000
+    end
     object btnRunPause: TWebButton
-      Left = 241
+      Left = 177
       Top = 16
       Width = 128
       Height = 25
@@ -114,7 +125,7 @@ object MainForm: TMainForm
       OnClick = btnRunPauseClick
     end
     object btnSimReset: TWebButton
-      Left = 624
+      Left = 376
       Top = 16
       Width = 96
       Height = 25
@@ -123,6 +134,19 @@ object MainForm: TMainForm
       HeightPercent = 100.000000000000000000
       WidthPercent = 100.000000000000000000
       OnClick = btnSimResetClick
+    end
+    object edtStepSize: TWebEdit
+      Left = 579
+      Top = 18
+      Width = 65
+      Height = 22
+      Hint = 'Change step size for integrator.'
+      ChildOrder = 3
+      HeightPercent = 100.000000000000000000
+      ShowHint = True
+      Text = '100'
+      WidthPercent = 100.000000000000000000
+      OnExit = edtStepSizeExit
     end
   end
   object SBMLOpenDialog: TWebOpenDialog

@@ -7,7 +7,7 @@ uses
   JS, Web, WEBLib.Graphics, WEBLib.Controls, WEBLib.Forms, WEBLib.Dialogs,
   Vcl.Controls, WEBLib.ExtCtrls, Vcl.StdCtrls, WEBLib.StdCtrls, uSimulation,
   uControllerMain, ufVarSelect, uParamSliderLayout, uSidewinderTypes, uGraphPanel,
-  uModel, uSBMLClasses, uSBMLClasses.rule;
+  uModel, uSBMLClasses, uSBMLClasses.rule, Vcl.Menus, WEBLib.Menus;
 
 const SIDEWINDER_VERSION = 'Version 0.2 alpha';
       DEFAULT_RUNTIME = 10000;
@@ -32,6 +32,8 @@ type
     lbRateLaws: TWebListBox;
     labelInitVals: TWebLabel;
     labelRateLaws: TWebLabel;
+    lblStepSize: TWebLabel;
+    edtStepSize: TWebEdit;
     procedure WebFormCreate(Sender: TObject);
     procedure btnSimResetClick(Sender: TObject);
     procedure btnLoadModelClick(Sender: TObject);
@@ -40,12 +42,14 @@ type
     procedure SBMLOpenDialogChange(Sender: TObject);
     procedure SBMLOpenDialogGetFileAsText(Sender: TObject; AFileIndex: Integer;
       AText: string);
-    procedure SliderEditLBClick(Sender: TObject); // need trackbar ?
+    procedure SliderEditLBClick(Sender: TObject);
+    procedure edtStepSizeExit(Sender: TObject); // need trackbar ?
   private
     numbPlots: Integer; // Number of plots displayed
     numbSliders: Integer; // Number of parameter sliders
     stepSize: double; // default is 0.1
 
+    //popUpSliderEdit: TWebPopUpMenu;
     procedure initializePlots();
     procedure initializePlot( n: integer);
     procedure addParamSlider();
@@ -75,6 +79,8 @@ type
     function  getPlotPBIndex(plotTag: integer): Integer;
     procedure setListBoxInitValues();
     procedure setListBoxRateLaws();
+    function  enableStepSizeEdit(): boolean; // true: success
+    function  disableStepSizeEdit(): boolean; // true: success
     //procedure checkIfFilePassedIn(); // See if model file name is passed to form as a string
 
   public
@@ -123,6 +129,7 @@ begin
   if self.MainController.IsModelLoaded then
   begin
     try
+      self.disableStepSizeEdit;
       if MainController.isOnline = false then
         self.runSim
       else  // stop simulation
@@ -142,7 +149,7 @@ procedure TMainForm.btnSimResetClick(Sender: TObject);
 begin
   try
   self.resetSliderPositions();
-//  self.enableStepSizeEdit;
+  self.enableStepSizeEdit;
   self.mainController.createSimulation();
  // self.initializePlots;
   self.resetPlots;
@@ -190,6 +197,7 @@ begin
   self.numbPlots := 0;
   self.numbSliders := 0;
   self.stepSize := 0.1;
+  self.edtStepSize.Text := floatToStr(self.stepSize * 1000);
   self.simStarted := false;
   self.mainController := TControllerMain.Create();
   self.mainController.setOnline(false);
@@ -199,7 +207,6 @@ begin
   self.currentGeneration := 0;
 
   asm
-   // console.log('File?: ',location.search.substring(1));
     this.strFileInput = location.search.substring(1);
   end;
 
@@ -208,6 +215,7 @@ begin
   self.btnSimReset.Visible := true;
   self.btnSimReset.Enabled := false;
   self.btnRunPause.Enabled := false;
+  self.enableStepSizeEdit;
   self.mainController.addSBMLListener( @self.PingSBMLLoaded );
   self.mainController.addSimListener( @self.getVals ); // notify when new Sim results
 
@@ -473,7 +481,7 @@ begin
   self.btnRunPause.caption := 'Start Simulation';
  // self.btnAddPlot.Enabled := false;
  // self.btnParamAddSlider.Enabled := false;
- // self.enableStepSizeEdit;
+  self.enableStepSizeEdit;
 
 end;
 
@@ -522,7 +530,7 @@ end;
 begin
  // self.btnAddPlot.Enabled := true;
 //  self.btnParamAddSlider.Enabled := true;
- // self.enableStepSizeEdit;
+    self.enableStepSizeEdit;
     if self.simStarted = false then
  // if self.networkUpdated = true then
       begin
@@ -554,7 +562,7 @@ begin
 	   // self.btnResetSimSpecies.Enabled := false;
      // self.btnParamReset.Enabled := false;
       self.btnSimReset.Enabled := false;
-     // self.disableStepSizeEdit;
+      self.disableStepSizeEdit;
       self.btnRunPause.font.color := clred;
       self.btnRunPause.ElementClassName := 'btn btn-success btn-sm';
       self.btnRunPause.caption := 'Simulation: Pause';
@@ -582,7 +590,7 @@ begin
   // self.btnResetSimSpecies.Enabled := true;
   // self.btnParamReset.Enabled := true;
    self.btnSimReset.Enabled := true;
- //  self.enableStepSizeEdit;
+   self.enableStepSizeEdit;
    self.MainController.SetTimerEnabled(false); // Turn off web timer (Stop simulation)
    self.btnRunPause.font.color := clgreen;
    self.btnRunPause.ElementClassName := 'btn btn-danger btn-sm';
@@ -784,6 +792,7 @@ procedure TMainForm.resetPlots();  // Reset plots for new simulation.
 begin // Easier to just delete/create than reset time, xaxis labels, etc.
   for i := 0 to self.graphPanelList.Count -1 do
     begin
+    self.graphPanelList[i].setChartDelta(self.stepSize); //Added
     self.graphPanelList[i].deleteChart;
     self.graphPanelList[i].createChart;
     self.graphPanelList[i].setupChart;
@@ -967,7 +976,7 @@ var
   sliderXposition, sliderYposition: Integer;
   editList: TStringList;
 begin
-  sliderXposition := 350;
+  sliderXposition := self.pnlParamSliders.Left + 10; // needs parent to be self.pnlSliderAr[sn]
   sliderYposition := self.pnlSliderAr[sn].Top + 10;
   editList := TStringList.create();
   editList.Add('Change slider parameter.');
@@ -980,6 +989,34 @@ begin
   self.SliderEditLB.bringToFront;
   self.SliderEditLB.visible := true;
 
+end;
+
+procedure TMainForm.edtStepSizeExit(Sender: TObject);
+var newStep: integer;
+    dblNewStep: double;
+begin
+  try
+    dblNewStep := strToFloat(self.edtStepSize.Text);
+    if dblNewStep >0 then
+      begin
+      self.stepSize := dblNewStep * 0.001;
+      self.mainController.SetStepSize(self.stepSize);
+      end
+    else notifyUser ('Step size must be a positive integer');
+
+  except
+       on Exception: EConvertError do
+         notifyUser ('Step size must be a positive integer');
+  end;
+
+  if self.mainController.IsModelLoaded then
+  begin
+    self.mainController.createSimulation();
+    if self.numbPlots >0 then
+      //self.initializePlots;
+      self.resetPlots;
+    self.currentGeneration := 0;
+  end;
 end;
 
 procedure TMainForm.clearSlider(sn: Integer); // sn: slider index
@@ -1209,6 +1246,20 @@ begin
 
     end;
   self.lbRateLaws.Items := strListRates;
+
+end;
+
+function TMainForm.enableStepSizeEdit(): boolean; // true: success
+begin
+  self.lblStepSize.Enabled := true;
+  self.edtStepSize.Enabled := true;
+  Result := true;
+end;
+function TMainForm.disableStepSizeEdit(): boolean;// true: success
+begin
+  self.lblstepSize.Enabled := false;
+  self.edtStepSize.Enabled := false;
+  Result := true;
 
 end;
 
