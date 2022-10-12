@@ -2,6 +2,21 @@
 
 <head>
     <title>Mini Sidewinder Demo v0.10</title>
+	
+	<style>
+body {
+  background-color: linen;
+
+}
+
+#sidewinderFrame {
+        border: 3px line;
+        width: 95%;
+        height: 95%;
+		overflow-y:scroll;
+    }
+
+	</style
 </head>
 <body>
 <p>
@@ -9,8 +24,7 @@ Below is miniSidewinder demo. Load your SBML model and go.
  <p>
     
     
-<iframe src="Debug/index.html?test.xml" style="height:500px;width:800px;" title="miniSidewinder Simulation"></iframe>
+<iframe id='sidewinderFrame' src="Debug/index.html?test.xml" title="miniSidewinder Simulation"> </iframe>
 </body>
-
 
 </html>
