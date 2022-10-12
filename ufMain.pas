@@ -9,7 +9,7 @@ uses
   uControllerMain, ufVarSelect, uParamSliderLayout, uSidewinderTypes, uGraphPanel,
   uModel, uSBMLClasses, uSBMLClasses.rule;
 
-const SIDEWINDER_VERSION = 'Version 0.1 alpha';
+const SIDEWINDER_VERSION = 'Version 0.2 alpha';
       DEFAULT_RUNTIME = 10000;
       EDITBOX_HT = 25;
       ZOOM_SCALE = 20;
@@ -116,17 +116,27 @@ end;
 
 procedure TMainForm.btnRunPauseClick(Sender: TObject);
 begin
-  if MainController.isOnline = false then
-   self.runSim
- else  // stop simulation
-   begin
-   self.stopSim;
+  if self.MainController.IsModelLoaded then
+  begin
+    try
+      if MainController.isOnline = false then
+        self.runSim
+      else  // stop simulation
+        begin
+        self.stopSim;
  //  self.btnAddPlot.Enabled := true;
-   end;
+        end;
+    except
+      on E: Exception do
+        notifyUser(E.Message);
+    end;
+  end
+  else notifyUser('Model not loaded, please load model or refresh browser window.');
 end;
 
 procedure TMainForm.btnSimResetClick(Sender: TObject);
 begin
+  try
   self.resetSliderPositions();
 //  self.enableStepSizeEdit;
   self.mainController.createSimulation();
@@ -134,6 +144,11 @@ begin
   self.resetPlots;
   self.simStarted := false;
   self.currentGeneration := 0;
+  except
+    on E: Exception do
+      notifyUser('Error resetting simulation, refresh browser.');
+
+  end;
 end;
 
 procedure TMainForm.SBMLOpenDialogChange(Sender: TObject);
@@ -154,7 +169,7 @@ begin
   self.deleteAllPlots;
   self.deleteAllSliders;
   self.resetBtnOnLineSim;
-  //self.btnResetSimSpecies.enabled := false;
+
  // self.btnParamReset.enabled := false;
   self.btnSimReset.enabled := false;
   self.MainController.loadSBML(AText);
@@ -174,6 +189,7 @@ begin
   self.currentGeneration := 0;
   self.btnSimReset.Visible := true;
   self.btnSimReset.Enabled := false;
+  self.btnRunPause.Enabled := false;
   self.mainController.addSBMLListener( @self.PingSBMLLoaded );
   self.mainController.addSimListener( @self.getVals ); // notify when new Sim results
 
@@ -658,19 +674,11 @@ begin
       //clearNetwork();
       end
   end;
- { if assigned(newModel.getSBMLLayout) then  // may want try/catch for layout not existing
-    begin
-    if newModel.getSBMLLayout <> nil then
-      begin
-      self.networkPB1.Width := trunc(newModel.getSBMLLayout.getDims.getWidth);
-      self.networkPB1.Height := trunc(newModel.getSBMLLayout.getDims.getHeight);
-      end;
-    end;   }
+
+  self.btnRunPause.Enabled := true;
   self.setListBoxInitValues;
   self.setListBoxRateLaws;
-   // Loading new sbml model changes reaction network.
- // self.networkPB1.invalidate;
- // self.networkUpdated := true;
+ 
 end;
 
 procedure TMainForm.addPlotAll(); // add plot with all species
@@ -681,7 +689,6 @@ begin
   if self.plotSpecies = nil then
     self.plotSpecies := TList<TSpeciesList>.create;
   self.plotSpecies.Add(TSpeciesList.create);
-  //self.numbPlots := self.numbPlots + 1;
   numSpeciesToPlot := length(self.mainController.getModel.getS_Names);
   if numSpeciesToPlot > 8 then numSpeciesToPlot := 8;
 
@@ -709,7 +716,6 @@ begin
     begin
       if numSpeciesToPlot < (i +1) then
         begin
-        //self.plotSpecies[self.numbPlots - 1].Add('');
         self.plotSpecies[self.numbPlots].Add('');
         end;
     end;
@@ -849,13 +855,6 @@ procedure TMainForm.selectPlotSpecies(plotnumb: Integer);
      curStr: string;
   begin
     lgth := 0;
-   // TODO: Need Additional (non default) plots to allow plotting of boundary species.
-   //  Need to look at plots, as new data is only plotted for species, change plot species array to handle boundary species.
-   // --> So check if plot # > 1:  if self.plotsPanelList.Count > 0 then
-   //     add any BC species to list to plot for user to chose.
-   // TModel.getSBML_BC_SpeciesAr()
-   // TModel.getSBMLFloatSpeciesAr()
-   // TModel.getModel.getSBMLspeciesAr() : All species
 
     for i := 0 to length(self.mainController.getModel.getS_Names) -1 do
     begin
