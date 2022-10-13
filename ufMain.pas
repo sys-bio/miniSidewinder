@@ -7,7 +7,9 @@ uses
   JS, Web, WEBLib.Graphics, WEBLib.Controls, WEBLib.Forms, WEBLib.Dialogs,
   Vcl.Controls, WEBLib.ExtCtrls, Vcl.StdCtrls, WEBLib.StdCtrls, uSimulation,
   uControllerMain, ufVarSelect, uParamSliderLayout, uSidewinderTypes, uGraphPanel,
-  uModel, uSBMLClasses, uSBMLClasses.rule, Vcl.Menus, WEBLib.Menus;
+  uModel, uSBMLClasses, uSBMLClasses.rule{, Vcl.Menus, WEBLib.Menus},
+  VCL.TMSFNCTypes, VCL.TMSFNCUtils, VCL.TMSFNCGraphics, VCL.TMSFNCGraphicsTypes,
+  VCL.TMSFNCCustomControl, VCL.TMSFNCScrollBar;
 
 const SIDEWINDER_VERSION = 'Version 0.2 alpha';
       DEFAULT_RUNTIME = 10000;
@@ -34,6 +36,7 @@ type
     labelRateLaws: TWebLabel;
     lblStepSize: TWebLabel;
     edtStepSize: TWebEdit;
+    TMSFNCScrollBar1: TTMSFNCScrollBar;
     procedure WebFormCreate(Sender: TObject);
     procedure btnSimResetClick(Sender: TObject);
     procedure btnLoadModelClick(Sender: TObject);
@@ -374,7 +377,7 @@ begin
     end;
 end;
 
-procedure TMainForm.ParamSliderOnChange(Sender: TObject);
+procedure TMainForm.ParamSliderOnChange(Sender: TObject);  // pass this in to upnlParamSlider.OnChange
 var
   i, p: Integer;
   newPVal: double;
@@ -404,7 +407,7 @@ begin
     end;
 end;
 
-// Select parameter to use for slider
+// Select parameter to use for slider  : pass this method to upnlParamSlider.onMouseClick
 procedure TMainForm.selectParameter(sNumb: Integer); // snumb is slider index
 var
   paramIndex: Integer; // param chosen in radiogroup

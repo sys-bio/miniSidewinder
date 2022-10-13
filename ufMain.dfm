@@ -72,20 +72,20 @@ object MainForm: TMainForm
   object pnlPlot: TWebPanel
     Left = 241
     Top = 60
-    Width = 364
+    Width = 365
     Height = 633
     Align = alClient
     ChildOrder = 1
-    ExplicitWidth = 436
+    ExplicitWidth = 364
   end
   object pnlParamSliders: TWebPanel
-    Left = 605
+    Left = 606
     Top = 60
-    Width = 260
+    Width = 243
     Height = 633
     Align = alRight
     ChildOrder = 2
-    ExplicitLeft = 608
+    ExplicitLeft = 600
     object SliderEditLB: TWebListBox
       Left = 139
       Top = 264
@@ -148,6 +148,47 @@ object MainForm: TMainForm
       WidthPercent = 100.000000000000000000
       OnExit = edtStepSizeExit
     end
+  end
+  object TMSFNCScrollBar1: TTMSFNCScrollBar
+    Left = 849
+    Top = 60
+    Width = 16
+    Height = 633
+    Align = alRight
+    ParentDoubleBuffered = False
+    Color = 15592941
+    DoubleBuffered = True
+    TabOrder = 4
+    Fill.Color = 15592941
+    Stroke.Color = 8882055
+    Appearance.ThumbFill.Color = 14803425
+    Appearance.ScrollButtonLeftFill.Color = 14803425
+    Appearance.ScrollButtonRightFill.Color = 14803425
+    Appearance.ScrollButtonLeftHoverFill.Color = 16511461
+    Appearance.ScrollButtonRightHoverFill.Color = 16511461
+    Appearance.ScrollButtonLeftDownFill.Color = 16378843
+    Appearance.ScrollButtonRightDownFill.Color = 16378843
+    Appearance.ThumbButtonLeftFill.Color = 14803425
+    Appearance.ThumbButtonRightFill.Color = 14803425
+    Appearance.ThumbButtonLeftHoverFill.Color = 16511461
+    Appearance.ThumbButtonRightHoverFill.Color = 16511461
+    Appearance.ThumbButtonLeftDownFill.Color = 16378843
+    Appearance.ThumbButtonRightDownFill.Color = 16378843
+    Appearance.ThumbStroke.Color = 8882055
+    Appearance.ScrollButtonLeftStroke.Color = 8882055
+    Appearance.ScrollButtonRightStroke.Color = 8882055
+    Appearance.ScrollButtonLeftHoverStroke.Color = 11632444
+    Appearance.ScrollButtonRightHoverStroke.Color = 11632444
+    Appearance.ScrollButtonLeftDownStroke.Color = 11632444
+    Appearance.ScrollButtonRightDownStroke.Color = 11632444
+    Appearance.ThumbButtonLeftStroke.Color = 8882055
+    Appearance.ThumbButtonRightStroke.Color = 8882055
+    Appearance.ThumbButtonLeftHoverStroke.Color = 11632444
+    Appearance.ThumbButtonRightHoverStroke.Color = 11632444
+    Appearance.ThumbButtonLeftDownStroke.Color = 11632444
+    Appearance.ThumbButtonRightDownStroke.Color = 11632444
+    ExplicitLeft = 608
+    ExplicitTop = 0
   end
   object SBMLOpenDialog: TWebOpenDialog
     OnChange = SBMLOpenDialogChange

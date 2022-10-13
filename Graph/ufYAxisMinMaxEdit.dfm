@@ -4,7 +4,7 @@ object FYAxisMinMaxEdit: TFYAxisMinMaxEdit
   CSSLibrary = cssBootstrap
   ElementClassName = ' bg-dark border border-dark'
   Font.Charset = DEFAULT_CHARSET
-  Font.Color = clWindowText
+  Font.Color = clBlack
   Font.Height = -16
   Font.Name = 'Tahoma'
   Font.Style = []
