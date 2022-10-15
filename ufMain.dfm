@@ -76,7 +76,6 @@ object MainForm: TMainForm
     Height = 633
     Align = alClient
     ChildOrder = 1
-    ExplicitWidth = 364
   end
   object pnlParamSliders: TWebPanel
     Left = 606
@@ -85,18 +84,6 @@ object MainForm: TMainForm
     Height = 633
     Align = alRight
     ChildOrder = 2
-    ExplicitLeft = 600
-    object SliderEditLB: TWebListBox
-      Left = 139
-      Top = 264
-      Width = 121
-      Height = 97
-      HeightPercent = 100.000000000000000000
-      ItemHeight = 13
-      WidthPercent = 100.000000000000000000
-      OnClick = SliderEditLBClick
-      ItemIndex = -1
-    end
   end
   object pnlTop: TWebPanel
     Left = 0
@@ -187,8 +174,6 @@ object MainForm: TMainForm
     Appearance.ThumbButtonRightHoverStroke.Color = 11632444
     Appearance.ThumbButtonLeftDownStroke.Color = 11632444
     Appearance.ThumbButtonRightDownStroke.Color = 11632444
-    ExplicitLeft = 608
-    ExplicitTop = 0
   end
   object SBMLOpenDialog: TWebOpenDialog
     OnChange = SBMLOpenDialogChange
