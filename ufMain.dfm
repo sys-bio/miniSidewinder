@@ -38,16 +38,6 @@ object MainForm: TMainForm
       ParentFont = False
       WidthPercent = 100.000000000000000000
     end
-    object btnLoadModel: TWebButton
-      Left = 56
-      Top = 16
-      Width = 113
-      Height = 25
-      Caption = 'Load SBML Model'
-      HeightPercent = 100.000000000000000000
-      WidthPercent = 100.000000000000000000
-      OnClick = btnLoadModelClick
-    end
     object lb_InitVals: TWebListBox
       Left = 24
       Top = 86
@@ -72,18 +62,20 @@ object MainForm: TMainForm
   object pnlPlot: TWebPanel
     Left = 241
     Top = 60
-    Width = 365
+    Width = 381
     Height = 633
     Align = alClient
     ChildOrder = 1
+    ExplicitWidth = 365
   end
   object pnlParamSliders: TWebPanel
-    Left = 606
+    Left = 622
     Top = 60
     Width = 243
     Height = 633
     Align = alRight
     ChildOrder = 2
+    ExplicitLeft = 606
   end
   object pnlTop: TWebPanel
     Left = 0
@@ -112,7 +104,7 @@ object MainForm: TMainForm
       OnClick = btnRunPauseClick
     end
     object btnSimReset: TWebButton
-      Left = 376
+      Left = 336
       Top = 16
       Width = 96
       Height = 25
@@ -135,45 +127,16 @@ object MainForm: TMainForm
       WidthPercent = 100.000000000000000000
       OnExit = edtStepSizeExit
     end
-  end
-  object TMSFNCScrollBar1: TTMSFNCScrollBar
-    Left = 849
-    Top = 60
-    Width = 16
-    Height = 633
-    Align = alRight
-    ParentDoubleBuffered = False
-    Color = 15592941
-    DoubleBuffered = True
-    TabOrder = 4
-    Fill.Color = 15592941
-    Stroke.Color = 8882055
-    Appearance.ThumbFill.Color = 14803425
-    Appearance.ScrollButtonLeftFill.Color = 14803425
-    Appearance.ScrollButtonRightFill.Color = 14803425
-    Appearance.ScrollButtonLeftHoverFill.Color = 16511461
-    Appearance.ScrollButtonRightHoverFill.Color = 16511461
-    Appearance.ScrollButtonLeftDownFill.Color = 16378843
-    Appearance.ScrollButtonRightDownFill.Color = 16378843
-    Appearance.ThumbButtonLeftFill.Color = 14803425
-    Appearance.ThumbButtonRightFill.Color = 14803425
-    Appearance.ThumbButtonLeftHoverFill.Color = 16511461
-    Appearance.ThumbButtonRightHoverFill.Color = 16511461
-    Appearance.ThumbButtonLeftDownFill.Color = 16378843
-    Appearance.ThumbButtonRightDownFill.Color = 16378843
-    Appearance.ThumbStroke.Color = 8882055
-    Appearance.ScrollButtonLeftStroke.Color = 8882055
-    Appearance.ScrollButtonRightStroke.Color = 8882055
-    Appearance.ScrollButtonLeftHoverStroke.Color = 11632444
-    Appearance.ScrollButtonRightHoverStroke.Color = 11632444
-    Appearance.ScrollButtonLeftDownStroke.Color = 11632444
-    Appearance.ScrollButtonRightDownStroke.Color = 11632444
-    Appearance.ThumbButtonLeftStroke.Color = 8882055
-    Appearance.ThumbButtonRightStroke.Color = 8882055
-    Appearance.ThumbButtonLeftHoverStroke.Color = 11632444
-    Appearance.ThumbButtonRightHoverStroke.Color = 11632444
-    Appearance.ThumbButtonLeftDownStroke.Color = 11632444
-    Appearance.ThumbButtonRightDownStroke.Color = 11632444
+    object btnLoadModel: TWebButton
+      Left = 24
+      Top = 16
+      Width = 113
+      Height = 25
+      Caption = 'Load SBML Model'
+      HeightPercent = 100.000000000000000000
+      WidthPercent = 100.000000000000000000
+      OnClick = btnLoadModelClick
+    end
   end
   object SBMLOpenDialog: TWebOpenDialog
     OnChange = SBMLOpenDialogChange

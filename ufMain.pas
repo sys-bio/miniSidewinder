@@ -6,7 +6,7 @@ uses
   System.SysUtils, System.Classes, System.Generics.Collections, StrUtils,
   JS, Web, WEBLib.Graphics, WEBLib.Controls, WEBLib.Forms, WEBLib.Dialogs,
   Vcl.Controls, WEBLib.ExtCtrls, Vcl.StdCtrls, WEBLib.StdCtrls, uSimulation,
-  uControllerMain, ufVarSelect, uParamSliderLayout, uSidewinderTypes, uGraphPanel,
+  uControllerMain, ufVarSelect, {uParamSliderLayout,} uSidewinderTypes, uGraphPanel,
   uModel, uSBMLClasses, uSBMLClasses.rule, upnlParamSlider,
   VCL.TMSFNCTypes, VCL.TMSFNCUtils, VCL.TMSFNCGraphics, VCL.TMSFNCGraphicsTypes,
   VCL.TMSFNCCustomControl, VCL.TMSFNCScrollBar;
@@ -35,7 +35,6 @@ type
     labelRateLaws: TWebLabel;
     lblStepSize: TWebLabel;
     edtStepSize: TWebEdit;
- //   TMSFNCScrollBar1: TTMSFNCScrollBar;
     procedure WebFormCreate(Sender: TObject);
     procedure btnSimResetClick(Sender: TObject);
     procedure btnLoadModelClick(Sender: TObject);
