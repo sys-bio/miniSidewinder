@@ -85,7 +85,7 @@ object MainForm: TMainForm
     Align = alTop
     ChildOrder = 3
     object lblStepSize: TWebLabel
-      Left = 501
+      Left = 701
       Top = 21
       Width = 72
       Height = 13
@@ -115,7 +115,7 @@ object MainForm: TMainForm
       OnClick = btnSimResetClick
     end
     object edtStepSize: TWebEdit
-      Left = 579
+      Left = 779
       Top = 18
       Width = 65
       Height = 22
@@ -136,6 +136,64 @@ object MainForm: TMainForm
       HeightPercent = 100.000000000000000000
       WidthPercent = 100.000000000000000000
       OnClick = btnLoadModelClick
+    end
+    object pnlSimSpeedMult: TWebPanel
+      Left = 465
+      Top = 4
+      Width = 198
+      Height = 50
+      Hint = 'Speed up simulation, limited by computer resources.'
+      ChildOrder = 5
+      ShowHint = True
+      object lblSpeedMult: TWebLabel
+        Left = 35
+        Top = 8
+        Width = 105
+        Height = 13
+        Hint = 'Speed up/down simulation'
+        Caption = 'Sim Speed Multiplier:'
+        HeightPercent = 100.000000000000000000
+        ShowHint = True
+        WidthPercent = 100.000000000000000000
+      end
+      object lblSpeedMultVal: TWebLabel
+        Left = 137
+        Top = 8
+        Width = 28
+        Height = 13
+        Caption = '1x'
+        HeightPercent = 100.000000000000000000
+        WidthPercent = 100.000000000000000000
+      end
+      object lblSpeedMultMin: TWebLabel
+        Left = 16
+        Top = 30
+        Width = 22
+        Height = 13
+        Caption = '0.1x'
+        HeightPercent = 100.000000000000000000
+        WidthPercent = 100.000000000000000000
+      end
+      object lblSpeedMultMax: TWebLabel
+        Left = 170
+        Top = 30
+        Width = 12
+        Height = 13
+        Caption = '3x'
+        HeightPercent = 100.000000000000000000
+        WidthPercent = 100.000000000000000000
+      end
+      object trackBarSimSpeed: TWebTrackBar
+        Left = 43
+        Top = 27
+        Width = 121
+        Height = 20
+        Max = 30
+        Min = 1
+        Position = 10
+        Role = ''
+        OnChange = trackBarSimSpeedChange
+      end
     end
   end
   object SBMLOpenDialog: TWebOpenDialog

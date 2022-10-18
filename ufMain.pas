@@ -35,6 +35,12 @@ type
     labelRateLaws: TWebLabel;
     lblStepSize: TWebLabel;
     edtStepSize: TWebEdit;
+    pnlSimSpeedMult: TWebPanel;
+    trackBarSimSpeed: TWebTrackBar;
+    lblSpeedMult: TWebLabel;
+    lblSpeedMultVal: TWebLabel;
+    lblSpeedMultMin: TWebLabel;
+    lblSpeedMultMax: TWebLabel;
     procedure WebFormCreate(Sender: TObject);
     procedure btnSimResetClick(Sender: TObject);
     procedure btnLoadModelClick(Sender: TObject);
@@ -45,6 +51,7 @@ type
       AText: string);
     procedure SliderEditLBClick(Sender: TObject);
     procedure edtStepSizeExit(Sender: TObject);
+    procedure trackBarSimSpeedChange(Sender: TObject);
 
   private
     numbPlots: Integer; // Number of plots displayed
@@ -534,8 +541,8 @@ begin
       self.mainController.SetRunTime(DEFAULT_RUNTIME);
        // default timer interval is 100 msec:
       // multiplier default is 10, range 1 - 50
-//      self.mainController.SetTimerInterval(round(1000/self.trackBarSimSpeed.position));
-       self.mainController.SetTimerInterval(100);
+      self.mainController.SetTimerInterval(round(1000/self.trackBarSimSpeed.position));
+      // self.mainController.SetTimerInterval(100);
       self.mainController.SetStepSize(self.stepSize);
      // if self.mainController.getCurrTime = 0  then
     //    self.InitSimResultsTable();  // Set table of Sim results.
@@ -561,6 +568,14 @@ begin
      begin
      self.mainController.writeSimData(self.lblSimDataFileName.Caption, self.simResultsMemo.Lines);
      end;   }
+end;
+
+procedure TMainForm.trackBarSimSpeedChange(Sender: TObject);
+  var position: double;
+begin
+  position := self.trackBarSimSpeed.Position;
+  self.lblSpeedMultVal.Caption := floattostr( (position*0.1) ) + 'x';
+  self.MainController.SetTimerInterval( round(1000/position) ); //timer interval does change. Speeds up/down sim
 end;
 
 procedure TMainForm.setUpSimulationUI();
