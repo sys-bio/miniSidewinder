@@ -218,6 +218,7 @@ begin
   self.btnSimReset.Visible := true;
   self.btnSimReset.Enabled := false;
   self.btnRunPause.Enabled := false;
+  self.trackBarSimSpeed.Enabled := false;
   self.enableStepSizeEdit;
   self.mainController.addSBMLListener( @self.PingSBMLLoaded );
   self.mainController.addSimListener( @self.getVals ); // notify when new Sim results
@@ -532,6 +533,7 @@ begin
      // self.btnParamReset.Enabled := false;
       self.btnSimReset.Enabled := false;
       self.disableStepSizeEdit;
+      self.trackBarSimSpeed.Enabled := true;
       self.btnRunPause.font.color := clred;
       self.btnRunPause.ElementClassName := 'btn btn-success btn-sm';
       self.btnRunPause.caption := 'Simulation: Pause';
