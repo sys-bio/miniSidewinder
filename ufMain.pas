@@ -749,6 +749,7 @@ begin
 
 procedure TMainForm.resetPlots();  // Reset plots for new simulation.
  var i: integer;
+    initSVals: TVarNameValList;
 begin // Easier to just delete/create than reset time, xaxis labels, etc.
   for i := 0 to self.graphPanelList.Count -1 do
     begin
@@ -757,7 +758,15 @@ begin // Easier to just delete/create than reset time, xaxis labels, etc.
     self.graphPanelList[i].createChart;
     self.graphPanelList[i].setupChart;
     end;
+  initSVals := TVarNameValList.create;
+  for i := 0 to length(self.mainController.getModel.getS_Names) -1 do
+    begin
+    initSVals.add(TVarNameVal.create(self.mainController.getModel.getS_Names[i],
+                                      self.mainController.getModel.getS_initVals[i]) );
+    end;
+
   self.refreshPlotPanels;
+  self.getVals( 0, initSVals ); // Display correctly sized graph window on reset
 end;
 
 procedure TMainForm.selectPlotSpecies(plotnumb: Integer);
