@@ -1,13 +1,14 @@
 object MainForm: TMainForm
   Width = 865
-  Height = 693
+  Height = 681
   OnCreate = WebFormCreate
   object pnlModelInfo: TWebPanel
     Left = 0
     Top = 60
     Width = 241
-    Height = 633
+    Height = 378
     Align = alLeft
+    ExplicitHeight = 633
     object labelInitVals: TWebLabel
       Left = 24
       Top = 64
@@ -62,20 +63,23 @@ object MainForm: TMainForm
   object pnlPlot: TWebPanel
     Left = 241
     Top = 60
-    Width = 381
-    Height = 633
+    Width = 624
+    Height = 378
     Align = alClient
     ChildOrder = 1
-    ExplicitWidth = 365
+    ExplicitWidth = 381
+    ExplicitHeight = 565
   end
   object pnlParamSliders: TWebPanel
-    Left = 622
-    Top = 60
-    Width = 243
-    Height = 633
-    Align = alRight
+    Left = 0
+    Top = 438
+    Width = 865
+    Height = 243
+    Align = alBottom
     ChildOrder = 2
-    ExplicitLeft = 606
+    ExplicitLeft = 622
+    ExplicitTop = 60
+    ExplicitWidth = 621
   end
   object pnlTop: TWebPanel
     Left = 0
@@ -148,18 +152,17 @@ object MainForm: TMainForm
       object lblSpeedMult: TWebLabel
         Left = 35
         Top = 8
-        Width = 105
+        Width = 98
         Height = 13
         Hint = 'Speed up/down simulation'
         Caption = 'Sim Speed Multiplier:'
         HeightPercent = 100.000000000000000000
-        ShowHint = True
         WidthPercent = 100.000000000000000000
       end
       object lblSpeedMultVal: TWebLabel
         Left = 137
         Top = 8
-        Width = 28
+        Width = 12
         Height = 13
         Caption = '1x'
         HeightPercent = 100.000000000000000000

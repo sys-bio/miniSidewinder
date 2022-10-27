@@ -63,6 +63,7 @@ implementation
     if index > -1 then
       self.tag := index
     else self.tag := 0;
+    self.Left := 2; // Default
     self.multiplier := 10;  // Default
     self.sliderPTBar := TWebTrackBar.create(self);
     self.sliderPTBar.parent := self;

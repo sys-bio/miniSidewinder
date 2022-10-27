@@ -277,7 +277,7 @@ var
 begin
   // Left most position of the panel that holds the slider
   sliderPanelWidth :=  self.pnlParamSliders.width;
-  sliderPanelLeft := 0;    // not used anymore, just set to default
+  sliderPanelLeft := 5;
 
   i := length(self.pnlSliderAr);
   // array index for current slider to be added.
@@ -755,13 +755,14 @@ begin
   end;
 
  // Not used for now: self.graphPanelList[self.numbPlots - 1].OnPlotUpdate := self.editPlotList;
-  self.initializePlot (self.numbPlots - 1);
-  if self.numbPlots > DEFAULT_NUMB_PLOTS then
-  begin  // Adjust plots to new height:
+ // self.initializePlot (self.numbPlots - 1);
+ // if self.numbPlots > DEFAULT_NUMB_PLOTS then    Only one plot, so do not worry
+ // begin  // Adjust plots to new height:
     for i := 0 to self.numbPlots - 1 do
       self.graphPanelList[i].adjustPanelHeight(newHeight);
 
-  end;
+ // end;
+  self.initializePlot (self.numbPlots - 1);
  end;
 
 procedure TMainForm.resetPlots();  // Reset plots for new simulation.
