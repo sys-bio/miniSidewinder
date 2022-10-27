@@ -11,11 +11,12 @@ uses
   VCL.TMSFNCTypes, VCL.TMSFNCUtils, VCL.TMSFNCGraphics, VCL.TMSFNCGraphicsTypes,
   VCL.TMSFNCCustomControl, VCL.TMSFNCScrollBar;
 
-const SIDEWINDER_VERSION = 'Version 0.2 alpha';
+const SIDEWINDER_VERSION = 'Version 0.3 alpha';
       DEFAULT_RUNTIME = 10000;
       EDITBOX_HT = 25;
       ZOOM_SCALE = 20;
-      MAX_SLIDERS = 10;
+      MAX_SLIDERS = 15;
+      SLIDERS_PER_ROW = 3;
       MAX_STR_LENGTH = 50; // Max User inputed string length for Rxn/spec/param id
       NULL_NODE_TAG = '_Null'; // from uNetwork, just in case, probably not necessary
       DEFAULT_NUMB_PLOTS = 1;
@@ -41,6 +42,7 @@ type
     lblSpeedMultVal: TWebLabel;
     lblSpeedMultMin: TWebLabel;
     lblSpeedMultMax: TWebLabel;
+    FNCScrollBarVertical: TTMSFNCScrollBar;
     procedure WebFormCreate(Sender: TObject);
     procedure btnSimResetClick(Sender: TObject);
     procedure btnLoadModelClick(Sender: TObject);
@@ -52,20 +54,27 @@ type
     procedure SliderEditLBClick(Sender: TObject);
     procedure edtStepSizeExit(Sender: TObject);
     procedure trackBarSimSpeedChange(Sender: TObject);
+    procedure FNCScrollBarVerticalValueChanged(Sender: TObject; Value: Double);
+    procedure WebFormResize(Sender: TObject);
 
   private
     numbPlots: Integer; // Number of plots displayed
-    numbSliders: Integer; // Number of parameter sliders
+   // numbSliders: Integer; // Number of parameter sliders
     stepSize: double; // default is 0.1
     SliderEditLB: TWebListBox;
+
     procedure initializePlots();
     procedure initializePlot( n: integer);
     procedure addParamSlider();
     procedure addAllParamSliders(); // add sliders without user intervention.
+    function  calcSliderWidth(): integer;
+    function  calcSliderLeft(index: integer): integer; // calc left side of slider relative to pnlParamSliders
+    function  calcSliderTop(index: integer): integer;
     procedure deleteSlider(sn: Integer); // sn: slider index
     procedure deleteAllSliders();
     procedure clearSlider(sn: Integer); // sn: slider index
     function  getSliderIndex(sliderTag: integer): Integer;
+    function  getNumberOfSliders(): integer;
     procedure EditSliderList(sn: Integer);
     procedure SetSliderParamValues(sn, paramForSlider: Integer);
     procedure resetSliderPositions(); // Reset param position to init model param value.
@@ -199,8 +208,9 @@ procedure TMainForm.WebFormCreate(Sender: TObject);
 
 begin
   self.numbPlots := 0;
-  self.numbSliders := 0;
+ // self.numbSliders := 0;
   self.stepSize := 0.1;
+  self.FNCScrollBarVertical.Value := 0;
   self.edtStepSize.Text := floatToStr(self.stepSize * 1000);
   self.simStarted := false;
   self.mainController := TControllerMain.Create();
@@ -225,6 +235,12 @@ begin
 
 end;
 
+
+procedure TMainForm.WebFormResize(Sender: TObject);
+begin
+  //console.log('Changing');
+  self.refreshPlotAndSliderPanels;
+end;
 
 procedure TMainForm.initializePlots();
   var i: Integer;
@@ -272,20 +288,32 @@ end;
 
 procedure TMainForm.addParamSlider(); // assume slider index is at last position, otherwise it is just an edit.
 // default TBar range: 0 to initVal*10
-var
-  i, sliderTBarWidth, sliderPanelLeft, sliderPanelWidth: Integer;
+var i, sliderTBarWidth, sliderPanelLeft, sliderPanelWidth: integer;
+   { numRows, numCols,} sliderTop: Integer;
 begin
-  // Left most position of the panel that holds the slider
-  sliderPanelWidth :=  self.pnlParamSliders.width;
-  sliderPanelLeft := 5;
+  // Slider layout algo:
+  // Number of columns: SLIDERS_PER_ROW
+  // Number of rows = div(number of sliders/ SLIDERS_PER_ROW) + 1 if mod (number of sliders/ SLIDERS_PER_ROW)>0
 
-  i := length(self.pnlSliderAr);
-  // array index for current slider to be added.
+  i := self.getNumberOfSliders; // array index for current slider to be added.
   SetLength(self.pnlSliderAr, i + 1);
+ { if i=0 then numRows := 1
+  else
+    begin
+    numRows := (i+1) div SLIDERS_PER_ROW;
+    if (i+1) mod SLIDERS_PER_ROW > 0 then inc(numRows);
+    end;
+  console.log('Rows: ', numRows);
+  sliderTop := (numRows - 1) * SLIDERPHEIGHT;  }
+  sliderTop := self.calcSliderTop(i);
+  // Left most position of the panel that holds the slider
+  sliderPanelLeft := self.calcSliderLeft(i);
+  sliderPanelWidth := self.calcSliderWidth;
+
+
   self.pnlSliderAr[i] := TpnlParamSlider.create(self.pnlParamSliders, i, @self.EditSliderList,
                                                 @self.paramSliderOnChange );
-  self.pnlSliderAr[i].configPSliderPanel(sliderPanelLeft, sliderPanelWidth, SLIDERPHEIGHT);
-
+  self.pnlSliderAr[i].configPSliderPanel(sliderPanelLeft, sliderPanelWidth, SLIDERPHEIGHT, sliderTop);
   self.SetSliderParamValues(i, self.sliderParamAr[i]);
   self.pnlSliderAr[i].configPSliderTBar;
 end;
@@ -301,14 +329,55 @@ begin
   for i := 0 to numParSliders -1 do
     begin
     sliderP := '';
-    SetLength(self.sliderParamAr, self.numbSliders + 1);    // add a slider
+    SetLength(self.sliderParamAr, self.getNumberOfSliders + 1);    // add a slider
     //sliderP := self.mainController.getModel.getP_names[i];   // needed?
-    self.sliderParamAr[self.numbSliders] := i; // assign param indexto slider ??
-    inc(self.numbSliders);
+    self.sliderParamAr[i] := i; // assign param indexto slider ??
     self.addParamSlider(); // <-- Add dynamically created slider
 
     end;
 
+end;
+
+function TMainForm.calcSliderWidth(): integer;
+begin
+   if(trunc(self.pnlParamSliders.Width/SLIDERS_PER_ROW) > 200 ) then
+    Result :=  trunc((self.pnlParamSliders.width - self.FNCScrollBarVertical.Width)/SLIDERS_PER_ROW)   // three sliders across
+  else Result := 200;
+end;
+
+function TMainForm.calcSliderLeft(index: integer): integer;
+begin
+
+  if index = 0 then Result := 5
+  else
+    case (index mod SLIDERS_PER_ROW) of
+     0: Result := 5;
+     1: Result := self.calcSliderWidth ;
+     2: Result := 2 * self.calcSliderWidth;
+     3: Result := 3 * self.calcSliderWidth;
+     else Result := 5;
+    end;
+
+end;
+
+function TMainForm.calcSliderTop(index: integer): integer;
+var numRows: integer;
+begin
+  if index = 0 then numRows := 1
+  else
+    begin
+    numRows := (index + 1) div SLIDERS_PER_ROW;
+    if (index + 1) mod SLIDERS_PER_ROW > 0 then inc(numRows);
+    end;
+  console.log('Rows: ', numRows);
+  Result := (numRows - 1) * SLIDERPHEIGHT;
+end;
+
+function  TMainForm.getNumberOfSliders(): integer;
+begin
+  if self.pnlSliderAr <> nil then
+    Result := length(self.pnlSliderAr)
+  else Result := 0;
 end;
 
 // Called when adding or updating a param slider. sn = slider index
@@ -455,8 +524,8 @@ end;
 
 procedure TMainForm.refreshPlotAndSliderPanels();
 begin
-  if not self.mainController.IsOnline then
-    self.refreshPlotPanels;
+  //if not self.mainController.IsOnline then
+  self.refreshPlotPanels;
   self.refreshSliderPanels;
 
 end;
@@ -480,18 +549,17 @@ begin
 end;
 
 procedure TMainForm.refreshSliderPanels;
-var i: integer;
+var i, sliderWidth, sliderTop, sliderLeft: integer;
 begin
+  sliderWidth := self.calcSliderWidth;
   if assigned(self.pnlSliderAr) then
     begin
     for i := 0 to Length(self.pnlSliderAr) - 1 do
       begin
-      self.pnlSliderAr[i].configPSliderPanel(0, self.pnlParamSliders.width, SLIDERPHEIGHT);
+      sliderTop := self.calcSliderTop(i);
+      sliderLeft := self.calcSliderLeft(i);
+      self.pnlSliderAr[i].configPSliderPanel(sliderLeft, sliderWidth, SLIDERPHEIGHT, sliderTop);
       self.pnlSliderAr[i].configPSliderTBar;
-      {configPSliderPanel(i, 0, self.pnlParamSliders.width, SLIDERPHEIGHT,
-                         self.pnlSliderAr);
-      configPSliderTBar(i, self.pnlParamSliders.width, self.sliderPTBarAr,
-             self.sliderPHLabelAr, self.sliderPLLabelAr, self.sliderPTBLabelAr);  }
       end;
     end;
 end;
@@ -515,7 +583,7 @@ begin
         end ;
    // else self.btnAddPlotClick(nil);   Only 1 plot for now
       // add default param sliders:
-      if self.numbSliders < 1 then
+      if self.getNumberOfSliders < 1 then
         begin
         self.addAllParamSliders;
       //if length( self.mainController.getModel.getP_Names ) < 11 then
@@ -948,7 +1016,7 @@ begin
   for I := Length(self.pnlSliderAr) -1 downto 0 do
     self.deleteSlider(i);
   self.pnlParamSliders.Invalidate;
-  self.numbSliders := 0;
+ // self.numbSliders := 0;
 end;
 
 procedure TMainForm.EditSliderList(sn: Integer);
@@ -1238,6 +1306,14 @@ begin
   self.edtStepSize.Enabled := true;
   Result := true;
 end;
+procedure TMainForm.FNCScrollBarVerticalValueChanged(Sender: TObject;
+  Value: Double);
+begin
+ // origin.Y := Value;
+ // networkCanvas.origin.Y := Value;
+ // networkPB1.Invalidate;
+end;
+
 function TMainForm.disableStepSizeEdit(): boolean;// true: success
 begin
   self.lblstepSize.Enabled := false;

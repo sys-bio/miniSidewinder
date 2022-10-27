@@ -30,7 +30,8 @@ TpnlParamSlider = class(TWebPanel)
   public
     constructor create(newParent: TWebPanel; index: integer;
                 editSliderCallBack: TEditSliderEvent; trackBarChange: TNotifyEvent);
-    procedure configPSliderPanel(sPLeft, sliderPanelWidth, sliderPanelHeight: integer);
+    procedure configPSliderPanel(sPLeft, sliderPanelWidth, sliderPanelHeight: integer) overload;
+    procedure configPSliderPanel(sPLeft, sliderPanelWidth, sliderPanelHeight, sliderPanelTop: integer) overload;
     procedure configPSliderTBar({sliderPanelWidth : integer});
     procedure setTrackBarLabel( newStr: string );
     procedure clearSlider();
@@ -78,7 +79,7 @@ implementation
     self.Invalidate;
   end;
 
-  procedure TpnlParamSlider.configPSliderPanel(sPLeft, sliderPanelWidth, sliderPanelHeight: integer);
+  procedure TpnlParamSlider.configPSliderPanel(sPLeft, sliderPanelWidth, sliderPanelHeight: integer) overload;
   begin
     self.Anchors := [akLeft,akRight,akTop];
     self.visible := true;
@@ -89,6 +90,16 @@ implementation
     self.Invalidate;
   end;
 
+procedure TpnlParamSlider.configPSliderPanel(sPLeft, sliderPanelWidth, sliderPanelHeight, sliderPanelTop: integer) overload;
+begin
+  self.Anchors := [akLeft,akRight,akTop];
+  self.visible := true;
+  self.Top := sliderPanelTop;;
+  self.Left := sPLeft;
+  self.Height := sliderPanelHeight;
+  self.Width := sliderPanelWidth - 6; // -6 to move it in from the extreme right edge
+  self.Invalidate;
+end;
   // Define the sliders inside the panel that holds the sliders
 procedure TpnlParamSlider.configPSliderTBar({sliderPanelWidth : integer }{ newSBarAr: array of TWebTrackBar;}
        );
