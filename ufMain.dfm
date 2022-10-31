@@ -4,119 +4,64 @@ object MainForm: TMainForm
   OnCreate = WebFormCreate
   OnResize = WebFormResize
   object pnlModelInfo: TWebPanel
-    Left = 0
+    Left = 760
     Top = 60
-    Width = 241
-    Height = 378
-    Align = alLeft
-    object labelInitVals: TWebLabel
-      Left = 24
-      Top = 64
-      Width = 176
-      Height = 16
-      Caption = 'Initial values and assignments:'
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -13
-      Font.Name = 'Tahoma'
-      Font.Style = []
+    Width = 105
+    Height = 371
+    Align = alRight
+    object btnShowInitVals: TWebButton
+      Left = 16
+      Top = 54
+      Width = 70
+      Height = 25
+      Caption = 'Init Vals'
+      ChildOrder = 4
       HeightPercent = 100.000000000000000000
-      ParentFont = False
       WidthPercent = 100.000000000000000000
+      OnClick = btnShowInitValsClick
     end
-    object labelRateLaws: TWebLabel
-      Left = 24
-      Top = 240
-      Width = 139
-      Height = 16
-      Caption = 'Reaction and Rate laws:'
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -13
-      Font.Name = 'Tahoma'
-      Font.Style = []
+    object btnShowRates: TWebButton
+      Left = 16
+      Top = 96
+      Width = 70
+      Height = 25
+      Caption = 'Rate laws'
+      ChildOrder = 3
       HeightPercent = 100.000000000000000000
-      ParentFont = False
       WidthPercent = 100.000000000000000000
+      OnClick = btnShowRatesClick
     end
-    object lb_InitVals: TWebListBox
-      Left = 24
-      Top = 86
-      Width = 185
-      Height = 134
+    object btnModelInfo: TWebButton
+      Left = 16
+      Top = 6
+      Width = 70
+      Height = 25
+      Caption = 'Model Info'
+      ChildOrder = 2
       HeightPercent = 100.000000000000000000
-      ItemHeight = 13
       WidthPercent = 100.000000000000000000
-      ItemIndex = -1
-    end
-    object lbRateLaws: TWebListBox
-      Left = 24
-      Top = 262
-      Width = 185
-      Height = 163
-      HeightPercent = 100.000000000000000000
-      ItemHeight = 13
-      WidthPercent = 100.000000000000000000
-      ItemIndex = -1
+      OnClick = btnModelInfoClick
     end
   end
   object pnlPlot: TWebPanel
-    Left = 241
+    Left = 0
     Top = 60
-    Width = 624
-    Height = 378
+    Width = 760
+    Height = 371
     Align = alClient
     ChildOrder = 1
+    ExplicitLeft = 241
+    ExplicitWidth = 624
+    ExplicitHeight = 378
   end
   object pnlParamSliders: TWebPanel
     Left = 0
-    Top = 438
+    Top = 431
     Width = 865
-    Height = 243
+    Height = 250
     Align = alBottom
     ChildOrder = 2
-    object FNCScrollBarVertical: TTMSFNCScrollBar
-      Left = 847
-      Top = 0
-      Width = 18
-      Height = 243
-      Align = alRight
-      ParentDoubleBuffered = False
-      Color = 15592941
-      DoubleBuffered = True
-      TabOrder = 0
-      Fill.Color = 15592941
-      Stroke.Color = 8882055
-      Appearance.ThumbFill.Color = 14803425
-      Appearance.ScrollButtonLeftFill.Color = 14803425
-      Appearance.ScrollButtonRightFill.Color = 14803425
-      Appearance.ScrollButtonLeftHoverFill.Color = 16511461
-      Appearance.ScrollButtonRightHoverFill.Color = 16511461
-      Appearance.ScrollButtonLeftDownFill.Color = 16378843
-      Appearance.ScrollButtonRightDownFill.Color = 16378843
-      Appearance.ThumbButtonLeftFill.Color = 14803425
-      Appearance.ThumbButtonRightFill.Color = 14803425
-      Appearance.ThumbButtonLeftHoverFill.Color = 16511461
-      Appearance.ThumbButtonRightHoverFill.Color = 16511461
-      Appearance.ThumbButtonLeftDownFill.Color = 16378843
-      Appearance.ThumbButtonRightDownFill.Color = 16378843
-      Appearance.ThumbStroke.Color = 8882055
-      Appearance.ScrollButtonLeftStroke.Color = 8882055
-      Appearance.ScrollButtonRightStroke.Color = 8882055
-      Appearance.ScrollButtonLeftHoverStroke.Color = 11632444
-      Appearance.ScrollButtonRightHoverStroke.Color = 11632444
-      Appearance.ScrollButtonLeftDownStroke.Color = 11632444
-      Appearance.ScrollButtonRightDownStroke.Color = 11632444
-      Appearance.ThumbButtonLeftStroke.Color = 8882055
-      Appearance.ThumbButtonRightStroke.Color = 8882055
-      Appearance.ThumbButtonLeftHoverStroke.Color = 11632444
-      Appearance.ThumbButtonRightHoverStroke.Color = 11632444
-      Appearance.ThumbButtonLeftDownStroke.Color = 11632444
-      Appearance.ThumbButtonRightDownStroke.Color = 11632444
-      OnValueChanged = FNCScrollBarVerticalValueChanged
-      ExplicitTop = 60
-      ExplicitHeight = 378
-    end
+    ExplicitTop = 438
   end
   object pnlTop: TWebPanel
     Left = 0

@@ -111,21 +111,21 @@ var sliderTBarWidth : integer;
     self.sliderPTBar.visible:= True;
     self.sliderPTBar.Tag:= self.tag;  // keep track of slider index number.
     self.sliderPTBar.Left:= 20;
-    self.sliderPTBar.Top:= 27;
+    self.sliderPTBar.Top:= 17{27};
     self.sliderPTBar.Width:= sliderTBarWidth;
     self.sliderPTBar.Height:= 20;
 
     // Value (high) positioned on the right-side of slider
     self.sliderPHLabel.visible:= True;
     self.sliderPHLabel.Tag:= self.tag;
-    self.sliderPHLabel.Top:= 30;
+    self.sliderPHLabel.Top:= 21{30};
    // self.sliderPHLabel.Left:= sliderPanelWidth - trunc (0.15*sliderPanelWidth);
-    self.sliderPHLabel.Left:= self.Width - trunc (0.15 * self.Width);
+    self.sliderPHLabel.Left:= self.Width - trunc (0.18 {0.15} * self.Width);
 
     // Value (low) positioned on the left-side of slider
     self.sliderPLLabel.visible:= True;
     self.sliderPLLabel.Tag:= self.tag;
-    self.sliderPLLabel.Top:= 30;
+    self.sliderPLLabel.Top:= 21{30};
     self.sliderPLLabel.Left:= 4;
 
     // parameter label and current value

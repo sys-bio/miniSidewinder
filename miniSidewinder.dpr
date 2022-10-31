@@ -32,7 +32,8 @@ uses
   uSidewinderTypes in 'uSidewinderTypes.pas',
   ufVarSelect in 'ufVarSelect.pas' {VarSelectForm: TWebForm},
   ufYAxisMinMaxEdit in 'Graph\ufYAxisMinMaxEdit.pas' {FYAxisMinMaxEdit: TWebForm} {*.html},
-  upnlParamSlider in 'upnlParamSlider.pas';
+  upnlParamSlider in 'upnlParamSlider.pas',
+  ufListBox in 'ufListBox.pas' {fListBox1: TWebForm} {*.html};
 
 {$R *.res}
 
@@ -41,5 +42,6 @@ begin
   Application.MainFormOnTaskbar := True;
   Application.CreateForm(TMainForm, MainForm);
   Application.CreateForm(TFYAxisMinMaxEdit, FYAxisMinMaxEdit);
+  Application.CreateForm(TfListBox1, fListBox1);
   Application.Run;
 end.

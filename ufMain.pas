@@ -9,14 +9,14 @@ uses
   uControllerMain, ufVarSelect, {uParamSliderLayout,} uSidewinderTypes, uGraphPanel,
   uModel, uSBMLClasses, uSBMLClasses.rule, upnlParamSlider,
   VCL.TMSFNCTypes, VCL.TMSFNCUtils, VCL.TMSFNCGraphics, VCL.TMSFNCGraphicsTypes,
-  VCL.TMSFNCCustomControl, VCL.TMSFNCScrollBar;
+  VCL.TMSFNCCustomControl, VCL.TMSFNCScrollBar, ufListBox;
 
 const SIDEWINDER_VERSION = 'Version 0.3 alpha';
       DEFAULT_RUNTIME = 10000;
       EDITBOX_HT = 25;
       ZOOM_SCALE = 20;
-      MAX_SLIDERS = 15;
-      SLIDERS_PER_ROW = 3;
+      MAX_SLIDERS = 16;
+      SLIDERS_PER_ROW = 4;
       MAX_STR_LENGTH = 50; // Max User inputed string length for Rxn/spec/param id
       NULL_NODE_TAG = '_Null'; // from uNetwork, just in case, probably not necessary
       DEFAULT_NUMB_PLOTS = 1;
@@ -30,10 +30,6 @@ type
     btnSimReset: TWebButton;
     SBMLOpenDialog: TWebOpenDialog;
     pnlTop: TWebPanel;
-    lb_InitVals: TWebListBox;
-    lbRateLaws: TWebListBox;
-    labelInitVals: TWebLabel;
-    labelRateLaws: TWebLabel;
     lblStepSize: TWebLabel;
     edtStepSize: TWebEdit;
     pnlSimSpeedMult: TWebPanel;
@@ -42,7 +38,9 @@ type
     lblSpeedMultVal: TWebLabel;
     lblSpeedMultMin: TWebLabel;
     lblSpeedMultMax: TWebLabel;
-    FNCScrollBarVertical: TTMSFNCScrollBar;
+    btnShowInitVals: TWebButton;
+    btnShowRates: TWebButton;
+    btnModelInfo: TWebButton;
     procedure WebFormCreate(Sender: TObject);
     procedure btnSimResetClick(Sender: TObject);
     procedure btnLoadModelClick(Sender: TObject);
@@ -54,14 +52,21 @@ type
     procedure SliderEditLBClick(Sender: TObject);
     procedure edtStepSizeExit(Sender: TObject);
     procedure trackBarSimSpeedChange(Sender: TObject);
-    procedure FNCScrollBarVerticalValueChanged(Sender: TObject; Value: Double);
+  //  procedure FNCScrollBarVerticalValueChanged(Sender: TObject; Value: Double);
     procedure WebFormResize(Sender: TObject);
+    procedure btnShowInitValsClick(Sender: TObject);
+    procedure btnShowRatesClick(Sender: TObject);
+    procedure btnModelInfoClick(Sender: TObject);
 
   private
     numbPlots: Integer; // Number of plots displayed
-   // numbSliders: Integer; // Number of parameter sliders
+    slidersPerRow: Integer; // Number of parameter sliders per row.
+    intSliderHeight: Integer;
     stepSize: double; // default is 0.1
     SliderEditLB: TWebListBox;
+    displayModelInfoLB: TfListBox1;
+    strListInitVals: TStringList;
+    strListRates: TStringList;
 
     procedure initializePlots();
     procedure initializePlot( n: integer);
@@ -95,6 +100,8 @@ type
     function  getEmptyPlotPosition(): Integer;
     function  getPlotPBIndex(plotTag: integer): Integer;
     procedure setListBoxInitValues();
+    procedure displayInitValues();
+    procedure displayRateLaws();
     procedure setListBoxRateLaws();
     function  enableStepSizeEdit(): boolean; // true: success
     function  disableStepSizeEdit(): boolean; // true: success
@@ -137,6 +144,11 @@ begin
   self.SBMLOpenDialog.execute();
 end;
 
+procedure TMainForm.btnModelInfoClick(Sender: TObject);
+begin
+ // TODO
+end;
+
 procedure TMainForm.btnRunPauseClick(Sender: TObject);
 begin
   if self.MainController.IsModelLoaded then
@@ -156,6 +168,17 @@ begin
     end;
   end
   else notifyUser('Model not loaded, please load model or refresh browser window.');
+end;
+
+procedure TMainForm.btnShowInitValsClick(Sender: TObject);
+begin
+// TODO
+  self.displayInitValues();
+end;
+
+procedure TMainForm.btnShowRatesClick(Sender: TObject);
+begin
+  self.displayRateLaws();
 end;
 
 procedure TMainForm.btnSimResetClick(Sender: TObject);
@@ -208,9 +231,10 @@ procedure TMainForm.WebFormCreate(Sender: TObject);
 
 begin
   self.numbPlots := 0;
- // self.numbSliders := 0;
+  self.slidersPerRow := SLIDERS_PER_ROW;
+  self.intSliderHeight := 45;
+  self.pnlParamSliders.height := trunc((MAX_SLIDERS/SLIDERS_PER_ROW)*45) +2;
   self.stepSize := 0.1;
-  self.FNCScrollBarVertical.Value := 0;
   self.edtStepSize.Text := floatToStr(self.stepSize * 1000);
   self.simStarted := false;
   self.mainController := TControllerMain.Create();
@@ -218,6 +242,9 @@ begin
   self.mainController.setODEsolver;
  // self.saveSimResults := false;
   self.currentGeneration := 0;
+  self.btnShowInitVals.Enabled := false;
+  self.btnShowRates.Enabled := false;
+  self.btnModelInfo.Enabled := false;
 
   asm
     this.strFileInput = location.search.substring(1);
@@ -313,7 +340,7 @@ begin
 
   self.pnlSliderAr[i] := TpnlParamSlider.create(self.pnlParamSliders, i, @self.EditSliderList,
                                                 @self.paramSliderOnChange );
-  self.pnlSliderAr[i].configPSliderPanel(sliderPanelLeft, sliderPanelWidth, SLIDERPHEIGHT, sliderTop);
+  self.pnlSliderAr[i].configPSliderPanel(sliderPanelLeft, sliderPanelWidth, self.intSliderHeight, sliderTop);
   self.SetSliderParamValues(i, self.sliderParamAr[i]);
   self.pnlSliderAr[i].configPSliderTBar;
 end;
@@ -340,23 +367,40 @@ end;
 
 function TMainForm.calcSliderWidth(): integer;
 begin
-   if(trunc(self.pnlParamSliders.Width/SLIDERS_PER_ROW) > 200 ) then
-    Result :=  trunc((self.pnlParamSliders.width - self.FNCScrollBarVertical.Width)/SLIDERS_PER_ROW)   // three sliders across
+   if(trunc(self.pnlParamSliders.Width/self.slidersPerRow) > 200 ) then
+    Result :=  trunc( self.pnlParamSliders.width/self.slidersPerRow )   // three sliders across
   else Result := 200;
 end;
 
 function TMainForm.calcSliderLeft(index: integer): integer;
+var
+  i: Integer;
+  modVal: Integer;
 begin
 
-  if index = 0 then Result := 5
+  if index = 0 then Result := 1
   else
-    case (index mod SLIDERS_PER_ROW) of
-     0: Result := 5;
+    begin
+    modVal := index mod self.slidersPerRow;
+    if modVal = 0 then Result := 1
+    else
+      begin
+      for i := 0 to self.slidersPerRow -1 do
+        begin
+        if modVal = i then
+          Result := i * self.calcSliderWidth ;
+        end;
+      end;
+    end;
+    {
+    case (index mod self.slidersPerRow) of
+     0: Result := 1;
      1: Result := self.calcSliderWidth ;
      2: Result := 2 * self.calcSliderWidth;
      3: Result := 3 * self.calcSliderWidth;
-     else Result := 5;
-    end;
+     4: Result := 4 * self.calcSliderWidth;
+     else Result := 1;
+    end;   }
 
 end;
 
@@ -366,11 +410,11 @@ begin
   if index = 0 then numRows := 1
   else
     begin
-    numRows := (index + 1) div SLIDERS_PER_ROW;
-    if (index + 1) mod SLIDERS_PER_ROW > 0 then inc(numRows);
+    numRows := (index + 1) div self.slidersPerRow;
+    if (index + 1) mod self.slidersPerRow > 0 then inc(numRows);
     end;
   console.log('Rows: ', numRows);
-  Result := (numRows - 1) * SLIDERPHEIGHT;
+  Result := (numRows - 1) * self.intSliderHeight{ SLIDERPHEIGHT};
 end;
 
 function  TMainForm.getNumberOfSliders(): integer;
@@ -542,6 +586,8 @@ begin
        begin
        self.graphPanelList[i].Width := self.graphPanelList[i].Parent.Width;
        self.graphPanelList[i].setChartWidth( self.graphPanelList[i].Width );
+       self.graphPanelList[i].setPanelHeight(self.graphPanelList[i].Parent.Height);
+
        self.graphPanelList[i].Invalidate;    // needed ??
        end;
      end;
@@ -558,7 +604,7 @@ begin
       begin
       sliderTop := self.calcSliderTop(i);
       sliderLeft := self.calcSliderLeft(i);
-      self.pnlSliderAr[i].configPSliderPanel(sliderLeft, sliderWidth, SLIDERPHEIGHT, sliderTop);
+      self.pnlSliderAr[i].configPSliderPanel(sliderLeft, sliderWidth, self.intSliderHeight {SLIDERPHEIGHT}, sliderTop);
       self.pnlSliderAr[i].configPSliderTBar;
       end;
     end;
@@ -751,6 +797,9 @@ begin
   self.btnRunPause.Enabled := true;
   self.setListBoxInitValues;
   self.setListBoxRateLaws;
+  self.btnShowInitVals.Enabled := true;
+  self.btnShowRates.Enabled := true;
+  self.btnModelInfo.Enabled := true;
  
 end;
 
@@ -1179,13 +1228,13 @@ procedure TMainForm.setListBoxInitValues();
 var i: integer;
     curId, curAssign, temp: string;
     curVal: double;
-    strListInitVals: TStringList;
+  //  strListInitVals: TStringList;
     paramAr: array of TSBMLparameter;
     compAr: array of TSBMLCompartment;
     floatSpeciesAr: array of TSBMLSpecies;
     boundarySpeciesAr: array of TSBMLSpecies;
 begin
-  strListInitVals := TStringList.Create;
+  self.strListInitVals := TStringList.Create;
   paramAr := self.mainController.getModel.getSBMLparameterAr;
   for i := 0 to length(paramAr) -1 do
     begin
@@ -1196,12 +1245,12 @@ begin
     if self.mainController.getModel.getInitialAssignmentWithSymbolId(curId) <> nil then
       begin
       temp := curId + ' = ' + self.mainController.getModel.getInitialAssignmentWithSymbolId(curId).getFormula;
-      strListInitVals.Add(temp);
+      self.strListInitVals.Add(temp);
       end
     else
       begin
       temp := curId+ ' = ' + floatToStr(paramAr[i].getValue);
-      strListInitVals.Add(temp);
+      self.strListInitVals.Add(temp);
       end;
     end;
 
@@ -1212,7 +1261,7 @@ begin
     curId := '';
     curVal := 0.0;
     temp := compAr[i].getID + ' = ' + floatToStr(compAr[i].getVolume);
-    strListInitVals.Add(temp);
+    self.strListInitVals.Add(temp);
     end;
 
   floatSpeciesAr := self.mainController.getModel.getSBMLFloatSpeciesAr;
@@ -1225,7 +1274,7 @@ begin
     if self.mainController.getModel.getInitialAssignmentWithSymbolId(curId) <> nil then
       begin
       temp := curId + ' = ' + self.mainController.getModel.getInitialAssignmentWithSymbolId(curId).getFormula;
-      strListInitVals.Add(temp);
+      self.strListInitVals.Add(temp);
       end
     else
       begin
@@ -1233,7 +1282,7 @@ begin
       if floatSpeciesAr[i].isSetInitialConcentration then
         temp := temp + floatToStr(floatSpeciesAr[i].getInitialConcentration)
       else temp := temp + floatToStr(floatSpeciesAr[i].getInitialAmount);
-      strListInitVals.Add(temp);
+      self.strListInitVals.Add(temp);
       end;
     end;
 
@@ -1248,7 +1297,7 @@ begin
     if self.mainController.getModel.getInitialAssignmentWithSymbolId(curId) <> nil then
       begin
       temp := temp + self.mainController.getModel.getInitialAssignmentWithSymbolId(curId).getFormula;
-      strListInitVals.Add(temp);
+      self.strListInitVals.Add(temp);
       end
     else
       begin
@@ -1256,21 +1305,59 @@ begin
       if boundarySpeciesAr[i].isSetInitialConcentration then
         temp := temp + floatToStr(boundarySpeciesAr[i].getInitialConcentration)
       else temp := temp + floatToStr(boundarySpeciesAr[i].getInitialAmount);
-      strListInitVals.Add(temp);
+      self.strListInitVals.Add(temp);
       end;
     end;
 
-  self.lb_InitVals.Items := strListInitVals;
+ // self.lb_InitVals.Items := self.strListInitVals;
+end;
+
+procedure TMainForm.displayInitValues();
+
+   procedure AfterCreate(AForm: TObject);
+  begin
+    (AForm as TfListBox1).Top := trunc(self.Height*0.2); // put popup %20 from top
+    (AForm as TfListBox1).setListBox(self.strListInitVals);
+
+  end;
+begin
+  // self.setListBoxInitVals;
+  displayModelInfoLB := TfListBox1.CreateNew(@AfterCreate);
+  displayModelInfoLB.Popup := true;
+  displayModelInfoLB.ShowClose := true;
+  displayModelInfoLB.PopupOpacity := 0.3;
+  displayModelInfoLB.Border := fbDialogSizeable;
+  displayModelInfoLB.caption := 'Initial Values and assignments:';
+
+end;
+
+procedure TMainForm.displayRateLaws;
+
+   procedure AfterCreate(AForm: TObject);
+  begin
+    (AForm as TfListBox1).Top := trunc(self.Height*0.2); // put popup %20 from top
+    (AForm as TfListBox1).setListBox(self.strListRates);
+
+  end;
+begin
+  // self.setListBoxRateLaws;
+  displayModelInfoLB := TfListBox1.CreateNew(@AfterCreate);
+  displayModelInfoLB.Popup := true;
+  displayModelInfoLB.ShowClose := true;
+  displayModelInfoLB.PopupOpacity := 0.3;
+  displayModelInfoLB.Border := fbDialogSizeable;
+  displayModelInfoLB.caption := 'Rate laws:';
+
 end;
 
 procedure TMainForm.setListBoxRateLaws();
 var i: integer;
     curVar, temp: string;
-    strListRates: TStringList;
+   // strListRates: TStringList;
     rateAr: array of TSBMLrule;
     rxnAr: array of SBMLReaction;
 begin
-  strListRates := TStringList.Create;
+  self.strListRates := TStringList.Create;
   rateAr := self.mainController.getModel.getSBMLmodelRules;
   for i := 0 to length(rateAr) -1 do
     begin
@@ -1292,11 +1379,11 @@ begin
     curVar := '';
     temp := rxnAr[i].getID + ' : ';
     temp := temp + rxnAr[i].getKineticLaw.getFormula;
-    strListRates.Add(temp);
+    self.strListRates.Add(temp);
 
 
     end;
-  self.lbRateLaws.Items := strListRates;
+  //self.lbRateLaws.Items := strListRates;
 
 end;
 
@@ -1305,13 +1392,6 @@ begin
   self.lblStepSize.Enabled := true;
   self.edtStepSize.Enabled := true;
   Result := true;
-end;
-procedure TMainForm.FNCScrollBarVerticalValueChanged(Sender: TObject;
-  Value: Double);
-begin
- // origin.Y := Value;
- // networkCanvas.origin.Y := Value;
- // networkPB1.Invalidate;
 end;
 
 function TMainForm.disableStepSizeEdit(): boolean;// true: success
