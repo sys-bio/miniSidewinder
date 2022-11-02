@@ -30,11 +30,11 @@ uses
   uWebStage in 'Graph\ScrollingChart\uWebStage.pas',
   uControllerMain in 'uControllerMain.pas',
   uSidewinderTypes in 'uSidewinderTypes.pas',
-  ufVarSelect in 'ufVarSelect.pas' {VarSelectForm: TWebForm},
   ufYAxisMinMaxEdit in 'Graph\ufYAxisMinMaxEdit.pas' {FYAxisMinMaxEdit: TWebForm} {*.html},
   upnlParamSlider in 'upnlParamSlider.pas',
   ufListBox in 'ufListBox.pas' {fListBox1: TWebForm} {*.html},
   uTestModel in 'uTestModel.pas',
+  ufVarSelect in 'ufVarSelect.pas' {VarSelectForm: TWebForm},
   ufLabelPopUp in 'ufLabelPopUp.pas' {fLabelPopUp: TWebForm} {*.html};
 
 {$R *.res}

@@ -138,11 +138,6 @@
         <DCCReference Include="Graph\ScrollingChart\uWebStage.pas"/>
         <DCCReference Include="uControllerMain.pas"/>
         <DCCReference Include="uSidewinderTypes.pas"/>
-        <DCCReference Include="ufVarSelect.pas">
-            <Form>VarSelectForm</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TWebForm</DesignClass>
-        </DCCReference>
         <DCCReference Include="Graph\ufYAxisMinMaxEdit.pas">
             <Form>FYAxisMinMaxEdit</Form>
             <FormType>dfm</FormType>
@@ -155,6 +150,11 @@
             <DesignClass>TWebForm</DesignClass>
         </DCCReference>
         <DCCReference Include="uTestModel.pas"/>
+        <DCCReference Include="ufVarSelect.pas">
+            <Form>VarSelectForm</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TWebForm</DesignClass>
+        </DCCReference>
         <DCCReference Include="ufLabelPopUp.pas">
             <Form>fLabelPopUp</Form>
             <FormType>dfm</FormType>
@@ -167,6 +167,7 @@
         <None Include="sbml\writeSBMLmodel.js"/>
         <None Include="math\euler_solver.js"/>
         <None Include="math\RK4solver.js"/>
+        <None Include="ufVarSelect.html"/>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>
@@ -199,15 +200,21 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="Win32\Debug\miniSidewinder.exe" Configuration="Debug" Class="ProjectOutput">
+                <DeployFile LocalName="ufVarSelect.html" Configuration="Debug" Class="ProjectFile">
                     <Platform Name="Win32">
-                        <RemoteName>miniSidewinder.exe</RemoteName>
+                        <RemoteDir>.\</RemoteDir>
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
                 <DeployFile LocalName="math\euler_solver.js" Configuration="Debug" Class="ProjectFile">
                     <Platform Name="Win32">
                         <RemoteDir>.\</RemoteDir>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="Win32\Debug\miniSidewinder.exe" Configuration="Debug" Class="ProjectOutput">
+                    <Platform Name="Win32">
+                        <RemoteName>miniSidewinder.exe</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>

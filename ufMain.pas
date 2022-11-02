@@ -490,12 +490,7 @@ var
     sliderP := '';
     if sIndex > length(self.sliderParamAr) -1 then
       addingSlider := true
-    else
-      begin    // Changing param slider, so clear out old param entries:
-        addingSlider := false;
-     {   self.clearSlider(sIndex);
-        self.sliderParamAr[getSliderIndex(sIndex)] := -1;} // Clear param location in param Array
-      end;
+    else addingSlider := false; // Changing existing param slider,
 
     for i := 0 to fSliderParameter.SpPlotCG.Items.Count - 1 do
       begin
