@@ -493,8 +493,8 @@ var
     else
       begin    // Changing param slider, so clear out old param entries:
         addingSlider := false;
-        self.clearSlider(sIndex);
-        self.sliderParamAr[getSliderIndex(sIndex)] := -1; // Clear param location in param Array
+     {   self.clearSlider(sIndex);
+        self.sliderParamAr[getSliderIndex(sIndex)] := -1;} // Clear param location in param Array
       end;
 
     for i := 0 to fSliderParameter.SpPlotCG.Items.Count - 1 do
@@ -510,6 +510,8 @@ var
               end;
             if not addingSlider then
               begin
+              self.clearSlider(sIndex);
+              self.sliderParamAr[getSliderIndex(sIndex)] := -1; // Clear param location in param Array
               self.sliderParamAr[sIndex] := j {i}; // assign param index from param array to slider
               self.SetSliderParamValues(sIndex, self.sliderParamAr[sIndex]);
               self.pnlSliderAr[sIndex].Visible := true;
@@ -1242,7 +1244,6 @@ procedure TMainForm.setListBoxInitValues();
 var i: integer;
     curId, curAssign, temp: string;
     curVal: double;
-  //  strListInitVals: TStringList;
     paramAr: array of TSBMLparameter;
     compAr: array of TSBMLCompartment;
     floatSpeciesAr: array of TSBMLSpecies;
@@ -1322,8 +1323,6 @@ begin
       self.strListInitVals.Add(temp);
       end;
     end;
-
- // self.lb_InitVals.Items := self.strListInitVals;
 end;
 
 procedure TMainForm.displayInitValues();
@@ -1332,7 +1331,6 @@ procedure TMainForm.displayInitValues();
   begin
     (AForm as TfListBox1).Top := trunc(self.Height*0.2); // put popup %20 from top
     (AForm as TfListBox1).setListBox(self.strListInitVals);
-
   end;
 begin
   // self.setListBoxInitVals;
@@ -1342,7 +1340,6 @@ begin
   displayModelInfoLB.PopupOpacity := 0.3;
   displayModelInfoLB.Border := fbDialogSizeable;
   displayModelInfoLB.caption := 'Initial Values and assignments:';
-
 end;
 
 procedure TMainForm.displayRateLaws;
@@ -1361,7 +1358,6 @@ begin
   displayModelInfoLB.PopupOpacity := 0.3;
   displayModelInfoLB.Border := fbDialogSizeable;
   displayModelInfoLB.caption := 'Rate laws:';
-
 end;
 
 procedure TMainForm.displayModelInfo();
@@ -1369,25 +1365,20 @@ procedure TMainForm.displayModelInfo();
    begin
     (AForm as TfLabelPopUp).Top := trunc(self.Height*0.2); // put popup %20 from top
     (AForm as TfLabelPopUp).lbl_Info.Caption := self.currentModelInfo;
-
    end;
 begin
-
   self.displayModelInfoLbl := TfLabelPopUp.CreateNew(@AfterCreate);
   self.displayModelInfoLbl.Popup := true;
   self.displayModelInfoLbl.ShowClose := true;
   self.displayModelInfoLbl.PopupOpacity := 0.3;
   self.displayModelInfoLbl.Border := fbDialogSizeable;
   self.displayModelInfoLbl.caption := 'Model information:';
-
 end;
 
 procedure TMainForm.setLabelModelInfo();
 begin
   if self.mainController.getModel.getModelId <> '' then
-    begin
-    self.currentModelInfo := stringReplace(self.mainController.getModel.getModelId, '_', ' ',rfReplaceAll);
-    end;
+    self.currentModelInfo := stringReplace(self.mainController.getModel.getModelId, '_', ' ',[rfReplaceAll]);
 end;
 
 
