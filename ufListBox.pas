@@ -22,8 +22,12 @@ implementation
 
 {$R *.dfm}
  procedure TfListBox1.setListBox(newList: TStringList);
+ var itemCount: integer;
  begin
    self.listBox1.Items := newList;
+   itemCount := newList.Count;
+   self.listBox1.Height := trunc(self.listBox1.Font.Size * 2.5 * itemCount);
+   self.Height := self.listBox1.Height + 50;
  end;
 
 

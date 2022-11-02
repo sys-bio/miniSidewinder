@@ -6,16 +6,16 @@ uses
   System.SysUtils, System.Classes, System.Generics.Collections, StrUtils,
   JS, Web, WEBLib.Graphics, WEBLib.Controls, WEBLib.Forms, WEBLib.Dialogs,
   Vcl.Controls, WEBLib.ExtCtrls, Vcl.StdCtrls, WEBLib.StdCtrls, uSimulation,
-  uControllerMain, ufVarSelect, {uParamSliderLayout,} uSidewinderTypes, uGraphPanel,
+  uControllerMain, ufVarSelect, uSidewinderTypes, uGraphPanel, uTestModel,
   uModel, uSBMLClasses, uSBMLClasses.rule, upnlParamSlider,
   VCL.TMSFNCTypes, VCL.TMSFNCUtils, VCL.TMSFNCGraphics, VCL.TMSFNCGraphicsTypes,
-  VCL.TMSFNCCustomControl, VCL.TMSFNCScrollBar, ufListBox;
+  VCL.TMSFNCCustomControl, VCL.TMSFNCScrollBar, ufListBox, ufLabelPopUp;
 
 const SIDEWINDER_VERSION = 'Version 0.3 alpha';
       DEFAULT_RUNTIME = 10000;
       EDITBOX_HT = 25;
       ZOOM_SCALE = 20;
-      MAX_SLIDERS = 16;
+      MAX_SLIDERS = 12; //16;
       SLIDERS_PER_ROW = 4;
       MAX_STR_LENGTH = 50; // Max User inputed string length for Rxn/spec/param id
       NULL_NODE_TAG = '_Null'; // from uNetwork, just in case, probably not necessary
@@ -41,6 +41,7 @@ type
     btnShowInitVals: TWebButton;
     btnShowRates: TWebButton;
     btnModelInfo: TWebButton;
+    btnExample: TWebButton;
     procedure WebFormCreate(Sender: TObject);
     procedure btnSimResetClick(Sender: TObject);
     procedure btnLoadModelClick(Sender: TObject);
@@ -57,6 +58,8 @@ type
     procedure btnShowInitValsClick(Sender: TObject);
     procedure btnShowRatesClick(Sender: TObject);
     procedure btnModelInfoClick(Sender: TObject);
+    procedure btnExampleClick(Sender: TObject);
+
 
   private
     numbPlots: Integer; // Number of plots displayed
@@ -65,8 +68,10 @@ type
     stepSize: double; // default is 0.1
     SliderEditLB: TWebListBox;
     displayModelInfoLB: TfListBox1;
+    displayModelInfoLbl: TfLabelPopUp;
     strListInitVals: TStringList;
     strListRates: TStringList;
+    currentModelInfo: string;
 
     procedure initializePlots();
     procedure initializePlot( n: integer);
@@ -80,6 +85,7 @@ type
     procedure clearSlider(sn: Integer); // sn: slider index
     function  getSliderIndex(sliderTag: integer): Integer;
     function  getNumberOfSliders(): integer;
+    function  calcParamSlidersPanelHeight(): integer;
     procedure EditSliderList(sn: Integer);
     procedure SetSliderParamValues(sn, paramForSlider: Integer);
     procedure resetSliderPositions(); // Reset param position to init model param value.
@@ -91,6 +97,7 @@ type
     procedure refreshPlotAndSliderPanels();
     procedure refreshPlotPanels();
     procedure refreshSliderPanels();
+    function  getParamsNotAssignedSliders(): array of string;
     procedure addPlot(yMax: double); // Add a plot, yMax: largest initial val of plotted species
     procedure resetPlots();  // Reset plots for new simulation.
     procedure selectPlotSpecies(plotnumb: Integer);
@@ -102,7 +109,9 @@ type
     procedure setListBoxInitValues();
     procedure displayInitValues();
     procedure displayRateLaws();
+    procedure displayModelInfo();
     procedure setListBoxRateLaws();
+    procedure setLabelModelInfo();
     function  enableStepSizeEdit(): boolean; // true: success
     function  disableStepSizeEdit(): boolean; // true: success
     //procedure checkIfFilePassedIn(); // See if model file name is passed to form as a string
@@ -139,6 +148,19 @@ implementation
 
 {$R *.dfm}
 
+procedure TMainForm.btnExampleClick(Sender: TObject);
+
+var s : string;
+begin
+  s := getTestModel(1);
+ { if DEBUG then
+    begin
+    SBMLmodelMemo.Lines.Text := s;
+    SBMLmodelMemo.visible := true;
+    end;  }
+  SBMLOpenDialogGetFileAsText( nil, 0, s);
+end;
+
 procedure TMainForm.btnLoadModelClick(Sender: TObject);
 begin
   self.SBMLOpenDialog.execute();
@@ -146,7 +168,7 @@ end;
 
 procedure TMainForm.btnModelInfoClick(Sender: TObject);
 begin
- // TODO
+  self.displayModelInfo();
 end;
 
 procedure TMainForm.btnRunPauseClick(Sender: TObject);
@@ -158,10 +180,7 @@ begin
       if MainController.isOnline = false then
         self.runSim
       else  // stop simulation
-        begin
         self.stopSim;
- //  self.btnAddPlot.Enabled := true;
-        end;
     except
       on E: Exception do
         notifyUser(E.Message);
@@ -172,7 +191,6 @@ end;
 
 procedure TMainForm.btnShowInitValsClick(Sender: TObject);
 begin
-// TODO
   self.displayInitValues();
 end;
 
@@ -213,15 +231,14 @@ begin
     SBMLmodelMemo.visible := true;
     end;  }
   // Check if sbmlmodel already created, if so, destroy before creating ?
+  self.currentModelInfo := 'None.';
   self.deleteAllPlots;
   self.deleteAllSliders;
   self.resetBtnOnLineSim;
-
   self.simStarted := false;
   self.mainController.clearModel;
   self.mainController.clearSim;
  //self.btnResetSimSpecies.enabled := false;
-
  // self.btnParamReset.enabled := false;
   self.btnSimReset.enabled := false;
   self.MainController.loadSBML(AText);
@@ -233,7 +250,7 @@ begin
   self.numbPlots := 0;
   self.slidersPerRow := SLIDERS_PER_ROW;
   self.intSliderHeight := 45;
-  self.pnlParamSliders.height := trunc((MAX_SLIDERS/SLIDERS_PER_ROW)*45) +2;
+  self.pnlParamSliders.height := 5; //trunc((MAX_SLIDERS/SLIDERS_PER_ROW)*self.intSliderHeight) +2;
   self.stepSize := 0.1;
   self.edtStepSize.Text := floatToStr(self.stepSize * 1000);
   self.simStarted := false;
@@ -242,6 +259,7 @@ begin
   self.mainController.setODEsolver;
  // self.saveSimResults := false;
   self.currentGeneration := 0;
+  self.currentModelInfo := 'None.';
   self.btnShowInitVals.Enabled := false;
   self.btnShowRates.Enabled := false;
   self.btnModelInfo.Enabled := false;
@@ -276,7 +294,6 @@ begin
     begin
     for i := 0 to graphPanelList.Count - 1 do
       begin
-
       self.initializePlot(i);
       end;
     end;
@@ -308,7 +325,7 @@ end;
             i := TWebPanel(Sender).tag;
             // assume only slider TWebpanel in right panel.
             // ShowMessage('WebPanel sent mouse msg (addParamSlider):  '+ inttostr(i));
-            self.EditSliderList(i);
+            self.EditSliderList(i{, X, Y});
           end;
       end;
   end;
@@ -316,22 +333,10 @@ end;
 procedure TMainForm.addParamSlider(); // assume slider index is at last position, otherwise it is just an edit.
 // default TBar range: 0 to initVal*10
 var i, sliderTBarWidth, sliderPanelLeft, sliderPanelWidth: integer;
-   { numRows, numCols,} sliderTop: Integer;
+    sliderTop: Integer;
 begin
-  // Slider layout algo:
-  // Number of columns: SLIDERS_PER_ROW
-  // Number of rows = div(number of sliders/ SLIDERS_PER_ROW) + 1 if mod (number of sliders/ SLIDERS_PER_ROW)>0
-
   i := self.getNumberOfSliders; // array index for current slider to be added.
   SetLength(self.pnlSliderAr, i + 1);
- { if i=0 then numRows := 1
-  else
-    begin
-    numRows := (i+1) div SLIDERS_PER_ROW;
-    if (i+1) mod SLIDERS_PER_ROW > 0 then inc(numRows);
-    end;
-  console.log('Rows: ', numRows);
-  sliderTop := (numRows - 1) * SLIDERPHEIGHT;  }
   sliderTop := self.calcSliderTop(i);
   // Left most position of the panel that holds the slider
   sliderPanelLeft := self.calcSliderLeft(i);
@@ -392,15 +397,6 @@ begin
         end;
       end;
     end;
-    {
-    case (index mod self.slidersPerRow) of
-     0: Result := 1;
-     1: Result := self.calcSliderWidth ;
-     2: Result := 2 * self.calcSliderWidth;
-     3: Result := 3 * self.calcSliderWidth;
-     4: Result := 4 * self.calcSliderWidth;
-     else Result := 1;
-    end;   }
 
 end;
 
@@ -432,8 +428,8 @@ var
   pName: String;
 begin
   rangeMult := SLIDER_RANGE_MULT; //10; // default.
-  pName :=  self.mainController.getModel.getP_Names[self.sliderParamAr[sn]];
-  pVal := self.mainController.getModel.getP_Vals[self.sliderParamAr[sn]];
+  pName :=  self.mainController.getModel.getP_Names[paramForSlider{self.sliderParamAr[sn]}];
+  pVal := self.mainController.getModel.getP_Vals[paramForSlider{self.sliderParamAr[sn]}];
   self.pnlSliderAr[sn].setUpParamSliderVals(pName, pVal);
 
 end;
@@ -486,7 +482,7 @@ var
   // Pass back to caller after closing popup:
   procedure AfterShowModal(AValue: TModalResult);
   var
-    i:Integer;
+    i, j:Integer;
     addingSlider: Boolean;
     sliderP: string;
   begin
@@ -495,7 +491,7 @@ var
     if sIndex > length(self.sliderParamAr) -1 then
       addingSlider := true
     else
-      begin    // Changing species to plot, so clear out old param entries:
+      begin    // Changing param slider, so clear out old param entries:
         addingSlider := false;
         self.clearSlider(sIndex);
         self.sliderParamAr[getSliderIndex(sIndex)] := -1; // Clear param location in param Array
@@ -506,14 +502,15 @@ var
         sliderP := '';
         if fSliderParameter.SpPlotCG.checked[i] then
           begin
+            j := self.mainController.getModel.findIndexForParamStr(fSliderParameter.speciesList[i]);
             if addingSlider then
-              begin
+              begin         // need to get correct param index
               SetLength(self.sliderParamAr, length(self.sliderParamAr) + 1);    // add a slider
-              self.sliderParamAr[length(self.sliderParamAr) -1] := i; // assign param index from param array to slider
+              self.sliderParamAr[length(self.sliderParamAr) -1] := j {i}; // assign param index from param array to slider
               end;
             if not addingSlider then
               begin
-              self.sliderParamAr[sIndex] := i; // assign param index from param array to slider
+              self.sliderParamAr[sIndex] := j {i}; // assign param index from param array to slider
               self.SetSliderParamValues(sIndex, self.sliderParamAr[sIndex]);
               self.pnlSliderAr[sIndex].Visible := true;
               self.pnlSliderAr[sIndex].Invalidate;
@@ -527,14 +524,16 @@ var
 
       end;
 
-
   end;
 
 // async called OnCreate for TParamSliderSForm
   procedure AfterCreate(AForm: TObject);
+  var paramList: array of string;
   begin
     (AForm as TVarSelectForm).Top := trunc(self.Height*0.2); // put popup %20 from top
-    (AForm as TVarSelectForm).speciesList := self.mainController.getModel.getP_Names;
+    if length(self.mainController.getModel.getP_Names) > MAX_SLIDERS then
+      (AForm as TVarSelectForm).speciesList := self.getParamsNotAssignedSliders
+    else (AForm as TVarSelectForm).speciesList := self.mainController.getModel.getP_Names;
     (AForm as TVarSelectForm).fillSpeciesCG();
   end;
 
@@ -547,18 +546,34 @@ begin
   fSliderParameter.unCheckGroup();
   fSliderParameter.caption := 'Pick parameters for sliders:';
   fSliderParameter.ShowModal(@AfterShowModal);
-
 end;
 
-{procedure TMainForm.pnlParamSlidersMouseDown(Sender: TObject; Button: TMouseButton;
-      Shift: TShiftState; X, Y: Integer); // edit slider panel
+function  TMainForm.getParamsNotAssignedSliders(): array of string;
+var paramAr: array of string;
+    i, j: integer;
+    unused: boolean;
 begin
+  unused := true;
+  paramAr := self.mainController.getModel.getP_Names;
+  for i := 0 to length(paramAr) -1 do
+    begin
+    for j := 0 to length(self.sliderParamAr) -1 do
+      begin
+      if self.sliderParamAr[j] = i then unused := false;
+      end;
+    if unused then
+      begin
+      setLength(Result,length(Result) +1);
+      Result[length(Result) -1] := paramAr[i];
+      end;
+    unused := true;
+    end;
+end;
 
-end;  }
 
 procedure TMainForm.resetBtnOnLineSim();
 begin
-  self.btnRunPause.ElementClassName := 'btn btn-primary btn-sm';
+ // self.btnRunPause.ElementClassName := 'btn btn-primary btn-sm';
   self.btnRunPause.caption := 'Start Simulation';
  // self.btnAddPlot.Enabled := false;
  // self.btnParamAddSlider.Enabled := false;
@@ -604,7 +619,7 @@ begin
       begin
       sliderTop := self.calcSliderTop(i);
       sliderLeft := self.calcSliderLeft(i);
-      self.pnlSliderAr[i].configPSliderPanel(sliderLeft, sliderWidth, self.intSliderHeight {SLIDERPHEIGHT}, sliderTop);
+      self.pnlSliderAr[i].configPSliderPanel(sliderLeft, sliderWidth, self.intSliderHeight, sliderTop);
       self.pnlSliderAr[i].configPSliderTBar;
       end;
     end;
@@ -620,7 +635,7 @@ begin
       begin
       self.setUpSimulationUI;
       self.btnRunPause.font.color := clgreen;
-      self.btnRunPause.ElementClassName := 'btn btn-danger btn-sm';
+      //self.btnRunPause.ElementClassName := 'btn btn-danger btn-sm';
       self.btnRunPause.caption := 'Simulation: Play';
      // add a default plot:
       if self.numbPlots < 1 then
@@ -632,10 +647,7 @@ begin
       if self.getNumberOfSliders < 1 then
         begin
         self.addAllParamSliders;
-      //if length( self.mainController.getModel.getP_Names ) < 11 then
-        //self.btnParamAddSlider.Enabled := false;
         end;
-    //else self.btnParamAddSliderClick(nil);
 
       end;
 
@@ -649,7 +661,7 @@ begin
       self.disableStepSizeEdit;
       self.trackBarSimSpeed.Enabled := true;
       self.btnRunPause.font.color := clred;
-      self.btnRunPause.ElementClassName := 'btn btn-success btn-sm';
+     // self.btnRunPause.ElementClassName := 'btn btn-success btn-sm';
       self.btnRunPause.caption := 'Simulation: Pause';
      // if DEBUG then
      //   simResultsMemo.visible := true;
@@ -678,7 +690,7 @@ begin
    self.enableStepSizeEdit;
    self.MainController.SetTimerEnabled(false); // Turn off web timer (Stop simulation)
    self.btnRunPause.font.color := clgreen;
-   self.btnRunPause.ElementClassName := 'btn btn-danger btn-sm';
+  // self.btnRunPause.ElementClassName := 'btn btn-danger btn-sm';
    self.btnRunPause.caption := 'Simulation: Play';
  {  if self.saveSimResults then
      begin
@@ -730,8 +742,6 @@ begin
    self.networkUpdated := false;
     end;   }
 
- // self.rightPanelType := SIMULATION_PANEL;
- // self.setRightPanels;
   if self.mainController.getModel = nil then
   begin
     self.mainController.createModel;
@@ -740,7 +750,6 @@ begin
   self.mainController.createSimulation;
   if self.numbPlots >0 then
     self.resetPlots();
-  //self.RSimWPanel.invalidate;
   self.simStarted := true;
 end;
 
@@ -750,14 +759,7 @@ begin
     begin
       self.selectParameter(self.SliderEditLB.tag);
     end;
-{  if self.SliderEditLB.ItemIndex = 1 then // delete slider
-    begin
-      if getSliderIndex(self.SliderEditLB.tag) < length(self.pnlSliderAr) + 1 then
-        begin
-          self.clearSlider(getSliderIndex(self.SliderEditLB.tag));
-        end
-      else self.deleteSlider(getSliderIndex(self.SliderEditLB.tag));
-    end;  }
+
   // else ShowMessage('Cancel');
   self.SliderEditLB.tag := -1;
   self.SliderEditLB.visible := false;
@@ -794,13 +796,33 @@ begin
       end
   end;
 
+  self.pnlParamSliders.height := self.calcParamSlidersPanelHeight;
   self.btnRunPause.Enabled := true;
   self.setListBoxInitValues;
   self.setListBoxRateLaws;
+  self.setLabelModelInfo;
   self.btnShowInitVals.Enabled := true;
   self.btnShowRates.Enabled := true;
   self.btnModelInfo.Enabled := true;
  
+end;
+
+function  TMainForm.calcParamSlidersPanelHeight(): integer;
+var numParams, numRows: integer;
+begin  // Assume only options of max rows, max rows -1, max rows -2
+  numRows := trunc( MAX_SLIDERS / SLIDERS_PER_ROW );
+  if numRows < 3 then numRows := 3; // just in case, adjust below if max rows is 2 or less.
+
+  if self.mainController.IsModelLoaded then
+    begin
+    numParams := length(self.mainController.getModel.getP_Names);
+    if numParams >= MAX_SLIDERS then
+      Result := trunc( numRows * self.intSliderHeight ) +2
+    else if MAX_SLIDERS div numParams = 1 then
+           Result := trunc( (numRows -1) * self.intSliderHeight ) +2
+         else Result := trunc( (numRows -2) * self.intSliderHeight ) +2;
+    end
+  else Result := trunc( numRows * self.intSliderHeight) +2;
 end;
 
 procedure TMainForm.addPlotAll(); // add plot with all species
@@ -865,6 +887,7 @@ begin
   self.graphPanelList.Add( TGraphPanel.create(pnlPlot, plotPositionToAdd, yMax) );
   self.graphPanelList[plotPositionToAdd -1].setChartTimeInterval(self.stepSize);
   self.graphPanelList[plotPositionToAdd -1].OnEditGraphEvent := processGraphEvent;
+  self.graphPanelList[plotPositionToAdd-1].userChangeVarSeries := true;
   newHeight := round( self.pnlPlot.Height );  // default
   if self.numbPlots > DEFAULT_NUMB_PLOTS then
   begin
@@ -899,7 +922,6 @@ begin // Easier to just delete/create than reset time, xaxis labels, etc.
     initSVals.add(TVarNameVal.create(self.mainController.getModel.getS_Names[i],
                                       self.mainController.getModel.getS_initVals[i]) );
     end;
-
   self.refreshPlotPanels;
   self.getVals( 0, initSVals ); // Display correctly sized graph window on reset
 end;
@@ -976,8 +998,8 @@ procedure TMainForm.selectPlotSpecies(plotnumb: Integer);
       begin   // ???????
       self.graphPanelList[getPlotPBIndex(plotNumb)].setYMax(maxYVal);
       end;
-
-    self.refreshPlotAndSliderPanels;
+    self.resetPlots;
+    self.refreshSliderPanels;
   end;
 
 // async called OnCreate for TVarSelectForm
@@ -987,7 +1009,6 @@ procedure TMainForm.selectPlotSpecies(plotnumb: Integer);
      curStr: string;
   begin
     lgth := 0;
-
     for i := 0 to length(self.mainController.getModel.getS_Names) -1 do
     begin
       curStr := '';
@@ -1065,14 +1086,11 @@ begin
   for I := Length(self.pnlSliderAr) -1 downto 0 do
     self.deleteSlider(i);
   self.pnlParamSliders.Invalidate;
- // self.numbSliders := 0;
 end;
 
 procedure TMainForm.EditSliderList(sn: Integer);
 // change param slider as needed. sn is slider index
-var
-  sliderXposition, sliderYposition: Integer;
-  editList: TStringList;
+var editList: TStringList;
 begin
   if length(self.pnlSliderAr) > sn then
     begin
@@ -1080,16 +1098,12 @@ begin
     self.SliderEditLB.OnClick := self.SliderEditLBClick;
     self.SliderEditLB.parent := self.pnlSliderAr[sn];
     self.SliderEditLB.height := self.SliderEditLB.parent.height - 2;
-    self.SliderEditLB.width := 200;
-    sliderXposition := self.pnlSliderAr[sn].Left + 10; // needs parent to be self.pnlSliderAr[sn]
-    sliderYposition := 2;
+    self.SliderEditLB.width := 150;
     editList := TStringList.create();
     editList.Add('Change slider parameter.');
-  //  editList.Add('Delete slider.');
     editList.Add('Cancel');
     self.SliderEditLB.Items := editList;
-    self.SliderEditLB.Top := sliderYposition;
-    self.SliderEditLB.left := sliderXposition;
+    self.SliderEditLB.Top := 2;
     self.SliderEditLB.tag := sn;
     self.SliderEditLB.bringToFront;
     self.SliderEditLB.visible := true;
@@ -1350,10 +1364,36 @@ begin
 
 end;
 
+procedure TMainForm.displayModelInfo();
+   procedure AfterCreate(AForm: TObject);
+   begin
+    (AForm as TfLabelPopUp).Top := trunc(self.Height*0.2); // put popup %20 from top
+    (AForm as TfLabelPopUp).lbl_Info.Caption := self.currentModelInfo;
+
+   end;
+begin
+
+  self.displayModelInfoLbl := TfLabelPopUp.CreateNew(@AfterCreate);
+  self.displayModelInfoLbl.Popup := true;
+  self.displayModelInfoLbl.ShowClose := true;
+  self.displayModelInfoLbl.PopupOpacity := 0.3;
+  self.displayModelInfoLbl.Border := fbDialogSizeable;
+  self.displayModelInfoLbl.caption := 'Model information:';
+
+end;
+
+procedure TMainForm.setLabelModelInfo();
+begin
+  if self.mainController.getModel.getModelId <> '' then
+    begin
+    self.currentModelInfo := stringReplace(self.mainController.getModel.getModelId, '_', ' ',rfReplaceAll);
+    end;
+end;
+
+
 procedure TMainForm.setListBoxRateLaws();
 var i: integer;
     curVar, temp: string;
-   // strListRates: TStringList;
     rateAr: array of TSBMLrule;
     rxnAr: array of SBMLReaction;
 begin

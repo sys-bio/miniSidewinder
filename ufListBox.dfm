@@ -1,10 +1,10 @@
 object fListBox1: TfListBox1
-  Width = 173
+  Width = 188
   Height = 228
   object listBox1: TWebListBox
-    Left = 24
+    Left = 8
     Top = 8
-    Width = 121
+    Width = 145
     Height = 193
     HeightPercent = 100.000000000000000000
     ItemHeight = 13

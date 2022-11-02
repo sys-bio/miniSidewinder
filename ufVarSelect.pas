@@ -18,6 +18,7 @@ type
   //  procedure WebFormShow(Sender: TObject);
     procedure okButton1Click(Sender: TObject);
     procedure SpPlotCGCheckClick(Sender: TObject; AIndex: Integer);
+    procedure setSpPlotCGFontColor( newColor: TColor);
     function  setChkGrpWidth(): integer; // adjusts width based on longest string in speciesList
     procedure unCheckGroup();
     procedure checkGroup();
@@ -56,14 +57,6 @@ begin
 // TODO ??
 end;
 
-{procedure TVarSelectForm.WebFormShow(Sender: TObject);     // cannot check here...
-var i : integer;
-begin
-  for i := 0 to length(speciesList)-1 do
-    if length(speciesList) <10 then
-      SpPlotCG.Checked[i] := True
-    else SpPlotCG.Checked[i] := false;
-end;         }
 
 function  TVarSelectForm.setChkGrpWidth(): integer;
 var i, maxLength: integer;
@@ -105,6 +98,11 @@ var i: integer;
 begin
   for i := 0 to length(speciesList)-1 do
     SpPlotCG.Checked[i] := true;
+end;
+
+procedure TVarSelectForm.setSpPlotCGFontColor(newColor: TColor);
+begin
+  self.SpPlotCG.font.color := newColor;
 end;
 
 end.

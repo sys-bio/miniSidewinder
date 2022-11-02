@@ -1,18 +1,18 @@
 object MainForm: TMainForm
   Width = 865
-  Height = 681
+  Height = 680
   OnCreate = WebFormCreate
   OnResize = WebFormResize
   object pnlModelInfo: TWebPanel
-    Left = 760
+    Left = 785
     Top = 60
-    Width = 105
-    Height = 371
+    Width = 80
+    Height = 370
     Align = alRight
     object btnShowInitVals: TWebButton
-      Left = 16
+      Left = 10
       Top = 54
-      Width = 70
+      Width = 60
       Height = 25
       Caption = 'Init Vals'
       ChildOrder = 4
@@ -21,9 +21,9 @@ object MainForm: TMainForm
       OnClick = btnShowInitValsClick
     end
     object btnShowRates: TWebButton
-      Left = 16
+      Left = 10
       Top = 96
-      Width = 70
+      Width = 60
       Height = 25
       Caption = 'Rate laws'
       ChildOrder = 3
@@ -32,36 +32,39 @@ object MainForm: TMainForm
       OnClick = btnShowRatesClick
     end
     object btnModelInfo: TWebButton
-      Left = 16
+      Left = 10
       Top = 6
-      Width = 70
+      Width = 60
       Height = 25
-      Caption = 'Model Info'
+      Hint = 'Model information, if available.'
+      Caption = 'Info'
       ChildOrder = 2
       HeightPercent = 100.000000000000000000
+      ShowHint = True
       WidthPercent = 100.000000000000000000
       OnClick = btnModelInfoClick
+    end
+    object btnExample: TWebButton
+      Left = 10
+      Top = 136
+      Width = 60
+      Height = 25
+      Hint = 'Load example model.'
+      Caption = 'Example'
+      ChildOrder = 3
+      HeightPercent = 100.000000000000000000
+      ShowHint = True
+      WidthPercent = 100.000000000000000000
+      OnClick = btnExampleClick
     end
   end
   object pnlPlot: TWebPanel
     Left = 0
     Top = 60
-    Width = 760
-    Height = 371
+    Width = 785
+    Height = 370
     Align = alClient
     ChildOrder = 1
-    ExplicitLeft = 241
-    ExplicitWidth = 624
-    ExplicitHeight = 378
-  end
-  object pnlParamSliders: TWebPanel
-    Left = 0
-    Top = 431
-    Width = 865
-    Height = 250
-    Align = alBottom
-    ChildOrder = 2
-    ExplicitTop = 438
   end
   object pnlTop: TWebPanel
     Left = 0
@@ -71,7 +74,7 @@ object MainForm: TMainForm
     Align = alTop
     ChildOrder = 3
     object lblStepSize: TWebLabel
-      Left = 701
+      Left = 670
       Top = 21
       Width = 72
       Height = 13
@@ -101,9 +104,9 @@ object MainForm: TMainForm
       OnClick = btnSimResetClick
     end
     object edtStepSize: TWebEdit
-      Left = 779
+      Left = 750
       Top = 18
-      Width = 65
+      Width = 50
       Height = 22
       Hint = 'Change step size for integrator.'
       ChildOrder = 3
@@ -126,13 +129,13 @@ object MainForm: TMainForm
     object pnlSimSpeedMult: TWebPanel
       Left = 465
       Top = 4
-      Width = 198
+      Width = 180
       Height = 50
-      Hint = 'Speed up simulation, limited by computer resources.'
+      Hint = 'Speed up simulation, limited by browser resources.'
       ChildOrder = 5
       ShowHint = True
       object lblSpeedMult: TWebLabel
-        Left = 35
+        Left = 30
         Top = 8
         Width = 98
         Height = 13
@@ -142,7 +145,7 @@ object MainForm: TMainForm
         WidthPercent = 100.000000000000000000
       end
       object lblSpeedMultVal: TWebLabel
-        Left = 137
+        Left = 132
         Top = 8
         Width = 12
         Height = 13
@@ -151,7 +154,7 @@ object MainForm: TMainForm
         WidthPercent = 100.000000000000000000
       end
       object lblSpeedMultMin: TWebLabel
-        Left = 16
+        Left = 15
         Top = 30
         Width = 22
         Height = 13
@@ -160,7 +163,7 @@ object MainForm: TMainForm
         WidthPercent = 100.000000000000000000
       end
       object lblSpeedMultMax: TWebLabel
-        Left = 170
+        Left = 150
         Top = 30
         Width = 12
         Height = 13
@@ -171,7 +174,7 @@ object MainForm: TMainForm
       object trackBarSimSpeed: TWebTrackBar
         Left = 43
         Top = 27
-        Width = 121
+        Width = 100
         Height = 20
         Max = 30
         Min = 1
@@ -180,6 +183,14 @@ object MainForm: TMainForm
         OnChange = trackBarSimSpeedChange
       end
     end
+  end
+  object pnlParamSliders: TWebPanel
+    Left = 0
+    Top = 430
+    Width = 865
+    Height = 250
+    Align = alBottom
+    ChildOrder = 2
   end
   object SBMLOpenDialog: TWebOpenDialog
     OnChange = SBMLOpenDialogChange

@@ -8,7 +8,7 @@ uses System.SysUtils, System.Classes, System.Generics.Collections, StrUtils,
 
 
 type
-TEditSliderEvent = procedure( index: integer ) of object;
+TEditSliderEvent = procedure( index: integer{; xPos, yPos: Integer} ) of object;
 
 TpnlParamSlider = class(TWebPanel)
   private
@@ -21,7 +21,6 @@ TpnlParamSlider = class(TWebPanel)
     sliderPHLabel: TWebLabel; // Displays sliderPHigh
     sliderPLLabel: TWebLabel; // Displays sliderPLow
     sliderPTBLabel: TWebLabel;
-   // sliderNumber: integer;  // Starts at 1, Not index , use tag
     id: string;    // name of parameter to adjust
     initVal: double;
     multiplier: integer; // Sets range of low to high
@@ -34,6 +33,7 @@ TpnlParamSlider = class(TWebPanel)
     procedure configPSliderPanel(sPLeft, sliderPanelWidth, sliderPanelHeight, sliderPanelTop: integer) overload;
     procedure configPSliderTBar({sliderPanelWidth : integer});
     procedure setTrackBarLabel( newStr: string );
+    function  formatValueToStr(newVal: double): string; // Adjust number, as needed, to fit space provided
     procedure clearSlider();
     // Called when adding or updating a param slider:
     procedure setUpParamSliderVals(pName: string; pVal: double);
@@ -106,11 +106,11 @@ procedure TpnlParamSlider.configPSliderTBar({sliderPanelWidth : integer }{ newSB
 var sliderTBarWidth : integer;
   begin
     // Width of the slider inside the panel
-    sliderTBarWidth:= trunc (0.70*self.width {sliderPanelWidth}); // 70% of the panel's width
+    sliderTBarWidth:= trunc (0.50 {0.70}*self.width {sliderPanelWidth}); // 70% of the panel's width
     // This defines the location of the slider itself (not the position of the panel)
     self.sliderPTBar.visible:= True;
     self.sliderPTBar.Tag:= self.tag;  // keep track of slider index number.
-    self.sliderPTBar.Left:= 20;
+    self.sliderPTBar.Left:= 45{20};
     self.sliderPTBar.Top:= 17{27};
     self.sliderPTBar.Width:= sliderTBarWidth;
     self.sliderPTBar.Height:= 20;
@@ -120,7 +120,7 @@ var sliderTBarWidth : integer;
     self.sliderPHLabel.Tag:= self.tag;
     self.sliderPHLabel.Top:= 21{30};
    // self.sliderPHLabel.Left:= sliderPanelWidth - trunc (0.15*sliderPanelWidth);
-    self.sliderPHLabel.Left:= self.Width - trunc (0.18 {0.15} * self.Width);
+    self.sliderPHLabel.Left:= self.Width - trunc (0.25 {0.15} * self.Width);
 
     // Value (low) positioned on the left-side of slider
     self.sliderPLLabel.visible:= True;
@@ -131,7 +131,7 @@ var sliderTBarWidth : integer;
     // parameter label and current value
     self.sliderPTBLabel.visible:= True;
     self.sliderPTBLabel.Tag:= self.tag;
-    self.sliderPTBLabel.Left:= 48;
+    self.sliderPTBLabel.Left:= 55{48};
     self.sliderPTBLabel.Top:= 3;
   end;
 
@@ -140,23 +140,35 @@ procedure TpnlParamSlider.setUpParamSliderVals(pName: string; pVal: double);
 begin
   self.id := pName;
   self.initVal := pVal;
-  self.sliderPTBLabel.caption := pName + ': ' + FloatToStr(pVal);
+  self.sliderPTBLabel.caption := pName + ': ' + self.formatValueToStr(pVal);
   self.sliderPLow := 0;
-  self.sliderPLLabel.caption := FloatToStr(self.sliderPLow);
+  self.sliderPLLabel.caption := self.formatValueToStr(self.sliderPLow);
   self.sliderPTBar.Min := 0;
   self.sliderPTBar.Position := trunc((1 / self.multiplier) * 100);
   self.sliderPTBar.Max := 100;
   if pVal > 0 then
     begin
-      self.sliderPHLabel.caption := FloatToStr(pVal * self.multiplier);
+      self.sliderPHLabel.caption := self.formatValueToStr(pVal * self.multiplier);
       self.sliderPHigh := pVal * self.multiplier;
     end
   else
     begin
-      self.sliderPHLabel.caption := FloatToStr(100);
+      self.sliderPHLabel.caption := self.formatValueToStr(100);
       self.sliderPHigh := 100; // default if init param val <= 0.
     end;
 
+end;
+
+function TpnlParamSlider.formatValueToStr(newVal: double): string;
+var strValue: string;
+begin
+  // TODO
+  if (newVal > 9999) or (newVal < 0.0001) then
+    begin
+    if newVal = 0 then Result := floatToStr(newVal)
+    else Result := floatToStrF(newVal,ffExponent, 3, 2);
+    end
+  else Result := floatToStr(newVal); // do not format
 end;
 
 procedure TpnlParamSlider.clearSlider();
@@ -228,41 +240,12 @@ procedure TpnlParamSlider.SliderOnMouseDown(Sender: TObject; Button: TMouseButto
               begin
               if assigned( self.fEditSlider) then
 
-              self.fEditSlider(i); // call listener instead
+              self.fEditSlider(i{, X, Y}); // call listener instead
               end;
           end;
       end;
   end;
 
-{procedure TpnlParamSlider.EditSliderList(sn: Integer);
-// delete, change param slider as needed. sn is slider index
-var
-  sliderXposition, sliderYposition: Integer;
-  editList: TStringList;
-  lbSliderEdit: TWebListBox;
-begin
-  sliderXposition := self.Left + 10; // needs parent to be self.pnlSliderAr[sn]
-  sliderYposition := self.Top + 1;
-  editList := TStringList.create();
-  editList.Add('Change slider parameter.');
-  //editList.Add('Delete slider.');
-  editList.Add('Cancel');
-  lbSliderEdit := TWebListBox.create(self);
-  lbSliderEdit.parent := self;
-  lbSliderEdit.Items := editList;
-  lbSliderEdit.Top := sliderYposition;
-  lbSliderEdit.left := sliderXposition;
-  lbSliderEdit.Height := 100;
-  lbSliderEdit.tag := sn;
-  lbSliderEdit.bringToFront;
-  lbSliderEdit.visible := true;
-
-end;      }
-
-{procedure TpnlParamSlider.pnlParamSliderMouseDown(Sender: TObject;  Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
-begin
-
-end;   }
 
 
 end.

@@ -33,7 +33,9 @@ uses
   ufVarSelect in 'ufVarSelect.pas' {VarSelectForm: TWebForm},
   ufYAxisMinMaxEdit in 'Graph\ufYAxisMinMaxEdit.pas' {FYAxisMinMaxEdit: TWebForm} {*.html},
   upnlParamSlider in 'upnlParamSlider.pas',
-  ufListBox in 'ufListBox.pas' {fListBox1: TWebForm} {*.html};
+  ufListBox in 'ufListBox.pas' {fListBox1: TWebForm} {*.html},
+  uTestModel in 'uTestModel.pas',
+  ufLabelPopUp in 'ufLabelPopUp.pas' {fLabelPopUp: TWebForm} {*.html};
 
 {$R *.res}
 
@@ -43,5 +45,6 @@ begin
   Application.CreateForm(TMainForm, MainForm);
   Application.CreateForm(TFYAxisMinMaxEdit, FYAxisMinMaxEdit);
   Application.CreateForm(TfListBox1, fListBox1);
+  Application.CreateForm(TfLabelPopUp, fLabelPopUp);
   Application.Run;
 end.

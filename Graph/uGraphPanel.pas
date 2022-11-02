@@ -41,6 +41,7 @@ private
 public
   userDeleteGraph: boolean; // true, user can delete graph (OnEditGraphEvent method required)
   userChangeVarSeries: boolean; // true, user can change var of series (OnEditGraphEvent method required)
+  plotEditInProgress: boolean;
 
   constructor create(newParent: TWebPanel; graphPosition: integer; yMax: double);
   procedure initializePlot(newVarStrList: TList<string>; newYMax: double; newYMin: double;
@@ -77,6 +78,7 @@ implementation
 constructor TGraphPanel.create(newParent: TWebPanel; graphPosition: integer; yMax: double);
 begin
   inherited create(newParent);
+  self.plotEditInProgress := false;
   self.SetParent(newParent);
   self.OnMouseDown := graphEditMouseDown;
   if graphPosition > -1 then self.tag := graphPosition
@@ -357,28 +359,36 @@ end;
 procedure TGraphPanel.graphEditMouseDown(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
 var editList: TStringList;
+    editGraphLB_Width: integer;
 begin
-  self.lbEditGraph := TWebListBox.Create(self);
-  self.lbEditGraph.parent := self;
-  self.lbEditGraph.tag := self.tag;
-  self.lbEditGraph.ElementClassName := 'list-group form-control-sm bg-dark text-white';
-  self.lbEditGraph.OnClick := editGraphListBoxClick;
-  editList := TStringList.create();
-  editList.Add('Toggle legend.');
-  editList.Add('Toggle autoscale.');
-  editList.Add('Set Y max/min.');
-  if self.userChangeVarSeries then
-    editList.Add('Change plot species.');
-  if self.userDeleteGraph then
-    editList.Add('Delete plot.');
-  editList.Add('Cancel');
-  self.lbEditGraph.Items := editList;
-  self.lbEditGraph.Top := 10;
-  self.lbEditGraph.left := 10;
-  self.lbEditGraph.Height := 120;
-  self.lbEditGraph.Width := 140;
-  self.lbEditGraph.bringToFront;
-  self.lbEditGraph.visible := true;
+  if not self.plotEditInProgress then
+    begin
+    self.plotEditInProgress := true;
+    editGraphLB_Width := 140;
+    self.lbEditGraph := TWebListBox.Create(self);
+    self.lbEditGraph.parent := self;
+    self.lbEditGraph.tag := self.tag;
+    self.lbEditGraph.ElementClassName := 'list-group form-control-sm bg-dark text-white';
+    self.lbEditGraph.OnClick := editGraphListBoxClick;
+    editList := TStringList.create();
+    editList.Add('Toggle legend.');
+    editList.Add('Toggle autoscale.');
+    editList.Add('Set Y max/min.');
+    if self.userChangeVarSeries then
+      editList.Add('Change plot species.');
+    if self.userDeleteGraph then
+      editList.Add('Delete plot.');
+    editList.Add('Cancel');
+    self.lbEditGraph.Items := editList;
+    self.lbEditGraph.Top := Y; //10;
+    if self.Width > (2 * editGraphLB_Width) then
+      self.lbEditGraph.left := X
+    else self.lbEditGraph.left := 10;
+    self.lbEditGraph.Height := 120;
+    self.lbEditGraph.Width := editGraphLB_Width;
+    self.lbEditGraph.bringToFront;
+    self.lbEditGraph.visible := true;
+    end;
 end;
 
 procedure TGraphPanel.editGraphListBoxClick(Sender: TObject);
@@ -418,7 +428,7 @@ begin
          else self.lbEditGraph.Destroy;
     else self.lbEditGraph.Destroy;
   end;
- 
+  self.plotEditInProgress := false;
 end;
 
 
