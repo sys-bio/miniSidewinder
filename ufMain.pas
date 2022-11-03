@@ -1088,7 +1088,7 @@ end;
 procedure TMainForm.EditSliderList(sn: Integer);
 // change param slider as needed. sn is slider index
 var editList: TStringList;
-begin
+begin                                           // Use fVarSelect
   if length(self.pnlSliderAr) > sn then
     begin
     self.SliderEditLB := TWebListBox.create(self.pnlSliderAr[sn]);

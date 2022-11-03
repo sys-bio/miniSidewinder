@@ -98,6 +98,7 @@ type
    procedure resetS_Vals();   // reset with species initial vals. Move this to Simulation class.
    function  getP_NameValAr(): TVarNameValList;
    function  getP_Names(): array of String;
+   function  findIndexForParamStr(param: string): Integer;
    function  getP_Vals(): array of Double;
    function  getP_Val(pos: integer): Double;
    function  setP_Val(pos: integer; newVal: Double): Boolean;
@@ -693,7 +694,6 @@ begin
 
 end;
 
-
 function TModel.getS_Names(): array of String;
 begin
   Result := self.s_Names;
@@ -712,6 +712,17 @@ end;
 function TModel.getP_Names(): array of String;
 begin
   Result := self.p_Names;
+end;
+
+function  TModel.findIndexForParamStr(param: string): Integer;
+var i: integer;
+begin
+  Result := -1;
+  for i := 0 to length(self.p_Names) -1 do
+    begin
+    if self.p_Names[i] = param then Result := i;
+    end;
+
 end;
 
 function TModel.getP_Vals(): array of Double;
