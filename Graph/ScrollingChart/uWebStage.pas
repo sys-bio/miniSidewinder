@@ -45,7 +45,8 @@ begin
       dataSource.removeFirst;
       dataSource.getNewLimits(xMin, xMax);
       plane.x := xMin;
-      rightBox.bottomBox.axisX.update;
+     // rightBox.bottomBox.axisX.update;
+      rightBox.bottomBox.axisX.update(xMin);
       rightBox.graph.gridX.update;
     end;
 
