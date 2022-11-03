@@ -40,7 +40,7 @@ begin
 
   plane := FPlane;
  //console.log('TStage.checkLimits, FPlane height, width: ', self.FPlane.height, ', ', self.FPlane.width);
-  if dataSource.isOut(plane.width) then
+  if dataSource.isOut(plane.width - plane.DeltaX) then // <-- -step size needed tostay inside grid plane
     begin
       dataSource.removeFirst;
       dataSource.getNewLimits(xMin, xMax);
@@ -83,7 +83,7 @@ begin
   width := w;
   height := h;
   title := data.title;
-  console.log(' TStage.create, width, height: ', self.width, ', ', self.height);
+  //console.log(' TStage.create, width, height: ', self.width, ', ', self.height);
   //backgroundColor := clayellow; //DEFAULT_BACKGROUND_COLOR;
  // title.text := '';
   titleBox := TTitleBox.Create(w, {2*}title.pad + title.fontSize, self);
