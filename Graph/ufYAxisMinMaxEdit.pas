@@ -14,7 +14,6 @@ type
     editYMin: TWebEdit;
     lblYMax: TWebLabel;
     lblYMin: TWebLabel;
-    lblYMaxMin: TWebLabel;
     procedure editYMaxChange(Sender: TObject);
     procedure editYMinChange(Sender: TObject);
     procedure editYMinExit(Sender: TObject);
@@ -30,7 +29,7 @@ type
 
 var
   FYAxisMinMaxEdit: TFYAxisMinMaxEdit;
-
+     //  bg-dark border border-dark
 implementation
 
 {$R *.dfm}
@@ -95,7 +94,7 @@ end;
 
 procedure TFYAxisMinMaxEdit.WebFormCreate(Sender: TObject);
 begin
-  self.lblYMaxMin.font.Size := 18;
+//  self.lblYMaxMin.font.Size := 18;
 end;
 
 end.
