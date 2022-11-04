@@ -144,19 +144,14 @@
             <DesignClass>TWebForm</DesignClass>
         </DCCReference>
         <DCCReference Include="upnlParamSlider.pas"/>
-        <DCCReference Include="ufListBox.pas">
-            <Form>fListBox1</Form>
+        <DCCReference Include="ufModelInfo.pas">
+            <Form>fModelInfo</Form>
             <FormType>dfm</FormType>
             <DesignClass>TWebForm</DesignClass>
         </DCCReference>
         <DCCReference Include="uTestModel.pas"/>
         <DCCReference Include="ufVarSelect.pas">
             <Form>VarSelectForm</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TWebForm</DesignClass>
-        </DCCReference>
-        <DCCReference Include="ufLabelPopUp.pas">
-            <Form>fLabelPopUp</Form>
             <FormType>dfm</FormType>
             <DesignClass>TWebForm</DesignClass>
         </DCCReference>

@@ -9,28 +9,6 @@ object MainForm: TMainForm
     Width = 80
     Height = 370
     Align = alRight
-    object btnShowInitVals: TWebButton
-      Left = 10
-      Top = 54
-      Width = 60
-      Height = 25
-      Caption = 'Init Vals'
-      ChildOrder = 4
-      HeightPercent = 100.000000000000000000
-      WidthPercent = 100.000000000000000000
-      OnClick = btnShowInitValsClick
-    end
-    object btnShowRates: TWebButton
-      Left = 10
-      Top = 96
-      Width = 60
-      Height = 25
-      Caption = 'Rate laws'
-      ChildOrder = 3
-      HeightPercent = 100.000000000000000000
-      WidthPercent = 100.000000000000000000
-      OnClick = btnShowRatesClick
-    end
     object btnModelInfo: TWebButton
       Left = 10
       Top = 6
@@ -46,7 +24,7 @@ object MainForm: TMainForm
     end
     object btnExample: TWebButton
       Left = 10
-      Top = 136
+      Top = 64
       Width = 60
       Height = 25
       Hint = 'Load example model.'
@@ -74,7 +52,7 @@ object MainForm: TMainForm
     Align = alTop
     ChildOrder = 3
     object lblStepSize: TWebLabel
-      Left = 670
+      Left = 622
       Top = 21
       Width = 72
       Height = 13
@@ -85,7 +63,7 @@ object MainForm: TMainForm
     object btnRunPause: TWebButton
       Left = 177
       Top = 16
-      Width = 128
+      Width = 104
       Height = 25
       Caption = 'Run model'
       HeightPercent = 100.000000000000000000
@@ -93,9 +71,9 @@ object MainForm: TMainForm
       OnClick = btnRunPauseClick
     end
     object btnSimReset: TWebButton
-      Left = 336
+      Left = 312
       Top = 16
-      Width = 96
+      Width = 73
       Height = 25
       Caption = 'Reset '
       ChildOrder = 1
@@ -104,7 +82,7 @@ object MainForm: TMainForm
       OnClick = btnSimResetClick
     end
     object edtStepSize: TWebEdit
-      Left = 750
+      Left = 700
       Top = 18
       Width = 50
       Height = 22
@@ -127,8 +105,8 @@ object MainForm: TMainForm
       OnClick = btnLoadModelClick
     end
     object pnlSimSpeedMult: TWebPanel
-      Left = 465
-      Top = 4
+      Left = 417
+      Top = 7
       Width = 180
       Height = 50
       Hint = 'Speed up simulation, limited by browser resources.'

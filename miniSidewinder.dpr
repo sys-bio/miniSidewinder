@@ -32,10 +32,9 @@ uses
   uSidewinderTypes in 'uSidewinderTypes.pas',
   ufYAxisMinMaxEdit in 'Graph\ufYAxisMinMaxEdit.pas' {FYAxisMinMaxEdit: TWebForm} {*.html},
   upnlParamSlider in 'upnlParamSlider.pas',
-  ufListBox in 'ufListBox.pas' {fListBox1: TWebForm} {*.html},
+  ufModelInfo in 'ufModelInfo.pas' {fModelInfo: TWebForm} {*.html},
   uTestModel in 'uTestModel.pas',
-  ufVarSelect in 'ufVarSelect.pas' {VarSelectForm: TWebForm},
-  ufLabelPopUp in 'ufLabelPopUp.pas' {fLabelPopUp: TWebForm} {*.html};
+  ufVarSelect in 'ufVarSelect.pas' {VarSelectForm: TWebForm};
 
 {$R *.res}
 
@@ -44,7 +43,6 @@ begin
   Application.MainFormOnTaskbar := True;
   Application.CreateForm(TMainForm, MainForm);
   Application.CreateForm(TFYAxisMinMaxEdit, FYAxisMinMaxEdit);
-  Application.CreateForm(TfListBox1, fListBox1);
-  Application.CreateForm(TfLabelPopUp, fLabelPopUp);
+  Application.CreateForm(TfModelInfo, fModelInfo);
   Application.Run;
 end.

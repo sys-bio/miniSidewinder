@@ -9,7 +9,7 @@ uses
   uControllerMain, ufVarSelect, uSidewinderTypes, uGraphPanel, uTestModel,
   uModel, uSBMLClasses, uSBMLClasses.rule, upnlParamSlider,
   VCL.TMSFNCTypes, VCL.TMSFNCUtils, VCL.TMSFNCGraphics, VCL.TMSFNCGraphicsTypes,
-  VCL.TMSFNCCustomControl, VCL.TMSFNCScrollBar, ufListBox, ufLabelPopUp;
+  VCL.TMSFNCCustomControl, VCL.TMSFNCScrollBar, ufModelInfo, ufLabelPopUp;
 
 const SIDEWINDER_VERSION = 'Version 0.3 alpha';
       DEFAULT_RUNTIME = 10000;
@@ -38,8 +38,6 @@ type
     lblSpeedMultVal: TWebLabel;
     lblSpeedMultMin: TWebLabel;
     lblSpeedMultMax: TWebLabel;
-    btnShowInitVals: TWebButton;
-    btnShowRates: TWebButton;
     btnModelInfo: TWebButton;
     btnExample: TWebButton;
     procedure WebFormCreate(Sender: TObject);
@@ -55,8 +53,6 @@ type
     procedure trackBarSimSpeedChange(Sender: TObject);
   //  procedure FNCScrollBarVerticalValueChanged(Sender: TObject; Value: Double);
     procedure WebFormResize(Sender: TObject);
-    procedure btnShowInitValsClick(Sender: TObject);
-    procedure btnShowRatesClick(Sender: TObject);
     procedure btnModelInfoClick(Sender: TObject);
     procedure btnExampleClick(Sender: TObject);
 
@@ -67,8 +63,7 @@ type
     intSliderHeight: Integer;
     stepSize: double; // default is 0.1
     SliderEditLB: TWebListBox;
-    displayModelInfoLB: TfListBox1;
-    displayModelInfoLbl: TfLabelPopUp;
+    fModelInfo: TfModelInfo;
     strListInitVals: TStringList;
     strListRates: TStringList;
     currentModelInfo: string;
@@ -107,8 +102,6 @@ type
     function  getEmptyPlotPosition(): Integer;
     function  getPlotPBIndex(plotTag: integer): Integer;
     procedure setListBoxInitValues();
-    procedure displayInitValues();
-    procedure displayRateLaws();
     procedure displayModelInfo();
     procedure setListBoxRateLaws();
     procedure setLabelModelInfo();
@@ -189,15 +182,6 @@ begin
   else notifyUser('Model not loaded, please load model or refresh browser window.');
 end;
 
-procedure TMainForm.btnShowInitValsClick(Sender: TObject);
-begin
-  self.displayInitValues();
-end;
-
-procedure TMainForm.btnShowRatesClick(Sender: TObject);
-begin
-  self.displayRateLaws();
-end;
 
 procedure TMainForm.btnSimResetClick(Sender: TObject);
 begin
@@ -260,8 +244,6 @@ begin
  // self.saveSimResults := false;
   self.currentGeneration := 0;
   self.currentModelInfo := 'None.';
-  self.btnShowInitVals.Enabled := false;
-  self.btnShowRates.Enabled := false;
   self.btnModelInfo.Enabled := false;
 
   asm
@@ -798,8 +780,6 @@ begin
   self.setListBoxInitValues;
   self.setListBoxRateLaws;
   self.setLabelModelInfo;
-  self.btnShowInitVals.Enabled := true;
-  self.btnShowRates.Enabled := true;
   self.btnModelInfo.Enabled := true;
  
 end;
@@ -1320,54 +1300,22 @@ begin
     end;
 end;
 
-procedure TMainForm.displayInitValues();
-
-   procedure AfterCreate(AForm: TObject);
-  begin
-    (AForm as TfListBox1).Top := trunc(self.Height*0.2); // put popup %20 from top
-    (AForm as TfListBox1).setListBox(self.strListInitVals);
-  end;
-begin
-  // self.setListBoxInitVals;
-  displayModelInfoLB := TfListBox1.CreateNew(@AfterCreate);
-  displayModelInfoLB.Popup := true;
-  displayModelInfoLB.ShowClose := true;
-  displayModelInfoLB.PopupOpacity := 0.3;
-  displayModelInfoLB.Border := fbDialogSizeable;
-  displayModelInfoLB.caption := 'Initial Values and assignments:';
-end;
-
-procedure TMainForm.displayRateLaws;
-
-   procedure AfterCreate(AForm: TObject);
-  begin
-    (AForm as TfListBox1).Top := trunc(self.Height*0.2); // put popup %20 from top
-    (AForm as TfListBox1).setListBox(self.strListRates);
-
-  end;
-begin
-  // self.setListBoxRateLaws;
-  displayModelInfoLB := TfListBox1.CreateNew(@AfterCreate);
-  displayModelInfoLB.Popup := true;
-  displayModelInfoLB.ShowClose := true;
-  displayModelInfoLB.PopupOpacity := 0.3;
-  displayModelInfoLB.Border := fbDialogSizeable;
-  displayModelInfoLB.caption := 'Rate laws:';
-end;
 
 procedure TMainForm.displayModelInfo();
    procedure AfterCreate(AForm: TObject);
    begin
-    (AForm as TfLabelPopUp).Top := trunc(self.Height*0.2); // put popup %20 from top
-    (AForm as TfLabelPopUp).lbl_Info.Caption := self.currentModelInfo;
+    (AForm as TfModelInfo).Top := trunc(self.Height*0.1); // put popup %10 from top
+    (AForm as TfModelInfo).lblModelName.Caption := self.currentModelInfo;
+    (AForm as TfModelInfo).setListBoxInitVals(self.strListInitVals);
+    (AForm as TfModelInfo).setListBoxRates(self.strListRates);
    end;
 begin
-  self.displayModelInfoLbl := TfLabelPopUp.CreateNew(@AfterCreate);
-  self.displayModelInfoLbl.Popup := true;
-  self.displayModelInfoLbl.ShowClose := true;
-  self.displayModelInfoLbl.PopupOpacity := 0.3;
-  self.displayModelInfoLbl.Border := fbDialogSizeable;
-  self.displayModelInfoLbl.caption := 'Model information:';
+  self.fModelInfo := TfModelInfo.CreateNew(@AfterCreate);
+  self.fModelInfo.Popup := true;
+  self.fModelInfo.ShowClose := true;
+  self.fModelInfo.PopupOpacity := 0.3;
+  self.fModelInfo.Border := fbDialogSizeable;
+  self.fModelInfo.caption := 'Model information:';
 end;
 
 procedure TMainForm.setLabelModelInfo();
