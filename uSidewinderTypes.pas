@@ -13,6 +13,7 @@ type
   TDoubleArray = array of double;
   TIntegerArray = array of integer;
   TSpeciesList = TList<String>;
+  TDoubleList = TList<double>;
 
   TVarNameVal = class  // store string/value pair.
     private
@@ -45,6 +46,14 @@ type
       function getNameValById(id: String):TVarNameVal;
       function getNameAr(): array of String;
       function getValAr(): array of double;
+  end;
+
+  TTimeVarNameValList = class
+    private
+    public
+      varNV_List: TVarNameValList;
+      time: double;
+      constructor create(newTime: double; newVarList: TVarNameValList);
   end;
 
   // Utilities:
@@ -190,6 +199,12 @@ implementation
  end;
 
 
+ constructor TTimeVarNameValList.create(newTime: double; newVarList: TVarNameValList);
+ begin
+   self.time := newTime;
+   self.varNV_List := TVarNameValList.create();
+   self.varNV_List.copy(newVarList);
+ end;
 
  procedure notifyUser( msg: string);
  begin

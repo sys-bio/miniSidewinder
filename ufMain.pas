@@ -40,6 +40,7 @@ type
     lblSpeedMultMax: TWebLabel;
     btnModelInfo: TWebButton;
     btnExample: TWebButton;
+    rbStaticSimRun: TWebRadioButton;
     procedure WebFormCreate(Sender: TObject);
     procedure btnSimResetClick(Sender: TObject);
     procedure btnLoadModelClick(Sender: TObject);
@@ -55,6 +56,7 @@ type
     procedure WebFormResize(Sender: TObject);
     procedure btnModelInfoClick(Sender: TObject);
     procedure btnExampleClick(Sender: TObject);
+    procedure rbStaticSimRunClick(Sender: TObject);
 
 
   private
@@ -113,6 +115,8 @@ type
     { Public declarations }
     fileName: string;
     simStarted: boolean; // true sim has been started
+    runTime: double;
+    staticSimRunFlag: boolean;
     currentGeneration: Integer; // Used by plots as current x axis point
     fPlotSpecies: TVarSelectForm;
     plotSpecies: TList<TSpeciesList>; // species to graph for each plot
@@ -131,6 +135,7 @@ type
 
     procedure PingSBMLLoaded(newModel:TModel); // Notify when done loading or model changes
     procedure getVals( newTime: Double; newVals: TVarNameValList);// Get new values (species amt) from simulation run
+    procedure getStaticSimREsults ( newResults: TList<TTimeVarNameValList> ); // static Sim results/
     procedure processGraphEvent(plotPosition: integer; editType: integer); // not currently necessary
   end;
 
@@ -189,6 +194,12 @@ begin
   self.resetSliderPositions();
   self.enableStepSizeEdit;
   self.mainController.createSimulation();
+  if self.staticSimRunFlag then
+    begin
+    self.stopSim;
+    self.btnRunPause.Enabled := true;
+    end;
+
  // self.initializePlots;
   self.resetPlots;
   self.simStarted := false;
@@ -233,6 +244,8 @@ procedure TMainForm.WebFormCreate(Sender: TObject);
 begin
   self.numbPlots := 0;
   self.slidersPerRow := SLIDERS_PER_ROW;
+  self.runTime := DEFAULT_RUNTIME;
+  self.staticSimRunFlag := false;
   self.intSliderHeight := 45;
   self.pnlParamSliders.height := 5; //trunc((MAX_SLIDERS/SLIDERS_PER_ROW)*self.intSliderHeight) +2;
   self.stepSize := 0.1;
@@ -347,7 +360,6 @@ begin
     //sliderP := self.mainController.getModel.getP_names[i];   // needed?
     self.sliderParamAr[i] := i; // assign param indexto slider ??
     self.addParamSlider(); // <-- Add dynamically created slider
-
     end;
 
 end;
@@ -560,6 +572,21 @@ begin
 
 end;
 
+procedure TMainForm.rbStaticSimRunClick(Sender: TObject);
+begin
+  if self.rbStaticSimRun.Checked then
+    begin
+    self.staticSimRunFlag := true;
+    self.runTime := 20;
+    end
+  else
+    begin
+    self.staticSimRunFlag := false;
+    self.runTime := DEFAULT_RUNTIME;
+    end;
+
+end;
+
 procedure TMainForm.refreshPlotAndSliderPanels();
 begin
   //if not self.mainController.IsOnline then
@@ -645,7 +672,7 @@ begin
      // if DEBUG then
      //   simResultsMemo.visible := true;
      // self.btnAddPlot.Enabled := false; // Do not add plot while sim running
-      self.mainController.SetRunTime(DEFAULT_RUNTIME);
+      self.mainController.SetRunTime(self.runTime);
        // default timer interval is 100 msec:
       // multiplier default is 10, range 1 - 50
       self.mainController.SetTimerInterval(round(1000/self.trackBarSimSpeed.position));
@@ -655,7 +682,19 @@ begin
     //    self.InitSimResultsTable();  // Set table of Sim results.
       //self.rightPanelType := SIMULATION_PANEL;
       //self.setRightPanels;
-      MainController.SetTimerEnabled(true); // Turn on web timer (Start simulation)
+      if self.staticSimRunFlag then
+        begin
+        self.mainController.setStaticSimRun(self.staticSimRunFlag);
+        self.mainController.SetStepSize(self.stepSize);  // just in case ?
+        self.trackBarSimSpeed.Enabled := false;
+        self.btnRunPause.Enabled := false;
+        self.mainController.resetCurrTime;
+        self.mainController.startStaticSimulation;
+        end
+      else
+        begin
+        self.mainController.SetTimerEnabled(true); // Turn on web timer (Start simulation)
+        end;
       end
    else notifyUser(' No model created for simulation. ');
 end;
@@ -727,6 +766,12 @@ begin
    // self.networkUpdated := false;
   end;
   self.mainController.createSimulation;
+  if self.staticSimRunFlag then
+    begin
+    self.mainController.setStaticSimRun(self.staticSimRunFlag);
+    self.mainController.addStaticSimResultsListener(@self.getStaticSimResults);
+    end;
+
   if self.numbPlots >0 then
     self.resetPlots();
   self.simStarted := true;
@@ -1212,6 +1257,18 @@ begin
       self.graphPanelList[i].getVals(newTime, newVals); // Faster than own listener ??
       end;
     end;
+end;
+
+procedure TMainForm.getStaticSimResults ( newResults: TList<TTimeVarNameValList> );
+var i: integer;
+begin
+  for i := 0 to newResults.count -1 do
+    begin
+      self.getVals(newResults[i].time, newResults[i].varNV_List);
+    end;
+  self.btnSimReset.Enabled := true;
+  self.stopSim;
+  self.btnRunPause.Enabled := true;
 end;
 
 

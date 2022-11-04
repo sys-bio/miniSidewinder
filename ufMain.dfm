@@ -161,6 +161,19 @@ object MainForm: TMainForm
         OnChange = trackBarSimSpeedChange
       end
     end
+    object rbStaticSimRun: TWebRadioButton
+      Left = 756
+      Top = 18
+      Width = 113
+      Height = 22
+      Caption = 'Static Sim Run'
+      Checked = False
+      ChildOrder = 6
+      Color = clNone
+      HeightPercent = 100.000000000000000000
+      WidthPercent = 100.000000000000000000
+      OnClick = rbStaticSimRunClick
+    end
   end
   object pnlParamSliders: TWebPanel
     Left = 0

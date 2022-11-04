@@ -29,6 +29,7 @@ type
     ODEready: Boolean; // TRUE: ODE solver is setup.
    // networkUpdate: Boolean; // Use to prevent circular update when network is changed.
     FSimUpdateAr: array of TUpdateSimEvent;// Send Updated Sim values (time,species amts) to listeners.
+    FSimResultsAr: array of TSimResults; // Complete results form a static simulation run sent to listeners.
    // FNetworkChangedAr: array of TNetworkChangeEvent; // Notify listener that network has changed
     FSBMLUpdateAr: array of TUpdateModelEvent; // notify listeners of sbml model change
   //  currNetworkCtrl : TController;
@@ -56,6 +57,9 @@ type
     function  IsModelLoaded(): Boolean;
     procedure clearModel();
     procedure clearSim();
+    procedure setStaticSimRun( staticRun: boolean );
+    procedure startStaticSimulation();
+    function  IsSimRunStatic(): boolean;
   //  function  hasNetworkChanged(): Boolean;  // true: network changed, need to update model.
     procedure SetTimerEnabled(bTimer: Boolean);
     procedure SetTimerInterval(nInterval: Integer);// nInterval is msec
@@ -75,9 +79,12 @@ type
             // Send new values to listeners.
     procedure getVals(newTime: Double; newVals: TVarNameValList);
             // Get new values from simulation run.
+    procedure getStaticSimulationResults( newSimResults: TList<TTimeVarNameValList> );
+            // Get all of the results from a static simulation run.
     procedure resetSimParamValues(); // Reset simulator p values to orig model p values.
     procedure resetSimSpeciesValues(); // Reset simulator s values to orig model values.
     procedure addSimListener( newListener: TUpdateSimEvent );
+    procedure addStaticSimResultsListener( newListener: TSimResults );
     procedure addSBMLListener( newListener: TUpdateModelEvent );
   //  procedure addNetworkListener( newListener: TNetworkChangeEvent );
  end;
@@ -167,6 +174,31 @@ begin
     end;
 end;
 
+procedure TControllerMain.setStaticSimRun( staticRun: boolean );
+begin
+  if self.runSim <> nil then
+    self.runSim.setStaticSimRun(staticRun);
+end;
+
+function  TControllerMain.IsSimRunStatic(): boolean;
+begin
+  if self.runSim <> nil then
+    Result := self.runSim.IsStaticSimRun
+  else Result := false;
+end;
+
+procedure TControllerMain.startStaticSimulation();
+begin
+  if self.runSim <> nil then
+    begin
+    self.runsim.setTime(0.0);
+    self.runSim.OnSimResultsNotify := self.getStaticSimulationResults;
+    self.runSim.startStaticSimulation;
+    console.log('starting static sim');
+    end;
+
+end;
+
 // return current time of run and variable values to listener:
 procedure TControllerMain.UpdateVals( time: double; updatedVals: TVarNameValList);
 var i: integer;
@@ -186,6 +218,13 @@ begin
   self.FSimUpdateAr[i] := newListener;
 end;
 
+procedure TControllerMain.addStaticSimResultsListener( newListener: TSimResults );
+var i: integer;
+begin
+  i := length(self.FSimResultsAr);
+  setLength(self.FSimResultsAr, i +1 );
+  self.FSimResultsAr[i] := newListener;
+end;
 
   // Network has changed, notify any listeners
 {procedure TControllerMain.networkUpdated(sender: TObject);
@@ -385,6 +424,17 @@ procedure TControllerMain.getVals(newTime: Double; newVals: TVarNameValList);
 begin
   self.currTime := newTime;
   self.UpdateVals( newTime, newVals ); // pass on to listeners.
+end;
+
+procedure TControllerMain.getStaticSimulationResults( newSimResults: TList<TTimeVarNameValList> );
+var i: integer;
+begin
+console.log( ' MainController: got static sim results');
+  if length(self.FSimResultsAr) > 0 then
+  begin
+    for i := 0  to length(self.FSimResultsAr) -1 do
+      self.FSimResultsAr[i](newSimResults);
+  end;
 end;
 
 procedure TControllerMain.loadSBML(sbmlStr: String );
