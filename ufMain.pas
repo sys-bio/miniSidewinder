@@ -11,7 +11,7 @@ uses
   VCL.TMSFNCTypes, VCL.TMSFNCUtils, VCL.TMSFNCGraphics, VCL.TMSFNCGraphicsTypes,
   VCL.TMSFNCCustomControl, VCL.TMSFNCScrollBar, ufModelInfo, ufLabelPopUp;
 
-const SIDEWINDER_VERSION = 'Version 0.3 alpha';
+const SIDEWINDER_VERSION = 'Version 0.4 alpha';
       DEFAULT_RUNTIME = 10000;
       EDITBOX_HT = 25;
       ZOOM_SCALE = 20;
@@ -40,7 +40,7 @@ type
     lblSpeedMultMax: TWebLabel;
     btnModelInfo: TWebButton;
     btnExample: TWebButton;
-    rbStaticSimRun: TWebRadioButton;
+    chkbxStaticSimRun: TWebCheckBox;
     procedure WebFormCreate(Sender: TObject);
     procedure btnSimResetClick(Sender: TObject);
     procedure btnLoadModelClick(Sender: TObject);
@@ -52,12 +52,10 @@ type
     procedure SliderEditLBClick(Sender: TObject);
     procedure edtStepSizeExit(Sender: TObject);
     procedure trackBarSimSpeedChange(Sender: TObject);
-  //  procedure FNCScrollBarVerticalValueChanged(Sender: TObject; Value: Double);
     procedure WebFormResize(Sender: TObject);
     procedure btnModelInfoClick(Sender: TObject);
     procedure btnExampleClick(Sender: TObject);
-    procedure rbStaticSimRunClick(Sender: TObject);
-
+    procedure chkbxStaticSimRunClick(Sender: TObject);
 
   private
     numbPlots: Integer; // Number of plots displayed
@@ -89,7 +87,9 @@ type
     procedure selectParameter(sIndex: Integer); // Get parameter for slider
     procedure resetBtnOnLineSim(); // reset to default look and caption of 'Start simulation'
     procedure runSim();
+    procedure runStaticSim();
     procedure stopSim();
+    procedure resetSim(); // clear results and set time to 0
     procedure setUpSimulationUI();
     procedure refreshPlotAndSliderPanels();
     procedure refreshPlotPanels();
@@ -116,7 +116,7 @@ type
     fileName: string;
     simStarted: boolean; // true sim has been started
     runTime: double;
-    staticSimRunFlag: boolean;
+  //  staticSimRunFlag: boolean;
     currentGeneration: Integer; // Used by plots as current x axis point
     fPlotSpecies: TVarSelectForm;
     plotSpecies: TList<TSpeciesList>; // species to graph for each plot
@@ -135,12 +135,14 @@ type
 
     procedure PingSBMLLoaded(newModel:TModel); // Notify when done loading or model changes
     procedure getVals( newTime: Double; newVals: TVarNameValList);// Get new values (species amt) from simulation run
-    procedure getStaticSimREsults ( newResults: TList<TTimeVarNameValList> ); // static Sim results/
+    procedure getStaticSimResults ( newResults: TList<TTimeVarNameValList> ); // static Sim results/
     procedure processGraphEvent(plotPosition: integer; editType: integer); // not currently necessary
   end;
 
 var
   MainForm: TMainForm;
+
+
 
 implementation
 
@@ -176,7 +178,15 @@ begin
     try
       self.disableStepSizeEdit;
       if MainController.isOnline = false then
-        self.runSim
+        begin
+        if self.chkbxStaticSimRun.Checked then
+          begin
+          self.resetSim;  // this stops current sim.
+          if assigned(self.graphPanelList) then self.resetPlots;
+          self.runSim;
+          end
+        else self.runSim;
+        end
       else  // stop simulation
         self.stopSim;
     except
@@ -193,20 +203,31 @@ begin
   try
   self.resetSliderPositions();
   self.enableStepSizeEdit;
-  self.mainController.createSimulation();
-  if self.staticSimRunFlag then
-    begin
-    self.stopSim;
-    self.btnRunPause.Enabled := true;
-    end;
-
- // self.initializePlots;
+  self.resetSim;
   self.resetPlots;
-  self.simStarted := false;
-  self.currentGeneration := 0;
   except
     on E: Exception do
       notifyUser('Error resetting simulation, refresh browser.');
+
+  end;
+end;
+
+procedure TMainForm.resetSim();
+begin
+  try
+    self.enableStepSizeEdit;
+    if self.chkbxStaticSimRun.Checked then
+      begin
+      self.stopSim;
+      self.btnRunPause.Enabled := true;
+      end;
+    self.mainController.createSimulation();
+    if self.chkbxStaticSimRun.Checked then self.mainController.setstaticSimRun(true);
+    self.simStarted := false;
+    self.currentGeneration := 0;
+    except
+      on E: Exception do
+        notifyUser('Error resetting simulation, refresh browser.');
 
   end;
 end;
@@ -245,7 +266,7 @@ begin
   self.numbPlots := 0;
   self.slidersPerRow := SLIDERS_PER_ROW;
   self.runTime := DEFAULT_RUNTIME;
-  self.staticSimRunFlag := false;
+  //self.staticSimRunFlag := false;
   self.intSliderHeight := 45;
   self.pnlParamSliders.height := 5; //trunc((MAX_SLIDERS/SLIDERS_PER_ROW)*self.intSliderHeight) +2;
   self.stepSize := 0.1;
@@ -272,6 +293,7 @@ begin
   self.enableStepSizeEdit;
   self.mainController.addSBMLListener( @self.PingSBMLLoaded );
   self.mainController.addSimListener( @self.getVals ); // notify when new Sim results
+  self.mainController.addStaticSimResultsListener( @self.getStaticSimResults ); // notify when static run done.
 
 end;
 
@@ -403,7 +425,7 @@ begin
     numRows := (index + 1) div self.slidersPerRow;
     if (index + 1) mod self.slidersPerRow > 0 then inc(numRows);
     end;
-  console.log('Rows: ', numRows);
+ // console.log('Rows: ', numRows);
   Result := (numRows - 1) * self.intSliderHeight{ SLIDERPHEIGHT};
 end;
 
@@ -463,9 +485,19 @@ begin
           isRunning := true;
         end;
       self.MainController.changeSimParameterVal( p, newPVal );
-      if isRunning then self.MainController.startTimer;
+      if isRunning and (not self.chkbxStaticSimRun.Checked) then self.MainController.startTimer;
+
       self.pnlSliderAr[i].setTrackBarLabel(self.MainController.getModel.getP_Names[self.sliderParamAr[i]] + ': '
                                                          + FloatToStr(newPVal) );
+      if self.chkbxStaticSimRun.Checked then
+        begin
+        self.currentGeneration := 0;
+        if assigned(self.graphPanelList) then self.resetPlots;
+        self.MainController.changeSimParameterVal( p, newPVal );
+        self.mainController.setCurrTime(self.currentGeneration);
+        self.runStaticSim;
+
+        end;
     end;
 end;
 
@@ -572,16 +604,16 @@ begin
 
 end;
 
-procedure TMainForm.rbStaticSimRunClick(Sender: TObject);
+procedure TMainForm.chkbxStaticSimRunClick(Sender: TObject);
 begin
-  if self.rbStaticSimRun.Checked then
+  if self.chkbxStaticSimRun.Checked = true then
     begin
-    self.staticSimRunFlag := true;
-    self.runTime := 20;
+  //  self.staticSimRunFlag := true;
+    self.runTime := 10;
     end
   else
     begin
-    self.staticSimRunFlag := false;
+  //  self.staticSimRunFlag := false;
     self.runTime := DEFAULT_RUNTIME;
     end;
 
@@ -682,14 +714,9 @@ begin
     //    self.InitSimResultsTable();  // Set table of Sim results.
       //self.rightPanelType := SIMULATION_PANEL;
       //self.setRightPanels;
-      if self.staticSimRunFlag then
+      if self.chkbxStaticSimRun.Checked {self.staticSimRunFlag} then
         begin
-        self.mainController.setStaticSimRun(self.staticSimRunFlag);
-        self.mainController.SetStepSize(self.stepSize);  // just in case ?
-        self.trackBarSimSpeed.Enabled := false;
-        self.btnRunPause.Enabled := false;
-        self.mainController.resetCurrTime;
-        self.mainController.startStaticSimulation;
+        self.runStaticSim;
         end
       else
         begin
@@ -697,6 +724,16 @@ begin
         end;
       end
    else notifyUser(' No model created for simulation. ');
+end;
+
+procedure TMainForm.runStaticSim();
+begin
+  self.mainController.setStaticSimRun(self.chkbxStaticSimRun.Checked );
+  self.mainController.SetStepSize(self.stepSize);  // just in case ?
+  self.trackBarSimSpeed.Enabled := false;
+  self.btnRunPause.Enabled := false;
+  self.mainController.resetCurrTime;
+  self.mainController.startStaticSimulation;
 end;
 
 procedure TMainForm.stopSim();
@@ -766,10 +803,10 @@ begin
    // self.networkUpdated := false;
   end;
   self.mainController.createSimulation;
-  if self.staticSimRunFlag then
+  if self.chkbxStaticSimRun.Checked {self.staticSimRunFlag} then
     begin
-    self.mainController.setStaticSimRun(self.staticSimRunFlag);
-    self.mainController.addStaticSimResultsListener(@self.getStaticSimResults);
+    self.mainController.setStaticSimRun(self.chkbxStaticSimRun.Checked {self.staticSimRunFlag});
+   // self.mainController.addStaticSimResultsListener(@self.getStaticSimResults);
     end;
 
   if self.numbPlots >0 then
@@ -1262,12 +1299,19 @@ end;
 procedure TMainForm.getStaticSimResults ( newResults: TList<TTimeVarNameValList> );
 var i: integer;
 begin
-  for i := 0 to newResults.count -1 do
+//console.log('TMainForm.getStaticSimResults called');
+   // Update plots:
+  if self.graphPanelList.count > 0 then
     begin
-      self.getVals(newResults[i].time, newResults[i].varNV_List);
+    for i := 0  to self.graphPanelList.count -1 do
+      begin
+      self.graphPanelList[i].setStaticSimResults(newResults);
+      end;
     end;
+//  console.log('TMainForm.getStaticSimResults done plotting');
   self.btnSimReset.Enabled := true;
-  self.stopSim;
+  self.stopSim; // ?
+  self.resetSim; // ?
   self.btnRunPause.Enabled := true;
 end;
 

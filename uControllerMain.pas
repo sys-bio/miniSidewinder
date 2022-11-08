@@ -153,7 +153,8 @@ begin
   if self.stepSize < 0.0 then self.stepSize := 0.1; // TODO fix this issue, why necessary?
  // console.log('StepSize when creating sim: ', floattostr(self.stepSize) );
   self.runSim := TSimulationJS.create(self.runTime, self.stepSize, self.SBMLmodel, self.solverUsed);
- // set timerinterval ?
+ // set timerinterval?
+ // self.runSim.OnSimResultsNotify := self.getStaticSimulationResults;
   self.runSim.OnUpdate := self.getVals; // register callback function.
 end;
 
@@ -194,7 +195,6 @@ begin
     self.runsim.setTime(0.0);
     self.runSim.OnSimResultsNotify := self.getStaticSimulationResults;
     self.runSim.startStaticSimulation;
-    console.log('starting static sim');
     end;
 
 end;
@@ -203,11 +203,14 @@ end;
 procedure TControllerMain.UpdateVals( time: double; updatedVals: TVarNameValList);
 var i: integer;
 begin
-  if length(self.FSimUpdateAr) > 0 then
-  begin
-    for i := 0  to length(self.FSimUpdateAr) -1 do
-      self.FSimUpdateAr[i](time, updatedVals);
-  end;
+  if not self.runSim.IsStaticSimRun then
+    begin
+    if length(self.FSimUpdateAr) > 0 then
+      begin
+      for i := 0  to length(self.FSimUpdateAr) -1 do
+        self.FSimUpdateAr[i](time, updatedVals);
+      end;
+    end;
 end;
 
 procedure TControllerMain.addSimListener( newListener: TUpdateSimEvent );
@@ -429,7 +432,7 @@ end;
 procedure TControllerMain.getStaticSimulationResults( newSimResults: TList<TTimeVarNameValList> );
 var i: integer;
 begin
-console.log( ' MainController: got static sim results');
+//console.log( ' MainController: got static sim results');
   if length(self.FSimResultsAr) > 0 then
   begin
     for i := 0  to length(self.FSimResultsAr) -1 do
@@ -444,9 +447,7 @@ begin
   if sbmlText <> '' then
     begin
     // check if sbmlmodel has stuff, if so, clear out....
-  //  self.networkUpdate := false;
     self.createModel();
-   // self.currNetworkCtrl.network.clear; // clear out old network;
     SBMLReader := TSBMLRead.create(self.sbmlmodel, self.sbmlText );// Process text with libsbml.js
     end
   else showMessage ('SBML text empty.');
@@ -458,13 +459,6 @@ var writerSBML: TSBMLWriter;
 begin
   self.writeSBMLFileName := fileName;
   self.saveSBMLFlag := true;
-  // currently can have both sbml loaded from file and network model.
- { if self.networkUpdate = true then
-    begin
-      self.createModel;
-      self.networkUpdate := false;
-    end;
-    }
   if self.sbmlmodel <> nil then
   begin
     writerSBML := TSBMLWriter.create();

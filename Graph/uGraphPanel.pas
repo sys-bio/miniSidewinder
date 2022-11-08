@@ -69,6 +69,7 @@ public
   function  getYMax(): double;
   procedure adjustPanelHeight(newHeight: integer); // adjust height and top, uses self.tag as well
   procedure getVals( newTime: Double; newVals: TVarNameValList);// Get new values (species amt) from simulation run
+  procedure setStaticSimResults( newResults: TList<TTimeVarNameValList> ); // get sim results to plot
   procedure notifyGraphEvent(plot_id: integer; eventType: integer);
   property OnEditGraphEvent: TEditGraphEvent read fEditGraphEvent write fEditGraphEvent;
 end;
@@ -280,7 +281,7 @@ end;
 
 
 procedure TGraphPanel.getVals(newTime: Double; newVals: TVarNameValList); // callback
-var i, j: integer;
+var {i,} j: integer;
 begin
   for j := 0 to length(self.chart.series) -1 do
     begin
@@ -289,6 +290,22 @@ begin
     end;
   self.chart.plot;
   //self.chart.Invalidate;   // ??
+end;
+
+procedure TGraphPanel.setStaticSimResults( newResults: TList<TTimeVarNameValList> );
+var i, j: integer;
+begin
+  for i := 0 to newResults.count -1 do
+    begin
+    for j := 0 to length(self.chart.series) -1 do
+      begin
+      if j < newResults[i].varNV_List.getNumPairs then
+        self.chart.updateSerie(j, newResults[i].time,
+                   newResults[i].varNV_List.getNameValById(self.chart.series[j].name).Val );
+      end;
+
+    end;
+   self.chart.plot;
 end;
 
 procedure TGraphPanel.setChartDelta(newDelta: double); // default is 0.1 (tenth of sec )
