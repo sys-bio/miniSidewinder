@@ -189,4 +189,26 @@ object MainForm: TMainForm
     Left = 273
     Top = 608
   end
+  object graphEditPopup: TWebPopupMenu
+    Appearance.HamburgerMenu.Caption = 'Menu'
+    Appearance.SubmenuIndicator = '&#9658;'
+    Left = 752
+    Top = 494
+    object ogglelegend1: TMenuItem
+      Caption = 'Toggle legend'
+      OnClick = ogglelegend1Click
+    end
+    object oggleautoscale1: TMenuItem
+      Caption = 'Toggle auto scale'
+      OnClick = oggleautoscale1Click
+    end
+    object ChangeminmaxYaxis1: TMenuItem
+      Caption = 'Change min/max Y axis'
+      OnClick = ChangeminmaxYaxis1Click
+    end
+    object Changeplotspecies1: TMenuItem
+      Caption = 'Change plot species'
+      OnClick = Changeplotspecies1Click
+    end
+  end
 end

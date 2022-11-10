@@ -34,9 +34,9 @@ private
   fEditGraphEvent: TEditGraphEvent;
 
   function updateXMax(): boolean; // true if changed. Adjust xMax if total points > DEFAULT_MAX_XPTS or < DEFAULT_MIN_XPTS
-  procedure graphEditMouseDown(Sender: TObject; Button: TMouseButton;
+  {procedure graphEditMouseDown(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
-  procedure editGraphListBoxClick(Sender: TObject);
+  procedure editGraphListBoxClick(Sender: TObject); }
 
 public
   userDeleteGraph: boolean; // true, user can delete graph (OnEditGraphEvent method required)
@@ -67,6 +67,9 @@ public
   function  getChartTimeInterval(): double;
   procedure setYMax(newYMax: double);
   function  getYMax(): double;
+  procedure updateYMinMax();
+  procedure toggleLegendVisibility();
+  procedure toggleAutoScaleYaxis();
   procedure adjustPanelHeight(newHeight: integer); // adjust height and top, uses self.tag as well
   procedure getVals( newTime: Double; newVals: TVarNameValList);// Get new values (species amt) from simulation run
   procedure setStaticSimResults( newResults: TList<TTimeVarNameValList> ); // get sim results to plot
@@ -81,7 +84,7 @@ begin
   inherited create(newParent);
   self.plotEditInProgress := false;
   self.SetParent(newParent);
-  self.OnMouseDown := graphEditMouseDown;
+ // self.OnMouseDown := graphEditMouseDown;
   if graphPosition > -1 then self.tag := graphPosition
   else self.tag := 0;
   self.Width := newParent.Width;
@@ -105,7 +108,7 @@ end;
    try
      self.chart := TWebScrollingChart.Create(self);
      self.chart.Height := self.Height;
-     self.chart.OnMouseClickEvent := self.graphEditMouseDown;
+  //   self.chart.OnMouseClickEvent := self.graphEditMouseDown;
      self.chart.Parent := self;
      self.chart.YAxisMax := self.yMaximum;
    except
@@ -373,7 +376,7 @@ begin
   self.chart.autoScaleDown := autoScale;
 end;
 
-procedure TGraphPanel.graphEditMouseDown(Sender: TObject; Button: TMouseButton;
+{procedure TGraphPanel.graphEditMouseDown(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
 var editList: TStringList;
     editGraphLB_Width: integer;
@@ -406,9 +409,9 @@ begin
     self.lbEditGraph.bringToFront;
     self.lbEditGraph.visible := true;
     end;
-end;
+end;     }
 
-procedure TGraphPanel.editGraphListBoxClick(Sender: TObject);
+{procedure TGraphPanel.editGraphListBoxClick(Sender: TObject);
 begin
   case self.lbEditGraph.ItemIndex of
     0: begin                                 // toggle legend
@@ -447,7 +450,38 @@ begin
   end;
   self.plotEditInProgress := false;
 end;
+      }
 
+procedure TGraphPanel.toggleLegendVisibility;
+begin
+  if self.chart.getLegendVisible then
+     self.chart.SetLegendVisible(false)
+  else self.chart.SetLegendVisible(true);
+end;
+
+procedure TGraphPanel.toggleAutoScaleYaxis;
+begin
+  if self.chart.autoScaleUp then
+    begin
+    self.chart.autoScaleUp := false;
+    self.chart.autoScaleDown := false;
+    end
+  else
+    begin
+    self.chart.autoScaleUp := true;
+    self.chart.autoScaleDown := true;
+    end;
+end;
+
+procedure TGraphPanel.updateYMinMax();
+begin
+  self.chart.userUpdateMinMax;
+  if self.chart.autoScaleUp then  // Turn off autoscale.
+    begin
+    self.chart.autoScaleUp := false;
+    self.chart.autoScaleDown := false;
+    end;
+end;
 
 procedure TGraphPanel.notifyGraphEvent(plot_id: integer; eventType: integer);
 begin

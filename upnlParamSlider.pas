@@ -28,7 +28,7 @@ TpnlParamSlider = class(TWebPanel)
 
   public
     constructor create(newParent: TWebPanel; index: integer;
-                editSliderCallBack: TEditSliderEvent; trackBarChange: TNotifyEvent);
+                {editSliderCallBack: TEditSliderEvent; }trackBarChange: TNotifyEvent);
     procedure configPSliderPanel(sPLeft, sliderPanelWidth, sliderPanelHeight: integer) overload;
     procedure configPSliderPanel(sPLeft, sliderPanelWidth, sliderPanelHeight, sliderPanelTop: integer) overload;
     procedure configPSliderTBar({sliderPanelWidth : integer});
@@ -55,12 +55,12 @@ end;
 implementation
 
   constructor TpnlParamSlider.create(newParent: TWebPanel; index: integer;
-                  editSliderCallBack: TEditSliderEvent; trackBarChange: TNotifyEvent);
+                  {editSliderCallBack: TEditSliderEvent;} trackBarChange: TNotifyEvent);
   begin
     inherited create(newParent);
     self.parent := newParent;
     self.OnMouseDown := self.SliderOnMouseDown;// mouseDownCallBack;
-    self.OnEditSlider := editSliderCallBack;
+   // self.OnEditSlider := editSliderCallBack;
     if index > -1 then
       self.tag := index
     else self.tag := 0;

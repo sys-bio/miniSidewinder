@@ -12,6 +12,7 @@ const
 type
   TDoubleArray = array of double;
   TIntegerArray = array of integer;
+  TStringArray = array of string;
   TSpeciesList = TList<String>;
   TDoubleList = TList<double>;
 

@@ -9,17 +9,19 @@ uses
   uControllerMain, ufVarSelect, uSidewinderTypes, uGraphPanel, uTestModel,
   uModel, uSBMLClasses, uSBMLClasses.rule, upnlParamSlider,
   VCL.TMSFNCTypes, VCL.TMSFNCUtils, VCL.TMSFNCGraphics, VCL.TMSFNCGraphicsTypes,
-  VCL.TMSFNCCustomControl, VCL.TMSFNCScrollBar, ufModelInfo, ufLabelPopUp;
+  VCL.TMSFNCCustomControl, VCL.TMSFNCScrollBar, ufModelInfo, ufLabelPopUp,
+  Vcl.Menus, WEBLib.Menus;
 
 const SIDEWINDER_VERSION = 'Version 0.4 alpha';
       DEFAULT_RUNTIME = 10000;
       EDITBOX_HT = 25;
       ZOOM_SCALE = 20;
-      MAX_SLIDERS = 12; //16;
+      MAX_SLIDERS = 12;
       SLIDERS_PER_ROW = 4;
       MAX_STR_LENGTH = 50; // Max User inputed string length for Rxn/spec/param id
       NULL_NODE_TAG = '_Null'; // from uNetwork, just in case, probably not necessary
       DEFAULT_NUMB_PLOTS = 1;
+
 type
   TMainForm = class(TWebForm)
     pnlModelInfo: TWebPanel;
@@ -41,6 +43,12 @@ type
     btnModelInfo: TWebButton;
     btnExample: TWebButton;
     chkbxStaticSimRun: TWebCheckBox;
+    graphEditPopup: TWebPopupMenu;
+    ogglelegend1: TMenuItem;
+    oggleautoscale1: TMenuItem;
+    ChangeminmaxYaxis1: TMenuItem;
+    Changeplotspecies1: TMenuItem;
+
     procedure WebFormCreate(Sender: TObject);
     procedure btnSimResetClick(Sender: TObject);
     procedure btnLoadModelClick(Sender: TObject);
@@ -56,6 +64,12 @@ type
     procedure btnModelInfoClick(Sender: TObject);
     procedure btnExampleClick(Sender: TObject);
     procedure chkbxStaticSimRunClick(Sender: TObject);
+    procedure ogglelegend1Click(Sender: TObject);
+    procedure oggleautoscale1Click(Sender: TObject);
+    procedure ChangeminmaxYaxis1Click(Sender: TObject);
+    procedure Changeplotspecies1Click(Sender: TObject);
+    procedure ChangeParameter1Click(Sender: TObject);
+   
 
   private
     numbPlots: Integer; // Number of plots displayed
@@ -94,7 +108,7 @@ type
     procedure refreshPlotAndSliderPanels();
     procedure refreshPlotPanels();
     procedure refreshSliderPanels();
-    function  getParamsNotAssignedSliders(): array of string;
+    function  getParamsNotAssignedSliders(): TStringArray;
     procedure addPlot(yMax: double); // Add a plot, yMax: largest initial val of plotted species
     procedure resetPlots();  // Reset plots for new simulation.
     procedure selectPlotSpecies(plotnumb: Integer);
@@ -112,11 +126,9 @@ type
     //procedure checkIfFilePassedIn(); // See if model file name is passed to form as a string
 
   public
-    { Public declarations }
     fileName: string;
     simStarted: boolean; // true sim has been started
     runTime: double;
-  //  staticSimRunFlag: boolean;
     currentGeneration: Integer; // Used by plots as current x axis point
     fPlotSpecies: TVarSelectForm;
     plotSpecies: TList<TSpeciesList>; // species to graph for each plot
@@ -125,13 +137,14 @@ type
     fSliderParameter: TVarSelectForm;// Pop up form to choose parameter for slider.
     sliderParamAr: array of Integer;// holds parameter array index (p_vals) of parameter to use for each slider
     pnlSliderAr: array of TPnlParamSlider; // Holds parameter sliders
+    sliderEditPopupsList: TList<TWebPopupMenu>;
     strFileInput: string;  // File name that may be passed to form.
 
     // Displays slider param name and current value
     paramUpdated: Boolean; // true if a parameter has been updated.
     mainController: TControllerMain;
     procedure SliderOnMouseDown(Sender: TObject; Button: TMouseButton;
-    Shift: TShiftState; X, Y: Integer);
+                                Shift: TShiftState; X, Y: Integer);
 
     procedure PingSBMLLoaded(newModel:TModel); // Notify when done loading or model changes
     procedure getVals( newTime: Double; newVals: TVarNameValList);// Get new values (species amt) from simulation run
@@ -141,8 +154,7 @@ type
 
 var
   MainForm: TMainForm;
-
-
+  
 
 implementation
 
@@ -272,6 +284,7 @@ begin
   self.stepSize := 0.1;
   self.edtStepSize.Text := floatToStr(self.stepSize * 1000);
   self.simStarted := false;
+  sliderEditPopupsList := TList<TWebPopupMenu>.create;
   self.mainController := TControllerMain.Create();
   self.mainController.setOnline(false);
   self.mainController.setODEsolver;
@@ -316,6 +329,42 @@ begin
     end;
 end;
 
+procedure TMainForm.oggleautoscale1Click(Sender: TObject);
+var i: integer;
+begin
+// TODO
+  console.log( ' autoscale y axis');
+
+  if Sender is TMenuItem then
+    begin
+    console.log('Menu Item');
+    i := TMenuItem(Sender).tag -1; // want index.
+    if i > -1 then
+      begin
+      self.graphPanelList[i].toggleAutoScaleYaxis;
+      end
+    else console.log('Bad index number TMainForm.oggleautoscale1Click');
+    end;
+
+
+end;
+
+procedure TMainForm.ogglelegend1Click(Sender: TObject);
+var i: integer;
+begin
+  console.log( ' legend');
+  if Sender is TMenuItem then
+    begin
+    console.log('Menu Item');
+    i := TMenuItem(Sender).tag -1; // want index.
+    if i > -1 then
+      begin
+      self.graphPanelList[i].toggleLegendVisibility;
+      end
+    else console.log('Bad index number TMainForm.ogglelegend1Click');
+    end;
+end;
+
 procedure TMainForm.initializePlot( n: integer); // n is index
 begin
   try
@@ -349,8 +398,9 @@ end;
 
 procedure TMainForm.addParamSlider(); // assume slider index is at last position, otherwise it is just an edit.
 // default TBar range: 0 to initVal*10
-var i, sliderTBarWidth, sliderPanelLeft, sliderPanelWidth: integer;
+var i, j, sliderTBarWidth, sliderPanelLeft, sliderPanelWidth: integer;
     sliderTop: Integer;
+    newMenu: TMenuItem;
 begin
   i := self.getNumberOfSliders; // array index for current slider to be added.
   SetLength(self.pnlSliderAr, i + 1);
@@ -360,8 +410,20 @@ begin
   sliderPanelWidth := self.calcSliderWidth;
 
 
-  self.pnlSliderAr[i] := TpnlParamSlider.create(self.pnlParamSliders, i, @self.EditSliderList,
+  self.pnlSliderAr[i] := TpnlParamSlider.create(self.pnlParamSliders, i,{ @self.EditSliderList,}
                                                 @self.paramSliderOnChange );
+
+  self.sliderEditPopupsList.Add(TWebPopupMenu.Create(self)) ;
+
+  newMenu := TMenuItem.Create(self.sliderEditPopupsList[i]);
+  newMenu.tag := i + 1; // tag slider position
+  newMenu.Caption := 'Change parameter';
+  newMenu.OnClick := self.ChangeParameter1Click;
+  self.sliderEditPopupsList[i].Items.add(newMenu);
+  self.sliderEditPopupsList[i].Parent := self;
+  self.pnlSliderAr[i].PopupMenu := self.sliderEditPopupsList[i] ;
+  console.log(' popup parent: ', self.sliderEditPopupsList[i].Parent);
+
   self.pnlSliderAr[i].configPSliderPanel(sliderPanelLeft, sliderPanelWidth, self.intSliderHeight, sliderTop);
   self.SetSliderParamValues(i, self.sliderParamAr[i]);
   self.pnlSliderAr[i].configPSliderTBar;
@@ -391,6 +453,47 @@ begin
    if(trunc(self.pnlParamSliders.Width/self.slidersPerRow) > 200 ) then
     Result :=  trunc( self.pnlParamSliders.width/self.slidersPerRow )   // three sliders across
   else Result := 200;
+end;
+
+procedure TMainForm.ChangeminmaxYaxis1Click(Sender: TObject);
+var i: integer;
+begin
+  console.log( ' Change min-max.');
+  if Sender is TMenuItem then
+    begin
+    i := TMenuItem(Sender).tag -1; // want index.
+    if i > -1 then
+      begin
+      self.graphPanelList[i].updateYMinMax;
+      end
+    else console.log('Bad index number TMainForm.ChangeminmaxYaxis1Click');
+    end;
+end;
+
+procedure TMainForm.ChangeParameter1Click(Sender: TObject);
+var i: integer;
+begin
+  console.log( ' Change slider parameter');
+  if Sender is TMenuItem then
+    begin
+    i := TMenuItem(Sender).tag -1; // want index.
+    if i > -1 then
+      self.selectParameter(i);
+    end;
+end;
+
+procedure TMainForm.Changeplotspecies1Click(Sender: TObject);
+var i: integer;
+begin
+  console.log( ' Change plot species');
+
+  if Sender is TMenuItem then
+    begin
+    i := TMenuItem(Sender).tag -1; // want index.
+    // delete plot and then select species and add plot.
+    self.deletePlot(i);
+    self.selectPlotSpecies(i+1); // want position
+    end;
 end;
 
 function TMainForm.calcSliderLeft(index: integer): integer;
@@ -945,8 +1048,14 @@ begin
     self.graphPanelList := TList<TGraphPanel>.create;
   self.graphPanelList.Add( TGraphPanel.create(pnlPlot, plotPositionToAdd, yMax) );
   self.graphPanelList[plotPositionToAdd -1].setChartTimeInterval(self.stepSize);
-  self.graphPanelList[plotPositionToAdd -1].OnEditGraphEvent := processGraphEvent;
-  self.graphPanelList[plotPositionToAdd-1].userChangeVarSeries := true;
+  //self.graphPanelList[plotPositionToAdd -1].OnEditGraphEvent := processGraphEvent;
+  self.graphPanelList[plotPositionToAdd -1].PopupMenu := self.graphEditPopup;
+  for i := 0 to self.graphEditPopup.Items.Count -1 do
+    begin
+    self.graphEditPopup.Items.Items[i].tag := plotPositionToAdd; // tage with position
+    end;
+
+  self.graphPanelList[plotPositionToAdd -1].userChangeVarSeries := true;
   newHeight := round( self.pnlPlot.Height );  // default
   if self.numbPlots > DEFAULT_NUMB_PLOTS then
   begin
@@ -1264,9 +1373,7 @@ end;
 
 // Get new values (species amt) from simulation run (ODE integrator)
 procedure TMainForm.getVals( newTime: Double; newVals: TVarNameValList );
-var
-//  dataStr: String;
-  i: Integer;
+var i: Integer;
  // newValsAr: array of double;
   currentStepSize:double;
 begin
