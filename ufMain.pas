@@ -422,7 +422,7 @@ begin
   self.sliderEditPopupsList[i].Items.add(newMenu);
   self.sliderEditPopupsList[i].Parent := self;
   self.pnlSliderAr[i].PopupMenu := self.sliderEditPopupsList[i] ;
-  console.log(' popup parent: ', self.sliderEditPopupsList[i].Parent);
+ // console.log(' popup parent: ', self.sliderEditPopupsList[i].Parent);
 
   self.pnlSliderAr[i].configPSliderPanel(sliderPanelLeft, sliderPanelWidth, self.intSliderHeight, sliderTop);
   self.SetSliderParamValues(i, self.sliderParamAr[i]);
