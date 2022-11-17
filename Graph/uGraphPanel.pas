@@ -463,12 +463,16 @@ procedure TGraphPanel.toggleAutoScaleYaxis;
 begin
   if self.chart.autoScaleUp then
     begin
+    self.autoUp := false;
     self.chart.autoScaleUp := false;
+    self.autoDown := false;
     self.chart.autoScaleDown := false;
     end
   else
     begin
+    self.autoUp := true;
     self.chart.autoScaleUp := true;
+    self.autoDown := true;
     self.chart.autoScaleDown := true;
     end;
 end;
