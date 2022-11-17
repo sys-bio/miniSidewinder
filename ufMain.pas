@@ -10,7 +10,7 @@ uses
   uModel, uSBMLClasses, uSBMLClasses.rule, upnlParamSlider,
   VCL.TMSFNCTypes, VCL.TMSFNCUtils, VCL.TMSFNCGraphics, VCL.TMSFNCGraphicsTypes,
   VCL.TMSFNCCustomControl, VCL.TMSFNCScrollBar, ufModelInfo, ufLabelPopUp,
-  Vcl.Menus, WEBLib.Menus;
+  Vcl.Menus, WEBLib.Menus, WEBLib.WebCtrls;
 
 const SIDEWINDER_VERSION = 'Version 0.4 alpha';
       DEFAULT_RUNTIME = 10000;
@@ -69,7 +69,8 @@ type
     procedure ChangeminmaxYaxis1Click(Sender: TObject);
     procedure Changeplotspecies1Click(Sender: TObject);
     procedure ChangeParameter1Click(Sender: TObject);
-   
+   // procedure WebURLValidator1Validated(Sender: TObject; IsValid: Boolean);
+
 
   private
     numbPlots: Integer; // Number of plots displayed
@@ -123,7 +124,6 @@ type
     procedure setLabelModelInfo();
     function  enableStepSizeEdit(): boolean; // true: success
     function  disableStepSizeEdit(): boolean; // true: success
-    //procedure checkIfFilePassedIn(); // See if model file name is passed to form as a string
 
   public
     fileName: string;
@@ -273,7 +273,7 @@ begin
 end;
 
 procedure TMainForm.WebFormCreate(Sender: TObject);
-
+var sRun: boolean;
 begin
   self.numbPlots := 0;
   self.slidersPerRow := SLIDERS_PER_ROW;
@@ -292,12 +292,51 @@ begin
   self.currentGeneration := 0;
   self.currentModelInfo := 'None.';
   self.btnModelInfo.Enabled := false;
+  self.strFileInput := '';
 
   asm
-    this.strFileInput = location.search.substring(1);
-  end;
+   // this.strFileInput = location.search.substring(1);
+   // var para = new URLSearchParams(window.location.search);
+   // var pass = para.get("MODEL");
+   // console.log('TMainForm.create: Model: ', pass);
 
-  console.log('File passed in: ', self.strFileInput);
+    var newModel = sessionStorage.getItem("MODEL");
+    var newRT = parseFloat(sessionStorage.getItem("RUNTIME"));
+    if(newRT > 0) {
+      this.runTime = newRT;
+    }
+    var newSS = parseFloat(sessionStorage.getItem("STEPSIZE"));
+    if(newSS > 0) {
+      this.stepSize = newSS;
+    }
+    var staticRun = sessionStorage.getItem("STATIC");
+    if( staticRun != null ) {
+      if(staticRun.toUpperCase() == 'TRUE') {
+        console.log(' Static run');
+        sRun = true;
+      }
+    }
+    this.strFileInput = newModel;
+  end;
+   // Assume sbml model. XML format. May need to parse later for other formats.
+  if assigned(self.strFileInput) and (self.strFileInput <> '') then
+    begin
+    //console.log('File passed in: ', self.strFileInput);
+    // Update runtime and stepsize:
+    if length(self.strFileInput) > 20 then // assumed model larger than 20 chars
+      begin
+      self.edtStepSize.Text := floatToStr(self.stepSize * 1000);
+      self.btnLoadModel.Enabled := false;  // Do not allow user to load adifferent model.
+      self.SBMLOpenDialogGetFileAsText( nil, 0, self.strFileInput);
+      end;
+    end;
+
+  if sRun then
+    begin
+    self.chkbxStaticSimRun.Checked := true;
+    self.chkbxStaticSimRunClick(nil);
+    end;
+
 
   self.btnSimReset.Visible := true;
   self.btnSimReset.Enabled := false;
@@ -317,6 +356,26 @@ begin
   self.refreshPlotAndSliderPanels;
 end;
 
+{procedure TMainForm.WebURLValidator1Validated(Sender: TObject;
+  IsValid: Boolean);
+var msgStr, fileText: string;
+
+begin
+  if isValid then
+    begin
+    msgStr := 'Model URL ok: ' + self.WebURLValidator1.URL;
+    notifyUser(msgStr);
+    fileText := '';
+    fileText := self.getModelFromURL(self.WebURLValidator1.URL);
+    console.log('model text: ', fileText);
+    end
+  else
+    begin
+    msgStr := 'Model URL NOT ok: ' + self.WebURLValidator1.URL;
+    notifyUser(msgStr);
+    end;
+end;
+       }
 procedure TMainForm.initializePlots();
   var i: Integer;
 begin
@@ -811,12 +870,8 @@ begin
        // default timer interval is 100 msec:
       // multiplier default is 10, range 1 - 50
       self.mainController.SetTimerInterval(round(1000/self.trackBarSimSpeed.position));
-      // self.mainController.SetTimerInterval(100);
       self.mainController.SetStepSize(self.stepSize);
-     // if self.mainController.getCurrTime = 0  then
-    //    self.InitSimResultsTable();  // Set table of Sim results.
-      //self.rightPanelType := SIMULATION_PANEL;
-      //self.setRightPanels;
+
       if self.chkbxStaticSimRun.Checked {self.staticSimRunFlag} then
         begin
         self.runStaticSim;
@@ -1048,7 +1103,7 @@ begin
     self.graphPanelList := TList<TGraphPanel>.create;
   self.graphPanelList.Add( TGraphPanel.create(pnlPlot, plotPositionToAdd, yMax) );
   self.graphPanelList[plotPositionToAdd -1].setChartTimeInterval(self.stepSize);
-  //self.graphPanelList[plotPositionToAdd -1].OnEditGraphEvent := processGraphEvent;
+
   self.graphPanelList[plotPositionToAdd -1].PopupMenu := self.graphEditPopup;
   for i := 0 to self.graphEditPopup.Items.Count -1 do
     begin

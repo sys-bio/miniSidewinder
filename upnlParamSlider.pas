@@ -4,7 +4,7 @@ interface
 
 uses System.SysUtils, System.Classes, System.Generics.Collections, StrUtils,
   JS, Web, WEBLib.Graphics, WEBLib.Controls, WEBLib.Forms, WEBLib.Dialogs,
-  Vcl.Controls, WEBLib.ExtCtrls, Vcl.StdCtrls, WEBLib.StdCtrls, ufVarSelect;
+  Vcl.Controls, WEBLib.ExtCtrls, Vcl.StdCtrls, WEBLib.StdCtrls{, ufVarSelect};
 
 
 type
@@ -12,9 +12,6 @@ TEditSliderEvent = procedure( index: integer{; xPos, yPos: Integer} ) of object;
 
 TpnlParamSlider = class(TWebPanel)
   private
-    fSliderParameter: TVarSelectForm;// Pop up form to choose parameter for slider.
-   // sliderParam: Integer;// holds parameter array index (p_vals) of parameter to use for each slider
-
     sliderPHigh: Double; // High value for parameter slider
     sliderPLow: Double;  // Low value for parameter slider
     sliderPTBar: TWebTrackBar;
@@ -27,8 +24,7 @@ TpnlParamSlider = class(TWebPanel)
     fEditSlider: TEditSliderEvent;
 
   public
-    constructor create(newParent: TWebPanel; index: integer;
-                {editSliderCallBack: TEditSliderEvent; }trackBarChange: TNotifyEvent);
+    constructor create(newParent: TWebPanel; index: integer; trackBarChange: TNotifyEvent);
     procedure configPSliderPanel(sPLeft, sliderPanelWidth, sliderPanelHeight: integer) overload;
     procedure configPSliderPanel(sPLeft, sliderPanelWidth, sliderPanelHeight, sliderPanelTop: integer) overload;
     procedure configPSliderTBar({sliderPanelWidth : integer});
@@ -45,7 +41,6 @@ TpnlParamSlider = class(TWebPanel)
     function  getSliderPosition(): integer;
     procedure setSliderRangeMultiplier( newVal: integer );
     function  getSliderRangeMultiplier(): integer;
-  //  procedure EditSliderList(sn: Integer);
     procedure SliderOnMouseDown(Sender: TObject; Button: TMouseButton;
                                  Shift: TShiftState; X, Y: Integer);
     property OnEditSlider: TEditSliderEvent read fEditSlider write fEditSlider;
@@ -60,7 +55,6 @@ implementation
     inherited create(newParent);
     self.parent := newParent;
     self.OnMouseDown := self.SliderOnMouseDown;// mouseDownCallBack;
-   // self.OnEditSlider := editSliderCallBack;
     if index > -1 then
       self.tag := index
     else self.tag := 0;
@@ -120,7 +114,7 @@ var sliderTBarWidth : integer;
     self.sliderPHLabel.Tag:= self.tag;
     self.sliderPHLabel.Top:= 21{30};
    // self.sliderPHLabel.Left:= sliderPanelWidth - trunc (0.15*sliderPanelWidth);
-    self.sliderPHLabel.Left:= self.Width - trunc (0.25 {0.15} * self.Width);
+    self.sliderPHLabel.Left:= self.Width - trunc (0.25 * self.Width);
 
     // Value (low) positioned on the left-side of slider
     self.sliderPLLabel.visible:= True;
