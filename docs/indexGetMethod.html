@@ -1,0 +1,48 @@
+<html>
+
+<head>
+    <title>Mini Sidewinder Demo v0.10</title>
+	
+	<style>
+body {
+  background-color: linen;
+
+}
+
+#sidewinderFrame {
+        border: 3px line;
+        width: 95%;
+        height: 95%;
+		overflow-y:scroll;
+    }
+
+	</style
+</head>
+<body>
+<p>
+Below is miniSidewinder demo. Load your SBML model and go. 
+</p>
+ <p>
+ <iframe id='sidewinderFrame' > </iframe> 
+ </p>
+<script type="text/javascript">
+var para;
+var newModelInfo;
+function getInfo() {
+ para = new URLSearchParams();
+ para.append('MODEL', 'My Head aches...');
+ para.append('RUNTIME', '30');
+ para.append('STEPSIZE', '0.10');
+// console.log('this model info: ', para.get('MODEL'));
+ document.getElementById('sidewinderFrame').src = "Debug/index.html?" + para.toString();
+}
+
+getInfo();
+
+</script> 
+  
+<!--  <iframe id='sidewinderFrame' src="Debug/index.html? "> </iframe>     -->
+
+</body>
+
+</html>
