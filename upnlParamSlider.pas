@@ -80,7 +80,7 @@ implementation
     self.Top := sliderPanelHeight*self.tag + 3;
     self.Left := sPLeft;
     self.Height := sliderPanelHeight;
-    self.Width := sliderPanelWidth - 6; // -6 to move it in from the extreme right edge
+    self.Width := sliderPanelWidth;// - 6; // -6 to move it in from the extreme right edge
     self.Invalidate;
   end;
 
@@ -91,7 +91,7 @@ begin
   self.Top := sliderPanelTop;;
   self.Left := sPLeft;
   self.Height := sliderPanelHeight;
-  self.Width := sliderPanelWidth - 6; // -6 to move it in from the extreme right edge
+  self.Width := sliderPanelWidth;// - 6; // -6 to move it in from the extreme right edge
   self.Invalidate;
 end;
   // Define the sliders inside the panel that holds the sliders
