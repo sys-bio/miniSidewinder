@@ -67,6 +67,8 @@ public
   function  getChartTimeInterval(): double;
   procedure setYMax(newYMax: double);
   function  getYMax(): double;
+  procedure setXMax(newXMax: double);
+  function  getXMax(): double;
   procedure updateYMinMax();
   procedure toggleLegendVisibility();
   procedure toggleAutoScaleYaxis();
@@ -147,7 +149,7 @@ begin
   self.chart.setYAxisCaption(''); // Add to bottom, xaxis label. Cannot rotate label in HTML ?
   self.chart.SetXAxisCaption( self.yLabel + ' vs. '+ self.xLabel );
   self.setChartDelta(self.timeDelta);
-  self.updateXMax();
+  self.updateXMax(); // Not needed for 'static' sim run.
   self.setChartTimeInterval(self.timeDelta); // ?? is this necessary?
   //self.chart.SetXAxisMax(TConst.DEFAULT_X_POINTS_DISPLAYED *self.timeDelta); // deltaX same as interval
   self.chart.SetXAxisMax(self.xMax); // deltaX same as interval
@@ -187,6 +189,7 @@ begin
            Result := true;
            end;
     end;
+   if assigned(self.chart) then self.chart.SetXAxisMax(self.xMax);    // ok ????
 
 end;
 
@@ -199,6 +202,19 @@ end;
 function  TGraphPanel.getYMax(): double;
 begin
   Result := self.yMaximum;
+end;
+
+procedure TGraphPanel.setXMax(newXMax: double);
+begin
+  if newXMax >0 then
+    begin
+      self.xMax := newXMax;
+    end;
+end;
+
+function TGraphPanel.getXMax(): double;
+begin
+  Result := self.xMax;
 end;
 
 procedure TGraphPanel.setPanelHeight( newHeight: integer ); // Set height for panel that contains chart

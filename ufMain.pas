@@ -48,6 +48,9 @@ type
     oggleautoscale1: TMenuItem;
     ChangeminmaxYaxis1: TMenuItem;
     Changeplotspecies1: TMenuItem;
+    pnlRunTime: TWebPanel;
+    lblRunTime: TWebLabel;
+    editRunTime: TWebEdit;
 
     procedure WebFormCreate(Sender: TObject);
     procedure btnSimResetClick(Sender: TObject);
@@ -69,6 +72,8 @@ type
     procedure ChangeminmaxYaxis1Click(Sender: TObject);
     procedure Changeplotspecies1Click(Sender: TObject);
     procedure ChangeParameter1Click(Sender: TObject);
+   // procedure editRunTimeChange(Sender: TObject);
+    procedure editRunTimeExit(Sender: TObject);
    // procedure WebURLValidator1Validated(Sender: TObject; IsValid: Boolean);
 
 
@@ -123,7 +128,9 @@ type
     procedure setListBoxRateLaws();
     procedure setLabelModelInfo();
     function  enableStepSizeEdit(): boolean; // true: success
-    function  disableStepSizeEdit(): boolean; // true: success
+    function  disableStepSizeEdit(): boolean;// true: success
+    function  enableRunTimeEdit(): boolean;  // true: success
+    function  disableRunTimeEdit(): boolean; // true: suncces
 
   public
     fileName: string;
@@ -283,6 +290,7 @@ begin
   self.pnlParamSliders.height := 5; //trunc((MAX_SLIDERS/SLIDERS_PER_ROW)*self.intSliderHeight) +2;
   self.stepSize := 0.1;
   self.edtStepSize.Text := floatToStr(self.stepSize * 1000);
+  self.disableRunTimeEdit;
   self.simStarted := false;
   sliderEditPopupsList := TList<TWebPopupMenu>.create;
   self.mainController := TControllerMain.Create();
@@ -333,11 +341,12 @@ begin
 
   if sRun then
     begin
+    self.enableRunTimeEdit;
     self.chkbxStaticSimRun.Checked := true;
     self.chkbxStaticSimRunClick(nil);
     end;
 
-
+  self.editRunTime.Text := floatToStr(self.runTime);
   self.btnSimReset.Visible := true;
   self.btnSimReset.Enabled := false;
   self.btnRunPause.Enabled := false;
@@ -770,12 +779,16 @@ procedure TMainForm.chkbxStaticSimRunClick(Sender: TObject);
 begin
   if self.chkbxStaticSimRun.Checked = true then
     begin
-  //  self.staticSimRunFlag := true;
-    self.runTime := 10;
+    self.enableRunTimeEdit;
+    if self.runTime = DEFAULT_RUNTIME then
+      begin
+      self.runTime := 10;
+      self.editRunTime.Text := floatToStr(self.runTime);
+      end;
     end
   else
     begin
-  //  self.staticSimRunFlag := false;
+    self.disableRunTimeEdit;
     self.runTime := DEFAULT_RUNTIME;
     end;
 
@@ -1138,6 +1151,8 @@ begin // Easier to just delete/create than reset time, xaxis labels, etc.
     self.graphPanelList[i].deleteChart;
     self.graphPanelList[i].createChart;
     self.graphPanelList[i].setupChart;
+    //if self.chkbxStaticSimRun.Checked then self.graphPanelList[i].chart.SetXAxisMax;
+
     end;
   initSVals := TVarNameValList.create;
   for i := 0 to length(self.mainController.getModel.getS_Names) -1 do
@@ -1581,6 +1596,39 @@ begin
   self.fModelInfo.caption := 'Model information:';
 end;
 
+{procedure TMainForm.editRunTimeChange(Sender: TObject);
+var newRunTime: double;
+begin
+  self.editRunTimeExit(Sender);
+end;
+}
+procedure TMainForm.editRunTimeExit(Sender: TObject);
+var newRunTime: double;
+begin
+  try
+    newRunTime := strToFloat(self.editRunTime.Text);
+    if newRunTime >0 then
+      begin
+      self.runTime := newRunTime;
+      self.mainController.SetRunTime(self.runTime);
+      end
+    else notifyUser ('Run Time must be a positive number');
+
+  except
+       on Exception: EConvertError do
+         notifyUser ('Run Time must be a positive number');
+  end;
+
+  if self.mainController.IsModelLoaded then
+  begin
+    self.mainController.createSimulation();
+    if self.numbPlots >0 then
+      //self.initializePlots;
+      self.resetPlots;
+    self.currentGeneration := 0;
+  end;
+end;
+
 procedure TMainForm.setLabelModelInfo();
 begin
   if self.mainController.getModel.getModelId <> '' then
@@ -1639,5 +1687,17 @@ begin
 
 end;
 
+function TMainForm.enableRunTimeEdit(): boolean;  // true: success
+begin
+  self.pnlRunTime.Enabled := true;
+  self.lblRunTime.Enabled := true;
+  self.editRunTime.Enabled := true;
+end;
+function TMainForm.disableRunTimeEdit(): boolean; // true: suncces
+begin
+  self.pnlRunTime.Enabled := false;
+  self.lblRunTime.Enabled := false;
+  self.editRunTime.Enabled := false;
+end;
 
 end.

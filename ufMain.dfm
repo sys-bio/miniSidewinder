@@ -43,6 +43,7 @@ object MainForm: TMainForm
     Height = 370
     Align = alClient
     ChildOrder = 1
+    ExplicitLeft = -6
   end
   object pnlTop: TWebPanel
     Left = 0
@@ -52,7 +53,7 @@ object MainForm: TMainForm
     Align = alTop
     ChildOrder = 3
     object lblStepSize: TWebLabel
-      Left = 622
+      Left = 555
       Top = 21
       Width = 72
       Height = 13
@@ -61,7 +62,7 @@ object MainForm: TMainForm
       WidthPercent = 100.000000000000000000
     end
     object btnRunPause: TWebButton
-      Left = 177
+      Left = 153
       Top = 16
       Width = 104
       Height = 25
@@ -71,7 +72,7 @@ object MainForm: TMainForm
       OnClick = btnRunPauseClick
     end
     object btnSimReset: TWebButton
-      Left = 312
+      Left = 272
       Top = 16
       Width = 73
       Height = 25
@@ -82,7 +83,7 @@ object MainForm: TMainForm
       OnClick = btnSimResetClick
     end
     object edtStepSize: TWebEdit
-      Left = 700
+      Left = 630
       Top = 18
       Width = 50
       Height = 22
@@ -105,15 +106,15 @@ object MainForm: TMainForm
       OnClick = btnLoadModelClick
     end
     object pnlSimSpeedMult: TWebPanel
-      Left = 417
-      Top = 7
-      Width = 180
+      Left = 361
+      Top = 4
+      Width = 170
       Height = 50
       Hint = 'Speed up simulation, limited by browser resources.'
       ChildOrder = 5
       ShowHint = True
       object lblSpeedMult: TWebLabel
-        Left = 30
+        Left = 26
         Top = 8
         Width = 98
         Height = 13
@@ -123,7 +124,7 @@ object MainForm: TMainForm
         WidthPercent = 100.000000000000000000
       end
       object lblSpeedMultVal: TWebLabel
-        Left = 132
+        Left = 130
         Top = 8
         Width = 12
         Height = 13
@@ -132,7 +133,7 @@ object MainForm: TMainForm
         WidthPercent = 100.000000000000000000
       end
       object lblSpeedMultMin: TWebLabel
-        Left = 15
+        Left = 13
         Top = 30
         Width = 22
         Height = 13
@@ -150,7 +151,7 @@ object MainForm: TMainForm
         WidthPercent = 100.000000000000000000
       end
       object trackBarSimSpeed: TWebTrackBar
-        Left = 43
+        Left = 41
         Top = 27
         Width = 100
         Height = 20
@@ -162,9 +163,9 @@ object MainForm: TMainForm
       end
     end
     object chkbxStaticSimRun: TWebCheckBox
-      Left = 756
+      Left = 764
       Top = 18
-      Width = 113
+      Width = 100
       Height = 22
       Caption = 'Static Sim Run'
       ChildOrder = 7
@@ -173,6 +174,32 @@ object MainForm: TMainForm
       State = cbUnchecked
       WidthPercent = 100.000000000000000000
       OnClick = chkbxStaticSimRunClick
+    end
+    object pnlRunTime: TWebPanel
+      Left = 686
+      Top = 9
+      Width = 70
+      Height = 45
+      ChildOrder = 7
+      object lblRunTime: TWebLabel
+        Left = 10
+        Top = 5
+        Width = 44
+        Height = 13
+        Caption = 'Run Time'
+        HeightPercent = 100.000000000000000000
+        WidthPercent = 100.000000000000000000
+      end
+      object editRunTime: TWebEdit
+        Left = 5
+        Top = 22
+        Width = 55
+        Height = 20
+        ChildOrder = 1
+        HeightPercent = 100.000000000000000000
+        WidthPercent = 100.000000000000000000
+        OnExit = editRunTimeExit
+      end
     end
   end
   object pnlParamSliders: TWebPanel
