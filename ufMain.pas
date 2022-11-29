@@ -241,7 +241,6 @@ begin
       self.btnRunPause.Enabled := true;
       end;
     self.mainController.createSimulation();
-    if self.chkbxStaticSimRun.Checked then self.mainController.setstaticSimRun(true);
     self.simStarted := false;
     self.currentGeneration := 0;
     except
@@ -776,20 +775,38 @@ begin
 end;
 
 procedure TMainForm.chkbxStaticSimRunClick(Sender: TObject);
+var i: integer;
 begin
+  self.mainController.setstaticSimRun(self.chkbxStaticSimRun.Checked);
   if self.chkbxStaticSimRun.Checked = true then
     begin
     self.enableRunTimeEdit;
     if self.runTime = DEFAULT_RUNTIME then
       begin
-      self.runTime := 10;
+      self.runTime := 20;
       self.editRunTime.Text := floatToStr(self.runTime);
       end;
+    if (assigned(self.graphPanelList)) and (self.graphPanelList.Count >0) then
+      begin
+      for i := 0 to self.graphPanelList.Count -1 do
+        begin
+        self.graphPanelList[i].setStaticGraph( true );
+        end;
+      end;
+
     end
-  else
+  else // false
     begin
     self.disableRunTimeEdit;
     self.runTime := DEFAULT_RUNTIME;
+    if (assigned(self.graphPanelList)) and (self.graphPanelList.Count >0) then
+      begin
+      for i := 0 to self.graphPanelList.Count -1 do
+        begin
+        self.graphPanelList[i].setStaticGraph( false );
+        end;
+
+      end;
     end;
 
 end;
@@ -840,47 +857,42 @@ end;
 
   procedure TMainForm.runSim();
 begin
- // self.btnAddPlot.Enabled := true;
-//  self.btnParamAddSlider.Enabled := true;
-    self.enableStepSizeEdit;
-    if self.simStarted = false then
- // if self.networkUpdated = true then
-      begin
-      self.setUpSimulationUI;
-      self.btnRunPause.font.color := clgreen;
-      //self.btnRunPause.ElementClassName := 'btn btn-danger btn-sm';
-      self.btnRunPause.caption := 'Simulation: Play';
+  self.enableStepSizeEdit;
+  //  self.mainController.SetRunTime(self.runTime);  // needed ??
+  if self.simStarted = false then
+    begin
+    self.setUpSimulationUI;
+    self.btnRunPause.font.color := clgreen;
+    self.btnRunPause.caption := 'Simulation: Play';
      // add a default plot:
-      if self.numbPlots < 1 then
-        begin
-        addPlotAll()
-        end ;
-   // else self.btnAddPlotClick(nil);   Only 1 plot for now
+    if self.numbPlots < 1 then
+      begin
+      addPlotAll()
+      end ;
       // add default param sliders:
-      if self.getNumberOfSliders < 1 then
-        begin
-        self.addAllParamSliders;
-        end;
-
+    if self.getNumberOfSliders < 1 then
+      begin
+      self.addAllParamSliders;
       end;
+
+    end;
 
   // ******************
   if self.mainController.IsModelLoaded then
     begin
-      MainController.setOnline(true);
+      self.mainController.setOnline(true);
+      self.mainController.SetRunTime(self.runTime);
 	   // self.btnResetSimSpecies.Enabled := false;
      // self.btnParamReset.Enabled := false;
       self.btnSimReset.Enabled := false;
       self.disableStepSizeEdit;
       self.trackBarSimSpeed.Enabled := true;
       self.btnRunPause.font.color := clred;
-     // self.btnRunPause.ElementClassName := 'btn btn-success btn-sm';
       self.btnRunPause.caption := 'Simulation: Pause';
      // if DEBUG then
      //   simResultsMemo.visible := true;
-     // self.btnAddPlot.Enabled := false; // Do not add plot while sim running
-      self.mainController.SetRunTime(self.runTime);
-       // default timer interval is 100 msec:
+
+      // default timer interval is 100 msec:
       // multiplier default is 10, range 1 - 50
       self.mainController.SetTimerInterval(round(1000/self.trackBarSimSpeed.position));
       self.mainController.SetStepSize(self.stepSize);
@@ -899,6 +911,7 @@ end;
 
 procedure TMainForm.runStaticSim();
 begin
+  self.mainController.SetRunTime(self.runTime);
   self.mainController.setStaticSimRun(self.chkbxStaticSimRun.Checked );
   self.mainController.SetStepSize(self.stepSize);  // just in case ?
   self.trackBarSimSpeed.Enabled := false;
@@ -1116,7 +1129,11 @@ begin
     self.graphPanelList := TList<TGraphPanel>.create;
   self.graphPanelList.Add( TGraphPanel.create(pnlPlot, plotPositionToAdd, yMax) );
   self.graphPanelList[plotPositionToAdd -1].setChartTimeInterval(self.stepSize);
-
+  if self.chkbxStaticSimRun.Checked then
+    begin
+    self.graphPanelList[plotPositionToAdd -1].setStaticGraph(true);
+    self.graphPanelList[plotPositionToAdd -1].setXMax(self.runTime);
+    end;
   self.graphPanelList[plotPositionToAdd -1].PopupMenu := self.graphEditPopup;
   for i := 0 to self.graphEditPopup.Items.Count -1 do
     begin
@@ -1131,13 +1148,10 @@ begin
   end;
 
  // Not used for now: self.graphPanelList[self.numbPlots - 1].OnPlotUpdate := self.editPlotList;
- // self.initializePlot (self.numbPlots - 1);
  // if self.numbPlots > DEFAULT_NUMB_PLOTS then    Only one plot, so do not worry
- // begin  // Adjust plots to new height:
-    for i := 0 to self.numbPlots - 1 do
-      self.graphPanelList[i].adjustPanelHeight(newHeight);
-
- // end;
+  // Adjust plots to new height:
+  for i := 0 to self.numbPlots - 1 do
+    self.graphPanelList[i].adjustPanelHeight(newHeight);
   self.initializePlot (self.numbPlots - 1);
  end;
 
@@ -1148,11 +1162,10 @@ begin // Easier to just delete/create than reset time, xaxis labels, etc.
   for i := 0 to self.graphPanelList.Count -1 do
     begin
     self.graphPanelList[i].setChartDelta(self.stepSize); //Added
+    if self.chkbxStaticSimRun.Checked then self.graphPanelList[i].setXMax(self.runTime);
     self.graphPanelList[i].deleteChart;
     self.graphPanelList[i].createChart;
     self.graphPanelList[i].setupChart;
-    //if self.chkbxStaticSimRun.Checked then self.graphPanelList[i].chart.SetXAxisMax;
-
     end;
   initSVals := TVarNameValList.create;
   for i := 0 to length(self.mainController.getModel.getS_Names) -1 do
@@ -1611,6 +1624,11 @@ begin
       begin
       self.runTime := newRunTime;
       self.mainController.SetRunTime(self.runTime);
+      if self.chkbxStaticSimRun.Checked then
+        begin
+
+        self.resetPlots;
+        end;
       end
     else notifyUser ('Run Time must be a positive number');
 

@@ -32,7 +32,7 @@ private
   xMax: double;  // default is 10, time window of graph
   chartBackGroundColor: TColor;
   fEditGraphEvent: TEditGraphEvent;
-
+  staticGraph: boolean; // true = static run
   function updateXMax(): boolean; // true if changed. Adjust xMax if total points > DEFAULT_MAX_XPTS or < DEFAULT_MIN_XPTS
   {procedure graphEditMouseDown(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
@@ -72,6 +72,7 @@ public
   procedure updateYMinMax();
   procedure toggleLegendVisibility();
   procedure toggleAutoScaleYaxis();
+  procedure setStaticGraph(val: boolean);
   procedure adjustPanelHeight(newHeight: integer); // adjust height and top, uses self.tag as well
   procedure getVals( newTime: Double; newVals: TVarNameValList);// Get new values (species amt) from simulation run
   procedure setStaticSimResults( newResults: TList<TTimeVarNameValList> ); // get sim results to plot
@@ -85,6 +86,7 @@ constructor TGraphPanel.create(newParent: TWebPanel; graphPosition: integer; yMa
 begin
   inherited create(newParent);
   self.plotEditInProgress := false;
+  self.staticGraph := false;
   self.SetParent(newParent);
  // self.OnMouseDown := graphEditMouseDown;
   if graphPosition > -1 then self.tag := graphPosition
@@ -149,7 +151,7 @@ begin
   self.chart.setYAxisCaption(''); // Add to bottom, xaxis label. Cannot rotate label in HTML ?
   self.chart.SetXAxisCaption( self.yLabel + ' vs. '+ self.xLabel );
   self.setChartDelta(self.timeDelta);
-  self.updateXMax(); // Not needed for 'static' sim run.
+  if not self.staticGraph then self.updateXMax(); // Not needed for 'static' sim run.
   self.setChartTimeInterval(self.timeDelta); // ?? is this necessary?
   //self.chart.SetXAxisMax(TConst.DEFAULT_X_POINTS_DISPLAYED *self.timeDelta); // deltaX same as interval
   self.chart.SetXAxisMax(self.xMax); // deltaX same as interval
@@ -169,6 +171,7 @@ begin
 end;
 
 function TGraphPanel.updateXMax(): boolean;
+// Let plot point density guide value of xMax
 begin
   Result := false; // return false if self.xMax does not change.
   if DEFAULT_X_MAX / self.timeDelta > DEFAULT_MAX_XPTS then
@@ -205,10 +208,13 @@ begin
 end;
 
 procedure TGraphPanel.setXMax(newXMax: double);
+// Different then updateXMax, not concerned about plot point density, just set xMax
 begin
-  if newXMax >0 then
+  if (newXMax >0) and (self.xMax <> newXMax) then
     begin
       self.xMax := newXMax;
+      if assigned(self.chart) then
+        self.chart.SetXAxisMax(newXMax);
     end;
 end;
 
@@ -298,6 +304,15 @@ begin
   Result := self.chart.GetInterval / 1000;
 end;
 
+procedure TGraphPanel.setStaticGraph(val: boolean);
+begin
+  self.staticGraph := val;
+  if val then
+    begin
+    self.chart.SetXAxisMax(self.xMax);
+    end;
+end;
+
 
 procedure TGraphPanel.getVals(newTime: Double; newVals: TVarNameValList); // callback
 var {i,} j: integer;
@@ -335,11 +350,12 @@ if newDelta >0 then
   if self.chart <> nil then
     begin
     self.chart.DeltaX := newDelta;  // integrator stepsize
-    if self.updateXMax then
-      begin
-      self.setChartTimeInterval(self.chart.DeltaX); // needed ??
-      self.chart.SetXAxisMax(self.xMax); // deltaX same as interval
-      end;
+    if not self.staticGraph then
+      if self.updateXMax then
+        begin
+        self.setChartTimeInterval(self.chart.DeltaX); // needed ??
+        self.chart.SetXAxisMax(self.xMax); // deltaX same as interval
+        end;
     end;
   end
 else console.log('TGraphPanel.setChartDelta value is not greater than zero');
@@ -376,9 +392,12 @@ procedure TGraphPanel.restartChart(newInterval: double); // Needed ? Issue reset
 begin
   self.setChartDelta(newInterval); // ? chat delta versus chart time interval?
   self.setChartTimeInterval(newInterval);
-  if self.updateXMax then
-    self.chart.SetXAxisMax(self.xMax)
-  else self.chart.SetXAxisMax(TConst.DEFAULT_X_POINTS_DISPLAYED * newInterval);
+  if not self.staticGraph then
+    begin
+    if self.updateXMax then
+      self.chart.SetXAxisMax(self.xMax)
+    else self.chart.SetXAxisMax(TConst.DEFAULT_X_POINTS_DISPLAYED * newInterval);
+    end;
   self.chart.Restart;
 end;
 
