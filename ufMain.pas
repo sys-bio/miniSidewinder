@@ -202,12 +202,16 @@ begin
           begin
           self.resetSim;  // this stops current sim.
           if assigned(self.graphPanelList) then self.resetPlots;
-          self.runSim;
+          //self.runSim;
           end
-        else self.runSim;
+        else self.chkbxStaticSimRun.Enabled := false;
+        self.runSim;
         end
       else  // stop simulation
+        begin
         self.stopSim;
+        self.chkbxStaticSimRun.Enabled := true;
+        end;
     except
       on E: Exception do
         notifyUser(E.Message);
@@ -784,8 +788,8 @@ begin
     if self.runTime = DEFAULT_RUNTIME then
       begin
       self.runTime := 20;
-      self.editRunTime.Text := floatToStr(self.runTime);
       end;
+
     if (assigned(self.graphPanelList)) and (self.graphPanelList.Count >0) then
       begin
       for i := 0 to self.graphPanelList.Count -1 do
@@ -793,7 +797,6 @@ begin
         self.graphPanelList[i].setStaticGraph( true );
         end;
       end;
-
     end
   else // false
     begin
@@ -805,18 +808,15 @@ begin
         begin
         self.graphPanelList[i].setStaticGraph( false );
         end;
-
       end;
     end;
-
+  self.editRunTime.Text := floatToStr(self.runTime);
 end;
 
 procedure TMainForm.refreshPlotAndSliderPanels();
 begin
-  //if not self.mainController.IsOnline then
   self.refreshPlotPanels;
   self.refreshSliderPanels;
-
 end;
 
 procedure TMainForm.refreshPlotPanels;
