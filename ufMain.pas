@@ -832,7 +832,6 @@ begin
        self.graphPanelList[i].Width := self.graphPanelList[i].Parent.Width;
        self.graphPanelList[i].setChartWidth( self.graphPanelList[i].Width );
        self.graphPanelList[i].setPanelHeight(self.graphPanelList[i].Parent.Height);
-
        self.graphPanelList[i].Invalidate;    // needed ??
        end;
      end;
@@ -929,7 +928,6 @@ begin
    self.enableStepSizeEdit;
    self.MainController.SetTimerEnabled(false); // Turn off web timer (Stop simulation)
    self.btnRunPause.font.color := clgreen;
-  // self.btnRunPause.ElementClassName := 'btn btn-danger btn-sm';
    self.btnRunPause.caption := 'Simulation: Play';
  {  if self.saveSimResults then
      begin
@@ -952,34 +950,6 @@ begin
  // btnAddPlot.Enabled := true;
 
   self.currentGeneration := 0; // reset current x axis point (pixel)
- { if self.networkUpdated then // No network layout so no need to update model.
-    begin
-      // delete existing plots
-    if self.numbPlots >0 then
-    begin
-      if (self.graphPanelList.Count) > 0 then
-      begin
-        for i := self.graphPanelList.Count-1 downto 0 do
-        begin
-          self.DeletePlot(i);
-        end;
-        self.numbPlots := 0;
-      end;
-
-    end;
-    // delete existing param sliders.
-    if self.pnlSliderAr <> nil then
-    begin
-      if length(self.pnlSliderAr) >0 then
-      begin
-        self.deleteAllSliders;
-
-        setLength(self.pnlSliderAr, 0);
-      end;
-    end;
-    mainController.createModel;
-   self.networkUpdated := false;
-    end;   }
 
   if self.mainController.getModel = nil then
   begin
@@ -1004,8 +974,6 @@ begin
     begin
       self.selectParameter(self.SliderEditLB.tag);
     end;
-
-  // else ShowMessage('Cancel');
   self.SliderEditLB.tag := -1;
   self.SliderEditLB.visible := false;
   self.SliderEditLB.Top := 2; // default
@@ -1025,19 +993,16 @@ begin
       end;
     errList := errList +  'Please fix or load a new model.';
     notifyUser(errList);
-    //clearNetwork();
     end
   else
   begin
     if newModel.getNumModelEvents > 0 then
       begin
       notifyUser(' SBML Events not supported at this time. Load a different SBML Model');
-      //clearNetwork();
       end
     else if newModel.getNumPiecewiseFuncs >0 then
       begin
       notifyUser(' SBML piecewise() function not supported at this time. Load a different SBML Model');
-      //clearNetwork();
       end
   end;
 
