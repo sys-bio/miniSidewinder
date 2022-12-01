@@ -4,9 +4,9 @@ object MainForm: TMainForm
   OnCreate = WebFormCreate
   OnResize = WebFormResize
   object pnlModelInfo: TWebPanel
-    Left = 785
+    Left = 784
     Top = 60
-    Width = 80
+    Width = 81
     Height = 370
     Align = alRight
     object btnModelInfo: TWebButton
@@ -35,14 +35,28 @@ object MainForm: TMainForm
       WidthPercent = 100.000000000000000000
       OnClick = btnExampleClick
     end
+    object btnEditGraph: TWebButton
+      Left = 10
+      Top = 128
+      Width = 67
+      Height = 25
+      Hint = 'Change species, update Y axis'
+      Caption = 'Edit graph'
+      ChildOrder = 2
+      HeightPercent = 100.000000000000000000
+      ShowHint = True
+      WidthPercent = 100.000000000000000000
+      OnClick = btnEditGraphClick
+    end
   end
   object pnlPlot: TWebPanel
     Left = 0
     Top = 60
-    Width = 785
+    Width = 784
     Height = 370
     Align = alClient
     ChildOrder = 1
+    ExplicitWidth = 785
   end
   object pnlTop: TWebPanel
     Left = 0
@@ -166,10 +180,12 @@ object MainForm: TMainForm
       Top = 18
       Width = 100
       Height = 22
+      Hint = 'Plot results after simulation is complete.'
       Caption = 'Static Sim Run'
       ChildOrder = 7
       Color = clNone
       HeightPercent = 100.000000000000000000
+      ShowHint = True
       State = cbUnchecked
       WidthPercent = 100.000000000000000000
       OnClick = chkbxStaticSimRunClick
@@ -179,7 +195,9 @@ object MainForm: TMainForm
       Top = 9
       Width = 70
       Height = 45
+      Hint = 'Set simulation run time. Static run only.'
       ChildOrder = 7
+      ShowHint = True
       object lblRunTime: TWebLabel
         Left = 10
         Top = 5

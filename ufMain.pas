@@ -10,7 +10,7 @@ uses
   uModel, uSBMLClasses, uSBMLClasses.rule, upnlParamSlider,
   VCL.TMSFNCTypes, VCL.TMSFNCUtils, VCL.TMSFNCGraphics, VCL.TMSFNCGraphicsTypes,
   VCL.TMSFNCCustomControl, VCL.TMSFNCScrollBar, ufModelInfo, ufLabelPopUp,
-  Vcl.Menus, WEBLib.Menus, WEBLib.WebCtrls;
+  Vcl.Menus, WEBLib.Menus, WEBLib.WebCtrls, ufRadioGrpPopup;
 
 const SIDEWINDER_VERSION = 'Version 0.4 alpha';
       DEFAULT_RUNTIME = 10000;
@@ -51,6 +51,7 @@ type
     pnlRunTime: TWebPanel;
     lblRunTime: TWebLabel;
     editRunTime: TWebEdit;
+    btnEditGraph: TWebButton;
 
     procedure WebFormCreate(Sender: TObject);
     procedure btnSimResetClick(Sender: TObject);
@@ -72,10 +73,8 @@ type
     procedure ChangeminmaxYaxis1Click(Sender: TObject);
     procedure Changeplotspecies1Click(Sender: TObject);
     procedure ChangeParameter1Click(Sender: TObject);
-   // procedure editRunTimeChange(Sender: TObject);
     procedure editRunTimeExit(Sender: TObject);
-   // procedure WebURLValidator1Validated(Sender: TObject; IsValid: Boolean);
-
+    procedure btnEditGraphClick(Sender: TObject);
 
   private
     numbPlots: Integer; // Number of plots displayed
@@ -167,6 +166,47 @@ implementation
 
 {$R *.dfm}
 
+
+procedure TMainForm.btnEditGraphClick(Sender: TObject);
+var fEditgraph: TfPlotEdit;
+    indexChosen: integer;
+
+  procedure AfterShowModal(AValue: TModalResult);
+  begin
+   if assigned(self.graphPanelList[0]) then
+     begin
+     case indexChosen of
+       0: self.graphPanelList[0].toggleLegendVisibility;
+       1: self.graphPanelList[0].toggleAutoScaleYaxis;
+       2: self.graphPanelList[0].updateYMinMax;
+       3: begin
+          self.deletePlot(0);
+          self.selectPlotSpecies(1); // want position
+          end;
+       end;
+     end;
+  end;
+
+  procedure rgChange(Sender: TObject);
+  begin
+    indexChosen := (Sender as TWebRadioGroup).ItemIndex;
+  end;
+
+  procedure AfterCreate(AForm: TObject);
+  begin
+   (AForm as TfPlotEdit).rgEditPlot.OnChange := rgChange;
+  end;
+
+begin
+  indexChosen := -1;
+  fEditgraph := TfPlotEdit.CreateNew(@AfterCreate);
+  fEditgraph.Popup := true;
+  fEditgraph.ShowClose := true;
+  fEditgraph.ShowModal(@AfterShowModal);
+  fEditgraph.PopupOpacity := 0.3;
+  fEditgraph.Border := fbDialogSizeable;
+end;
+
 procedure TMainForm.btnExampleClick(Sender: TObject);
 
 var s : string;
@@ -198,11 +238,11 @@ begin
       self.disableStepSizeEdit;
       if MainController.isOnline = false then
         begin
+        self.btnEditGraph.Enabled := false;
         if self.chkbxStaticSimRun.Checked then
           begin
           self.resetSim;  // this stops current sim.
           if assigned(self.graphPanelList) then self.resetPlots;
-          //self.runSim;
           end
         else self.chkbxStaticSimRun.Enabled := false;
         self.runSim;
@@ -210,6 +250,7 @@ begin
       else  // stop simulation
         begin
         self.stopSim;
+        self.btnEditGraph.Enabled := true;
         self.chkbxStaticSimRun.Enabled := true;
         end;
     except
@@ -268,7 +309,7 @@ begin
     SBMLmodelMemo.Lines.Text := AText;
     SBMLmodelMemo.visible := true;
     end;  }
-  // Check if sbmlmodel already created, if so, destroy before creating ?
+
   self.currentModelInfo := 'None.';
   self.deleteAllPlots;
   self.deleteAllSliders;
@@ -288,9 +329,9 @@ begin
   self.numbPlots := 0;
   self.slidersPerRow := SLIDERS_PER_ROW;
   self.runTime := DEFAULT_RUNTIME;
-  //self.staticSimRunFlag := false;
   self.intSliderHeight := 45;
-  self.pnlParamSliders.height := 5; //trunc((MAX_SLIDERS/SLIDERS_PER_ROW)*self.intSliderHeight) +2;
+
+  self.pnlParamSliders.height := 5;
   self.stepSize := 0.1;
   self.edtStepSize.Text := floatToStr(self.stepSize * 1000);
   self.disableRunTimeEdit;
@@ -303,14 +344,10 @@ begin
   self.currentGeneration := 0;
   self.currentModelInfo := 'None.';
   self.btnModelInfo.Enabled := false;
+  self.btnEditGraph.Enabled := false;
   self.strFileInput := '';
 
-  asm
-   // this.strFileInput = location.search.substring(1);
-   // var para = new URLSearchParams(window.location.search);
-   // var pass = para.get("MODEL");
-   // console.log('TMainForm.create: Model: ', pass);
-
+  asm // javascript:
     var newModel = sessionStorage.getItem("MODEL");
     var newRT = parseFloat(sessionStorage.getItem("RUNTIME"));
     if(newRT > 0) {
@@ -368,26 +405,7 @@ begin
   self.refreshPlotAndSliderPanels;
 end;
 
-{procedure TMainForm.WebURLValidator1Validated(Sender: TObject;
-  IsValid: Boolean);
-var msgStr, fileText: string;
 
-begin
-  if isValid then
-    begin
-    msgStr := 'Model URL ok: ' + self.WebURLValidator1.URL;
-    notifyUser(msgStr);
-    fileText := '';
-    fileText := self.getModelFromURL(self.WebURLValidator1.URL);
-    console.log('model text: ', fileText);
-    end
-  else
-    begin
-    msgStr := 'Model URL NOT ok: ' + self.WebURLValidator1.URL;
-    notifyUser(msgStr);
-    end;
-end;
-       }
 procedure TMainForm.initializePlots();
   var i: Integer;
 begin
@@ -403,12 +421,11 @@ end;
 procedure TMainForm.oggleautoscale1Click(Sender: TObject);
 var i: integer;
 begin
-// TODO
-  console.log( ' autoscale y axis');
+ // console.log( ' autoscale y axis');
 
   if Sender is TMenuItem then
     begin
-    console.log('Menu Item');
+  //  console.log('Menu Item');
     i := TMenuItem(Sender).tag -1; // want index.
     if i > -1 then
       begin
@@ -423,10 +440,10 @@ end;
 procedure TMainForm.ogglelegend1Click(Sender: TObject);
 var i: integer;
 begin
-  console.log( ' legend');
+ // console.log( ' legend');
   if Sender is TMenuItem then
     begin
-    console.log('Menu Item');
+   // console.log('Menu Item');
     i := TMenuItem(Sender).tag -1; // want index.
     if i > -1 then
       begin
@@ -770,7 +787,6 @@ end;
 
 procedure TMainForm.resetBtnOnLineSim();
 begin
- // self.btnRunPause.ElementClassName := 'btn btn-primary btn-sm';
   self.btnRunPause.caption := 'Start Simulation';
  // self.btnAddPlot.Enabled := false;
  // self.btnParamAddSlider.Enabled := false;
@@ -884,6 +900,7 @@ begin
 	   // self.btnResetSimSpecies.Enabled := false;
      // self.btnParamReset.Enabled := false;
       self.btnSimReset.Enabled := false;
+      self.btnEditGraph.Enabled := false;
       self.disableStepSizeEdit;
       self.trackBarSimSpeed.Enabled := true;
       self.btnRunPause.font.color := clred;
@@ -910,6 +927,7 @@ end;
 
 procedure TMainForm.runStaticSim();
 begin
+  self.btnEditGraph.Enabled := false;
   self.mainController.SetRunTime(self.runTime);
   self.mainController.setStaticSimRun(self.chkbxStaticSimRun.Checked );
   self.mainController.SetStepSize(self.stepSize);  // just in case ?
@@ -925,6 +943,7 @@ begin
   // self.btnResetSimSpecies.Enabled := true;
   // self.btnParamReset.Enabled := true;
    self.btnSimReset.Enabled := true;
+   self.btnEditGraph.Enabled := true;
    self.enableStepSizeEdit;
    self.MainController.SetTimerEnabled(false); // Turn off web timer (Stop simulation)
    self.btnRunPause.font.color := clgreen;
@@ -1140,6 +1159,7 @@ begin // Easier to just delete/create than reset time, xaxis labels, etc.
     end;
   self.refreshPlotPanels;
   self.getVals( 0, initSVals ); // Display correctly sized graph window on reset
+  self.btnEditGraph.Enabled := true;
 end;
 
 procedure TMainForm.selectPlotSpecies(plotnumb: Integer);

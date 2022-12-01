@@ -34,7 +34,8 @@ uses
   upnlParamSlider in 'upnlParamSlider.pas',
   ufModelInfo in 'ufModelInfo.pas' {fModelInfo: TWebForm} {*.html},
   uTestModel in 'uTestModel.pas',
-  ufVarSelect in 'ufVarSelect.pas' {VarSelectForm: TWebForm};
+  ufVarSelect in 'ufVarSelect.pas' {VarSelectForm: TWebForm},
+  ufRadioGrpPopup in 'ufRadioGrpPopup.pas' {fPlotEdit: TWebForm} {*.html};
 
 {$R *.res}
 
@@ -44,5 +45,6 @@ begin
   Application.CreateForm(TMainForm, MainForm);
   Application.CreateForm(TFYAxisMinMaxEdit, FYAxisMinMaxEdit);
   Application.CreateForm(TfModelInfo, fModelInfo);
+  Application.CreateForm(TfPlotEdit, fPlotEdit);
   Application.Run;
 end.
