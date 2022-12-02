@@ -12,7 +12,7 @@ uses
   VCL.TMSFNCCustomControl, VCL.TMSFNCScrollBar, ufModelInfo, ufLabelPopUp,
   Vcl.Menus, WEBLib.Menus, WEBLib.WebCtrls, ufRadioGrpPopup;
 
-const SIDEWINDER_VERSION = 'Version 0.4 alpha';
+const SIDEWINDER_VERSION = 'Version 0.5 alpha';
       DEFAULT_RUNTIME = 10000;
       EDITBOX_HT = 25;
       ZOOM_SCALE = 20;

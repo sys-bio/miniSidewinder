@@ -56,7 +56,6 @@ object MainForm: TMainForm
     Height = 370
     Align = alClient
     ChildOrder = 1
-    ExplicitWidth = 785
   end
   object pnlTop: TWebPanel
     Left = 0
