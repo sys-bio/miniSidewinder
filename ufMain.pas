@@ -1142,14 +1142,18 @@ begin
 procedure TMainForm.resetPlots();  // Reset plots for new simulation.
  var i: integer;
     initSVals: TVarNameValList;
+    displayLegend: boolean;
 begin // Easier to just delete/create than reset time, xaxis labels, etc.
   for i := 0 to self.graphPanelList.Count -1 do
     begin
     self.graphPanelList[i].setChartDelta(self.stepSize); //Added
     if self.chkbxStaticSimRun.Checked then self.graphPanelList[i].setXMax(self.runTime);
+    displayLegend := self.graphPanelList[i].isLegendVisible;
     self.graphPanelList[i].deleteChart;
     self.graphPanelList[i].createChart;
     self.graphPanelList[i].setupChart;
+    if not displayLegend then self.graphPanelList[i].toggleLegendVisibility;// default is true
+
     end;
   initSVals := TVarNameValList.create;
   for i := 0 to length(self.mainController.getModel.getS_Names) -1 do

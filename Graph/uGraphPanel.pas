@@ -71,6 +71,7 @@ public
   function  getXMax(): double;
   procedure updateYMinMax();
   procedure toggleLegendVisibility();
+  function  isLegendVisible(): boolean;
   procedure toggleAutoScaleYaxis();
   procedure setStaticGraph(val: boolean);
   procedure adjustPanelHeight(newHeight: integer); // adjust height and top, uses self.tag as well
@@ -416,6 +417,11 @@ begin
   if self.chart.getLegendVisible then
      self.chart.SetLegendVisible(false)
   else self.chart.SetLegendVisible(true);
+end;
+
+function TGraphPanel.isLegendVisible(): boolean;
+begin
+  Result := self.chart.GetLegendVisible;
 end;
 
 procedure TGraphPanel.toggleAutoScaleYaxis;
