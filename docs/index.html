@@ -1,7 +1,7 @@
 <html>
 
 <head>
-    <title>Mini Sidewinder Demo v0.50</title>
+    <title>Mini Sidewinder Demo v0.51</title>
 	
 	<style>
 body {
@@ -21,62 +21,19 @@ body {
 </head>
 <body>
 <p>
-Below is miniSidewinder demo. Load your SBML model and go. 
+Below is miniSidewinder demo. Chose one of the following: 
 </p>
  <p>
- <script type="text/javascript">
- // This is the data that needs to be populated.
-var newModel = "empty"; // SBML model in XML format. Some ways of populating string listed below.
-var newRT = '10';  // Length of run
-var newSS = '0.100'; // integrator step size
-var staticRun = 'true'; // Display after all calculations are done.
-</script>
 
-<!-- Use this code if you want user to chose which model to load: -->
- <input type="file" name="inputfile" id="inputfile">
-    <br> 
-    <script type="text/javascript">
-        document.getElementById('inputfile')
-            .addEventListener('change', function() {
-            var fr=new FileReader();
-            fr.onload=function(){
-				newModel = fr.result;
-			    getInfo();
-            }         
-            fr.readAsText(this.files[0]);
-        })
-    </script>
- </p>
- <!-- END of user chosen model code -->
  <p>
- (testing purposes)
- <button onclick="getInfo()">Do not load model yet. </button>
+ <button onclick="window.location.href='mini_ui.html';">Preselected model (Minimum UI). </button>
  </p>
- <p>
- <iframe id='sidewinderFrame' > </iframe> 
+  <p>
+ <button onclick="window.location.href='full_ui.html';">User selected model (Max UI). </button>
  </p>
- <script type="text/javascript">
- function getInfo() {
-   sessionStorage.setItem("MODEL", newModel);
-   sessionStorage.setItem('RUNTIME', newRT);
-   sessionStorage.setItem('STEPSIZE', newSS);
-   sessionStorage.setItem('STATIC', staticRun);
-   document.getElementById('sidewinderFrame').src = "Debug/index.html?"; // Location of miniSidewinder
- }
- </script> 
-
-<script type="text/javascript">
-// Use this code if you have a predefined model to run located at some URL:
-//fetch('http://localhost/models/simpleRXN.xml')
-//  .then(response => response.text())
-//  .then((data) => {
-//    console.log(data);
-//	newModel = data;
-//	getInfo();
-//  })
-// END of predefined model code.
-</script> 
   
+
+
 </body>
 
 </html>

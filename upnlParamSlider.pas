@@ -80,7 +80,7 @@ implementation
     self.Top := sliderPanelHeight*self.tag + 3;
     self.Left := sPLeft;
     self.Height := sliderPanelHeight;
-    self.Width := sliderPanelWidth;// - 6; // -6 to move it in from the extreme right edge
+    self.Width := sliderPanelWidth;
     self.Invalidate;
   end;
 
@@ -100,11 +100,11 @@ procedure TpnlParamSlider.configPSliderTBar({sliderPanelWidth : integer }{ newSB
 var sliderTBarWidth : integer;
   begin
     // Width of the slider inside the panel
-    sliderTBarWidth:= trunc (0.50 {0.70}*self.width {sliderPanelWidth}); // 70% of the panel's width
+    sliderTBarWidth:= trunc (0.45 {0.70}*self.width {sliderPanelWidth}); // 70% of the panel's width
     // This defines the location of the slider itself (not the position of the panel)
     self.sliderPTBar.visible:= True;
     self.sliderPTBar.Tag:= self.tag;  // keep track of slider index number.
-    self.sliderPTBar.Left:= 45{20};
+    self.sliderPTBar.Left:= 20; //45;
     self.sliderPTBar.Top:= 17{27};
     self.sliderPTBar.Width:= sliderTBarWidth;
     self.sliderPTBar.Height:= 20;
@@ -112,20 +112,20 @@ var sliderTBarWidth : integer;
     // Value (high) positioned on the right-side of slider
     self.sliderPHLabel.visible:= True;
     self.sliderPHLabel.Tag:= self.tag;
-    self.sliderPHLabel.Top:= 21{30};
+    self.sliderPHLabel.Top:= 19;//21;
    // self.sliderPHLabel.Left:= sliderPanelWidth - trunc (0.15*sliderPanelWidth);
-    self.sliderPHLabel.Left:= self.Width - trunc (0.25 * self.Width);
+    self.sliderPHLabel.Left:= self.Width - trunc (0.39 * self.Width); // trunc (0.25 * self.Width);
 
     // Value (low) positioned on the left-side of slider
     self.sliderPLLabel.visible:= True;
     self.sliderPLLabel.Tag:= self.tag;
-    self.sliderPLLabel.Top:= 21{30};
+    self.sliderPLLabel.Top:= 19; //21;
     self.sliderPLLabel.Left:= 4;
 
     // parameter label and current value
     self.sliderPTBLabel.visible:= True;
     self.sliderPTBLabel.Tag:= self.tag;
-    self.sliderPTBLabel.Left:= 55{48};
+    self.sliderPTBLabel.Left:= 30;
     self.sliderPTBLabel.Top:= 3;
   end;
 

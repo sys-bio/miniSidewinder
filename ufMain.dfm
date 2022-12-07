@@ -3,59 +3,97 @@ object MainForm: TMainForm
   Height = 680
   OnCreate = WebFormCreate
   OnResize = WebFormResize
-  object pnlModelInfo: TWebPanel
-    Left = 784
+  object pnlSimInfo: TWebPanel
+    Left = 814
     Top = 60
-    Width = 81
-    Height = 370
+    Width = 51
+    Height = 396
     Align = alRight
-    object btnModelInfo: TWebButton
-      Left = 10
-      Top = 6
-      Width = 60
-      Height = 25
-      Hint = 'Model information, if available.'
-      Caption = 'Info'
-      ChildOrder = 2
-      HeightPercent = 100.000000000000000000
-      ShowHint = True
-      WidthPercent = 100.000000000000000000
-      OnClick = btnModelInfoClick
-    end
-    object btnExample: TWebButton
-      Left = 10
-      Top = 64
-      Width = 60
-      Height = 25
-      Hint = 'Load example model.'
-      Caption = 'Example'
+    ExplicitHeight = 370
+    object pnlModelInfo: TWebPanel
+      Left = 0
+      Top = 0
+      Width = 51
+      Height = 45
+      Align = alTop
+      BorderColor = clBtnFace
       ChildOrder = 3
-      HeightPercent = 100.000000000000000000
-      ShowHint = True
-      WidthPercent = 100.000000000000000000
-      OnClick = btnExampleClick
+      DesignSize = (
+        51
+        45)
+      object btnModelInfo: TWebButton
+        Left = 5
+        Top = 10
+        Width = 40
+        Height = 25
+        Hint = 'Model information, if available.'
+        Anchors = [akRight]
+        Caption = 'Info'
+        ChildOrder = 2
+        HeightPercent = 100.000000000000000000
+        ShowHint = True
+        WidthPercent = 100.000000000000000000
+        OnClick = btnModelInfoClick
+      end
     end
-    object btnEditGraph: TWebButton
-      Left = 10
-      Top = 128
-      Width = 67
-      Height = 25
-      Hint = 'Change species, update Y axis'
-      Caption = 'Edit graph'
-      ChildOrder = 2
-      HeightPercent = 100.000000000000000000
-      ShowHint = True
-      WidthPercent = 100.000000000000000000
-      OnClick = btnEditGraphClick
+    object pnlEditGraph: TWebPanel
+      Left = 0
+      Top = 45
+      Width = 51
+      Height = 45
+      Align = alTop
+      BorderColor = clBtnFace
+      ChildOrder = 3
+      object btnEditGraph: TWebButton
+        Left = 5
+        Top = 10
+        Width = 40
+        Height = 25
+        Hint = 'Change species, update Y axis'
+        Caption = 'Plot'
+        ChildOrder = 2
+        HeightPercent = 100.000000000000000000
+        ShowHint = True
+        WidthPercent = 100.000000000000000000
+        OnClick = btnEditGraphClick
+      end
+    end
+    object pnlExample: TWebPanel
+      Left = 0
+      Top = 90
+      Width = 51
+      Height = 45
+      Align = alTop
+      BorderColor = clBtnFace
+      ChildOrder = 3
+      DesignSize = (
+        51
+        45)
+      object btnExample: TWebButton
+        Left = 5
+        Top = 10
+        Width = 40
+        Height = 25
+        Hint = 'Load example model.'
+        Anchors = [akRight]
+        Caption = 'Ex.'
+        ChildOrder = 3
+        HeightPercent = 100.000000000000000000
+        ShowHint = True
+        WidthPercent = 100.000000000000000000
+        OnClick = btnExampleClick
+      end
     end
   end
   object pnlPlot: TWebPanel
     Left = 0
     Top = 60
-    Width = 784
-    Height = 370
+    Width = 814
+    Height = 396
     Align = alClient
     ChildOrder = 1
+    ExplicitWidth = 784
+    ExplicitHeight = 370
   end
   object pnlTop: TWebPanel
     Left = 0
@@ -64,69 +102,17 @@ object MainForm: TMainForm
     Height = 60
     Align = alTop
     ChildOrder = 3
-    object lblStepSize: TWebLabel
-      Left = 555
-      Top = 21
-      Width = 72
-      Height = 13
-      Caption = 'Step Size (ms):'
-      HeightPercent = 100.000000000000000000
-      WidthPercent = 100.000000000000000000
-    end
-    object btnRunPause: TWebButton
-      Left = 153
-      Top = 16
-      Width = 104
-      Height = 25
-      Caption = 'Run model'
-      HeightPercent = 100.000000000000000000
-      WidthPercent = 100.000000000000000000
-      OnClick = btnRunPauseClick
-    end
-    object btnSimReset: TWebButton
-      Left = 272
-      Top = 16
-      Width = 73
-      Height = 25
-      Caption = 'Reset '
-      ChildOrder = 1
-      HeightPercent = 100.000000000000000000
-      WidthPercent = 100.000000000000000000
-      OnClick = btnSimResetClick
-    end
-    object edtStepSize: TWebEdit
-      Left = 630
-      Top = 18
-      Width = 50
-      Height = 22
-      Hint = 'Change step size for integrator.'
-      ChildOrder = 3
-      HeightPercent = 100.000000000000000000
-      ShowHint = True
-      Text = '100'
-      WidthPercent = 100.000000000000000000
-      OnExit = edtStepSizeExit
-    end
-    object btnLoadModel: TWebButton
-      Left = 24
-      Top = 16
-      Width = 113
-      Height = 25
-      Caption = 'Load SBML Model'
-      HeightPercent = 100.000000000000000000
-      WidthPercent = 100.000000000000000000
-      OnClick = btnLoadModelClick
-    end
     object pnlSimSpeedMult: TWebPanel
-      Left = 361
-      Top = 4
-      Width = 170
-      Height = 50
+      Left = 185
+      Top = 0
+      Width = 145
+      Height = 60
       Hint = 'Speed up simulation, limited by browser resources.'
+      Align = alLeft
       ChildOrder = 5
       ShowHint = True
       object lblSpeedMult: TWebLabel
-        Left = 26
+        Left = 20
         Top = 8
         Width = 98
         Height = 13
@@ -136,7 +122,7 @@ object MainForm: TMainForm
         WidthPercent = 100.000000000000000000
       end
       object lblSpeedMultVal: TWebLabel
-        Left = 130
+        Left = 120
         Top = 8
         Width = 12
         Height = 13
@@ -145,7 +131,7 @@ object MainForm: TMainForm
         WidthPercent = 100.000000000000000000
       end
       object lblSpeedMultMin: TWebLabel
-        Left = 13
+        Left = 10
         Top = 30
         Width = 22
         Height = 13
@@ -154,7 +140,7 @@ object MainForm: TMainForm
         WidthPercent = 100.000000000000000000
       end
       object lblSpeedMultMax: TWebLabel
-        Left = 150
+        Left = 125
         Top = 30
         Width = 12
         Height = 13
@@ -163,9 +149,9 @@ object MainForm: TMainForm
         WidthPercent = 100.000000000000000000
       end
       object trackBarSimSpeed: TWebTrackBar
-        Left = 41
+        Left = 38
         Top = 27
-        Width = 100
+        Width = 80
         Height = 20
         Max = 30
         Min = 1
@@ -174,41 +160,28 @@ object MainForm: TMainForm
         OnChange = trackBarSimSpeedChange
       end
     end
-    object chkbxStaticSimRun: TWebCheckBox
-      Left = 764
-      Top = 18
-      Width = 100
-      Height = 22
-      Hint = 'Plot results after simulation is complete.'
-      Caption = 'Static Sim Run'
-      ChildOrder = 7
-      Color = clNone
-      HeightPercent = 100.000000000000000000
-      ShowHint = True
-      State = cbUnchecked
-      WidthPercent = 100.000000000000000000
-      OnClick = chkbxStaticSimRunClick
-    end
     object pnlRunTime: TWebPanel
-      Left = 686
-      Top = 9
-      Width = 70
-      Height = 45
+      Left = 395
+      Top = 0
+      Width = 65
+      Height = 60
       Hint = 'Set simulation run time. Static run only.'
+      Align = alLeft
+      BorderColor = clBtnFace
       ChildOrder = 7
       ShowHint = True
       object lblRunTime: TWebLabel
         Left = 10
-        Top = 5
-        Width = 44
+        Top = 8
+        Width = 48
         Height = 13
-        Caption = 'Run Time'
+        Caption = 'Run Time:'
         HeightPercent = 100.000000000000000000
         WidthPercent = 100.000000000000000000
       end
       object editRunTime: TWebEdit
         Left = 5
-        Top = 22
+        Top = 25
         Width = 55
         Height = 20
         ChildOrder = 1
@@ -217,12 +190,142 @@ object MainForm: TMainForm
         OnExit = editRunTimeExit
       end
     end
+    object pnlLoadModel: TWebPanel
+      Left = 0
+      Top = 0
+      Width = 65
+      Height = 60
+      Align = alLeft
+      BorderColor = clBtnFace
+      ChildOrder = 8
+      object btnLoadModel: TWebButton
+        Left = 9
+        Top = 16
+        Width = 50
+        Height = 25
+        Hint = 'Load SBML model'
+        Caption = 'SBML'
+        HeightPercent = 100.000000000000000000
+        ShowHint = True
+        WidthPercent = 100.000000000000000000
+        OnClick = btnLoadModelClick
+      end
+    end
+    object pnlSimReset: TWebPanel
+      Left = 125
+      Top = 0
+      Width = 60
+      Height = 60
+      Align = alLeft
+      BorderColor = clBtnFace
+      ChildOrder = 8
+      object btnSimReset: TWebButton
+        Left = 7
+        Top = 16
+        Width = 45
+        Height = 25
+        Hint = 'Reset simulation'
+        Caption = 'Reset '
+        ChildOrder = 1
+        HeightPercent = 100.000000000000000000
+        ShowHint = True
+        WidthPercent = 100.000000000000000000
+        OnClick = btnSimResetClick
+      end
+    end
+    object pnlRunPause: TWebPanel
+      Left = 65
+      Top = 0
+      Width = 60
+      Height = 60
+      Align = alLeft
+      BorderColor = clBtnFace
+      ChildOrder = 8
+      object btnRunPause: TWebButton
+        Left = 6
+        Top = 16
+        Width = 45
+        Height = 25
+        Hint = 'Run model'
+        Caption = 'Run'
+        HeightPercent = 100.000000000000000000
+        ShowHint = True
+        WidthPercent = 100.000000000000000000
+        OnClick = btnRunPauseClick
+      end
+    end
+    object pnlStepSize: TWebPanel
+      Left = 330
+      Top = 0
+      Width = 65
+      Height = 60
+      Hint = 'Integrator step size. 1000 = 1 time unit (usually sec)'
+      Align = alLeft
+      BorderColor = clBtnFace
+      ChildOrder = 8
+      ShowHint = True
+      DesignSize = (
+        65
+        60)
+      object lblStepSize: TWebLabel
+        Left = 8
+        Top = 5
+        Width = 50
+        Height = 13
+        Caption = 'Step (ms):'
+        HeightPercent = 100.000000000000000000
+        WidthPercent = 100.000000000000000000
+      end
+      object edtStepSize: TWebEdit
+        Left = 10
+        Top = 25
+        Width = 50
+        Height = 22
+        Hint = 'Change step size for integrator.'
+        Anchors = [akLeft]
+        ChildOrder = 3
+        HeightPercent = 100.000000000000000000
+        ShowHint = False
+        Text = '100'
+        WidthPercent = 100.000000000000000000
+        OnExit = edtStepSizeExit
+      end
+    end
+    object pnlStaticSim: TWebPanel
+      Left = 460
+      Top = 0
+      Width = 80
+      Height = 60
+      Align = alLeft
+      BorderColor = clBtnFace
+      ChildOrder = 7
+      ExplicitLeft = 645
+      DesignSize = (
+        80
+        60)
+      object chkbxStaticSimRun: TWebCheckBox
+        Left = 5
+        Top = 18
+        Width = 100
+        Height = 22
+        Hint = 'Plot results after simulation is complete.'
+        Anchors = [akLeft]
+        Caption = 'Static Run'
+        ChildOrder = 7
+        Color = clNone
+        HeightPercent = 100.000000000000000000
+        ShowHint = True
+        State = cbUnchecked
+        WidthPercent = 100.000000000000000000
+        OnClick = chkbxStaticSimRunClick
+      end
+    end
   end
   object pnlParamSliders: TWebPanel
     Left = 0
-    Top = 430
+    Top = 456
     Width = 865
-    Height = 250
+    Height = 224
     Align = alBottom
     ChildOrder = 2
   end

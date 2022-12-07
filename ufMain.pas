@@ -24,7 +24,7 @@ const SIDEWINDER_VERSION = 'Version 0.5 alpha';
 
 type
   TMainForm = class(TWebForm)
-    pnlModelInfo: TWebPanel;
+    pnlSimInfo: TWebPanel;
     pnlPlot: TWebPanel;
     pnlParamSliders: TWebPanel;
     btnLoadModel: TWebButton;
@@ -52,6 +52,14 @@ type
     lblRunTime: TWebLabel;
     editRunTime: TWebEdit;
     btnEditGraph: TWebButton;
+    pnlLoadModel: TWebPanel;
+    pnlSimReset: TWebPanel;
+    pnlRunPause: TWebPanel;
+    pnlStepSize: TWebPanel;
+    pnlStaticSim: TWebPanel;
+    pnlModelInfo: TWebPanel;
+    pnlEditGraph: TWebPanel;
+    pnlExample: TWebPanel;
 
     procedure WebFormCreate(Sender: TObject);
     procedure btnSimResetClick(Sender: TObject);
@@ -130,6 +138,9 @@ type
     function  disableStepSizeEdit(): boolean;// true: success
     function  enableRunTimeEdit(): boolean;  // true: success
     function  disableRunTimeEdit(): boolean; // true: suncces
+    procedure setMinUI(isStaticRun: boolean); // Used when model is passed into app.
+    procedure setMaxUI(); // Used when user choses model.
+    procedure testUI(); // Used for testing
 
   public
     fileName: string;
@@ -326,10 +337,11 @@ end;
 procedure TMainForm.WebFormCreate(Sender: TObject);
 var sRun: boolean;
 begin
+  sRun := false;
   self.numbPlots := 0;
   self.slidersPerRow := SLIDERS_PER_ROW;
   self.runTime := DEFAULT_RUNTIME;
-  self.intSliderHeight := 45;
+  self.intSliderHeight := 40; //45;
 
   self.pnlParamSliders.height := 5;
   self.stepSize := 0.1;
@@ -343,7 +355,7 @@ begin
  // self.saveSimResults := false;
   self.currentGeneration := 0;
   self.currentModelInfo := 'None.';
-  self.btnModelInfo.Enabled := false;
+  if assigned(self.btnModelInfo) then self.btnModelInfo.Enabled := false;
   self.btnEditGraph.Enabled := false;
   self.strFileInput := '';
 
@@ -374,10 +386,18 @@ begin
     if length(self.strFileInput) > 20 then // assumed model larger than 20 chars
       begin
       self.edtStepSize.Text := floatToStr(self.stepSize * 1000);
-      self.btnLoadModel.Enabled := false;  // Do not allow user to load adifferent model.
+      if assigned(self.btnLoadModel) then self.btnLoadModel.Enabled := false;  // Do not allow user to load adifferent model.
       self.SBMLOpenDialogGetFileAsText( nil, 0, self.strFileInput);
+      self.setMinUI(sRun);
+      end
+    else
+      begin
+      console.log('No model loaded, model string less than 20 chars');
+      self.setMaxUI;
       end;
-    end;
+
+    end
+  else self.setMaxUI;
 
   if sRun then
     begin
@@ -385,12 +405,12 @@ begin
     self.chkbxStaticSimRun.Checked := true;
     self.chkbxStaticSimRunClick(nil);
     end;
-
-  self.editRunTime.Text := floatToStr(self.runTime);
+  if assigned(self.pnlRunTime) then
+    self.editRunTime.Text := floatToStr(self.runTime);
   self.btnSimReset.Visible := true;
   self.btnSimReset.Enabled := false;
   self.btnRunPause.Enabled := false;
-  self.trackBarSimSpeed.Enabled := false;
+  if assigned(self.pnlSimSpeedMult) then self.trackBarSimSpeed.Enabled := false;
   self.enableStepSizeEdit;
   self.mainController.addSBMLListener( @self.PingSBMLLoaded );
   self.mainController.addSimListener( @self.getVals ); // notify when new Sim results
@@ -538,9 +558,9 @@ end;
 
 function TMainForm.calcSliderWidth(): integer;
 begin
-   if(trunc(self.pnlParamSliders.Width/self.slidersPerRow) > 200 ) then
+   if(trunc(self.pnlParamSliders.Width/self.slidersPerRow) > 150 {200} ) then
     Result :=  trunc( self.pnlParamSliders.width/self.slidersPerRow )   // three sliders across
-  else Result := 200;
+  else Result := 150;
 end;
 
 procedure TMainForm.ChangeminmaxYaxis1Click(Sender: TObject);
@@ -787,7 +807,8 @@ end;
 
 procedure TMainForm.resetBtnOnLineSim();
 begin
-  self.btnRunPause.caption := 'Start Simulation';
+  self.btnRunPause.caption := 'Start'; //'Start Simulation';
+  self.btnRunPause.Hint := 'Start simulation';
  // self.btnAddPlot.Enabled := false;
  // self.btnParamAddSlider.Enabled := false;
   self.enableStepSizeEdit;
@@ -826,7 +847,8 @@ begin
         end;
       end;
     end;
-  self.editRunTime.Text := floatToStr(self.runTime);
+  if assigned(self.pnlRunTime) then
+    self.editRunTime.Text := floatToStr(self.runTime);
 end;
 
 procedure TMainForm.refreshPlotAndSliderPanels();
@@ -878,7 +900,8 @@ begin
     begin
     self.setUpSimulationUI;
     self.btnRunPause.font.color := clgreen;
-    self.btnRunPause.caption := 'Simulation: Play';
+    self.btnRunPause.caption := 'Play'; //'Simulation: Play';
+    self.btnRunPause.Hint := 'Continue simulation';
      // add a default plot:
     if self.numbPlots < 1 then
       begin
@@ -902,15 +925,17 @@ begin
       self.btnSimReset.Enabled := false;
       self.btnEditGraph.Enabled := false;
       self.disableStepSizeEdit;
-      self.trackBarSimSpeed.Enabled := true;
+      if assigned(self.pnlSimSpeedMult) then self.trackBarSimSpeed.Enabled := true;
       self.btnRunPause.font.color := clred;
-      self.btnRunPause.caption := 'Simulation: Pause';
+      self.btnRunPause.caption := 'Pause';
+      self.btnRunPause.Hint := 'Pause simulation';
      // if DEBUG then
      //   simResultsMemo.visible := true;
 
       // default timer interval is 100 msec:
       // multiplier default is 10, range 1 - 50
-      self.mainController.SetTimerInterval(round(1000/self.trackBarSimSpeed.position));
+      if assigned(self.pnlSimSpeedMult) then
+        self.mainController.SetTimerInterval(round(1000/self.trackBarSimSpeed.position));
       self.mainController.SetStepSize(self.stepSize);
 
       if self.chkbxStaticSimRun.Checked {self.staticSimRunFlag} then
@@ -931,7 +956,7 @@ begin
   self.mainController.SetRunTime(self.runTime);
   self.mainController.setStaticSimRun(self.chkbxStaticSimRun.Checked );
   self.mainController.SetStepSize(self.stepSize);  // just in case ?
-  self.trackBarSimSpeed.Enabled := false;
+  if assigned(self.pnlSimSpeedMult) then self.trackBarSimSpeed.Enabled := false;
   self.btnRunPause.Enabled := false;
   self.mainController.resetCurrTime;
   self.mainController.startStaticSimulation;
@@ -947,7 +972,8 @@ begin
    self.enableStepSizeEdit;
    self.MainController.SetTimerEnabled(false); // Turn off web timer (Stop simulation)
    self.btnRunPause.font.color := clgreen;
-   self.btnRunPause.caption := 'Simulation: Play';
+   self.btnRunPause.caption := 'Play'; //'Simulation: Play';
+   self.btnRunPause.Hint := 'Continue simulation';
  {  if self.saveSimResults then
      begin
      self.mainController.writeSimData(self.lblSimDataFileName.Caption, self.simResultsMemo.Lines);
@@ -957,9 +983,12 @@ end;
 procedure TMainForm.trackBarSimSpeedChange(Sender: TObject);
   var position: double;
 begin
-  position := self.trackBarSimSpeed.Position;
-  self.lblSpeedMultVal.Caption := floattostr( (position*0.1) ) + 'x';
-  self.MainController.SetTimerInterval( round(1000/position) ); //timer interval does change. Speeds up/down sim
+  if assigned(self.pnlSimSpeedMult) then
+    begin
+    position := self.trackBarSimSpeed.Position;
+    self.lblSpeedMultVal.Caption := floattostr( (position*0.1) ) + 'x';
+    self.MainController.SetTimerInterval( round(1000/position) ); //timer interval does change. Speeds up/down sim
+    end;
 end;
 
 procedure TMainForm.setUpSimulationUI();
@@ -1030,7 +1059,7 @@ begin
   self.setListBoxInitValues;
   self.setListBoxRateLaws;
   self.setLabelModelInfo;
-  self.btnModelInfo.Enabled := true;
+  if assigned(self.btnModelInfo) then self.btnModelInfo.Enabled := true;
  
 end;
 
@@ -1608,18 +1637,21 @@ procedure TMainForm.editRunTimeExit(Sender: TObject);
 var newRunTime: double;
 begin
   try
-    newRunTime := strToFloat(self.editRunTime.Text);
-    if newRunTime >0 then
+    if assigned(self.pnlRunTime) then
       begin
-      self.runTime := newRunTime;
-      self.mainController.SetRunTime(self.runTime);
-      if self.chkbxStaticSimRun.Checked then
+      newRunTime := strToFloat(self.editRunTime.Text);
+      if newRunTime >0 then
         begin
+        self.runTime := newRunTime;
+        self.mainController.SetRunTime(self.runTime);
+        if self.chkbxStaticSimRun.Checked then
+          begin
 
-        self.resetPlots;
-        end;
-      end
-    else notifyUser ('Run Time must be a positive number');
+          self.resetPlots;
+          end;
+        end
+      else notifyUser ('Run Time must be a positive number');
+      end;
 
   except
        on Exception: EConvertError do
@@ -1696,15 +1728,66 @@ end;
 
 function TMainForm.enableRunTimeEdit(): boolean;  // true: success
 begin
-  self.pnlRunTime.Enabled := true;
-  self.lblRunTime.Enabled := true;
-  self.editRunTime.Enabled := true;
+  if assigned(self.pnlRunTime) then
+    begin
+    self.pnlRunTime.Enabled := true;
+    self.lblRunTime.Enabled := true;
+    self.editRunTime.Enabled := true;
+    Result := true;
+    end
+  else Result := false;
 end;
-function TMainForm.disableRunTimeEdit(): boolean; // true: suncces
+function TMainForm.disableRunTimeEdit(): boolean; // true: success
 begin
-  self.pnlRunTime.Enabled := false;
-  self.lblRunTime.Enabled := false;
-  self.editRunTime.Enabled := false;
+  if assigned(self.pnlRunTime) then
+    begin
+    self.pnlRunTime.Enabled := false;
+    self.lblRunTime.Enabled := false;
+    self.editRunTime.Enabled := false;
+    Result := true;
+    end
+  else Result := false;
+end;
+
+procedure TMainForm.setMinUI(isStaticRun: boolean); // Used when model is passed into app.
+begin
+  console.log('Minimum UI');
+  self.pnlStaticSim.Visible := false;
+  //self.chkbxStaticSimRun.Visible := false;
+  //self.btnModelInfo.visible := false;
+  if assigned(self.pnlModelInfo) then self.pnlModelInfo.Free;
+  if assigned(self.pnlExample) then self.pnlExample.Free;
+  //self.btnExample.Visible := false;
+ // if assigned(self.pnlLoadModel) then self.pnlLoadModel.visible := false;
+  if assigned(self.pnlLoadModel) then
+    begin
+    self.btnLoadModel.Free;
+    self.pnlLoadModel.Free;
+    end;
+  //self.btnLoadModel.visible := false;
+  self.pnlStepSize.Visible := false;
+  if isStaticRun then
+    begin
+    if assigned(self.pnlSimSpeedMult) then
+      self.pnlSimSpeedMult.Free;
+    end
+  else
+    begin
+    if assigned(self.pnlRunTime) then self.pnlRunTime.Free;
+   // self.lblRunTime.visible := false;
+   // self.editRunTime.visible := false;
+    end;
+
+end;
+procedure TMainForm.setMaxUI(); // Used when user choses model.
+begin
+  console.log('Max UI');
+  //TODO
+end;
+procedure TMainForm.testUI(); // Used for testing
+begin
+  console.log('Test UI');
+  self.setMaxUI;
 end;
 
 end.

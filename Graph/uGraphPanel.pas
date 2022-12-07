@@ -158,7 +158,7 @@ begin
   self.chart.SetXAxisMax(self.xMax); // deltaX same as interval
   if self.chartBackGroundColor < 1 then self.chart.BackgroundColor := clNavy
   else self.chart.BackgroundColor := self.chartBackGroundColor;
-  self.chart.LegendBackgroundColor := clSilver;
+  self.chart.LegendBackgroundColor := clWebFloralWhite; //clSilver;
   self.chart.LegendPosX := 0;
   self.chart.LegendPosY := 15;
 
