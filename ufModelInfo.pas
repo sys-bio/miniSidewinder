@@ -31,7 +31,7 @@ implementation
  begin
    self.listBoxInitVals.Items := newList;
    itemCount := newList.Count;
-   self.listBoxInitVals.Height := trunc(self.listBoxInitVals.Font.Size * 2.0 * itemCount);
+   self.listBoxInitVals.Height := trunc(self.listBoxInitVals.Font.Size * 1.8 * itemCount);
    self.Height := self.listBoxInitVals.Height + 100;
  end;
 
@@ -40,7 +40,7 @@ implementation
  begin
    self.listBoxRates.Items := newList;
    itemCount := newList.Count;
-   self.listBoxRates.Height := trunc(self.listBoxRates.Font.Size * 2.0 * itemCount);
+   self.listBoxRates.Height := trunc(self.listBoxRates.Font.Size * 1.8 * itemCount);
 
  end;
 

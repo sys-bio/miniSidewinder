@@ -99,7 +99,7 @@ begin
   leftBox.backgroundColor := clSkyBlue;
   leftBox.x := 0;
   leftBox.y := titleBox.height;
-  rightBox := TRightBox.Create(w - wLeftBox, h , self);
+  rightBox := TRightBox.Create(w - wLeftBox, self.height , self);
   rightBox.backgroundColor := self.getAGlobalData.plotPanelBackgroundColor;
   rightBox.x := wLeftBox;
   rightBox.y := titleBox.height;

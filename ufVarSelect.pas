@@ -30,6 +30,8 @@ type
      speciesList: array of String;
      PlotWForm: TVarSelectForm;
      procedure fillSpeciesCG();
+     procedure chkSpecies(index: integer);
+     procedure unChkSpecies(index: integer);
   end;
 
 implementation
@@ -79,9 +81,10 @@ begin
     self.Height := 20*length(speciesList);  //15
 
   // Adjust chkgrp height as List may not fit with default height:
-  SpPlotCG.Height := 30*length(speciesList);
+  self.SpPlotCG.height := round(2.7 * self.SpPlotCG.Font.Size * length(speciesList));
+
   self.SpPlotCG.Width := self.setChkGrpWidth ;// Adjust chkgrp width to fit longest string
-  // okButton1.Top := SpPlotCG.Height + 30;
+
   for i := 0 to length(speciesList)-1 do
     SpPlotCG.Items.Add ('&nbsp; ' + speciesList[i]);
 end;
@@ -98,6 +101,17 @@ var i: integer;
 begin
   for i := 0 to length(speciesList)-1 do
     SpPlotCG.Checked[i] := true;
+end;
+
+procedure TVarSelectForm.chkSpecies(index: integer);
+begin
+  if index < self.SpPlotCG.Items.Count then
+    self.SpPlotCG.Checked[index] := true;
+end;
+procedure TVarSelectForm.unChkSpecies(index: integer);
+begin
+  if index < self.SpPlotCG.Items.Count then
+    self.SpPlotCG.Checked[index] := false;
 end;
 
 procedure TVarSelectForm.setSpPlotCGFontColor(newColor: TColor);

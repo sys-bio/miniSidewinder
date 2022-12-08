@@ -60,12 +60,14 @@ object MainForm: TMainForm
     end
     object pnlExample: TWebPanel
       Left = 0
-      Top = 90
+      Top = 135
       Width = 51
       Height = 45
       Align = alTop
       BorderColor = clBtnFace
       ChildOrder = 3
+      ExplicitLeft = -3
+      ExplicitTop = 186
       DesignSize = (
         51
         45)
@@ -82,6 +84,29 @@ object MainForm: TMainForm
         ShowHint = True
         WidthPercent = 100.000000000000000000
         OnClick = btnExampleClick
+      end
+    end
+    object pnlEditSliders: TWebPanel
+      Left = 0
+      Top = 90
+      Width = 51
+      Height = 45
+      Align = alTop
+      BorderColor = clBtnFace
+      ChildOrder = 3
+      ExplicitLeft = -3
+      ExplicitTop = 114
+      object btnEditSliders: TWebButton
+        Left = 5
+        Top = 10
+        Width = 40
+        Height = 25
+        Hint = 'Chose different parameter sliders'
+        Caption = 'Slider'
+        HeightPercent = 100.000000000000000000
+        ShowHint = True
+        WidthPercent = 100.000000000000000000
+        OnClick = btnEditSlidersClick
       end
     end
   end

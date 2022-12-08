@@ -125,7 +125,7 @@ var sliderTBarWidth : integer;
     // parameter label and current value
     self.sliderPTBLabel.visible:= True;
     self.sliderPTBLabel.Tag:= self.tag;
-    self.sliderPTBLabel.Left:= 30;
+    self.sliderPTBLabel.Left:= 25;
     self.sliderPTBLabel.Top:= 3;
   end;
 

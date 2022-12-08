@@ -21,6 +21,7 @@ const SIDEWINDER_VERSION = 'Version 0.5 alpha';
       MAX_STR_LENGTH = 50; // Max User inputed string length for Rxn/spec/param id
       NULL_NODE_TAG = '_Null'; // from uNetwork, just in case, probably not necessary
       DEFAULT_NUMB_PLOTS = 1;
+      DEBUG = false; // true then show debug console output and any other debug related info
 
 type
   TMainForm = class(TWebForm)
@@ -60,6 +61,8 @@ type
     pnlModelInfo: TWebPanel;
     pnlEditGraph: TWebPanel;
     pnlExample: TWebPanel;
+    pnlEditSliders: TWebPanel;
+    btnEditSliders: TWebButton; // Only needed if # model params is greater than MAX_SLIDERS
 
     procedure WebFormCreate(Sender: TObject);
     procedure btnSimResetClick(Sender: TObject);
@@ -83,6 +86,7 @@ type
     procedure ChangeParameter1Click(Sender: TObject);
     procedure editRunTimeExit(Sender: TObject);
     procedure btnEditGraphClick(Sender: TObject);
+    procedure btnEditSlidersClick(Sender: TObject);
 
   private
     numbPlots: Integer; // Number of plots displayed
@@ -112,6 +116,7 @@ type
     procedure SetSliderParamValues(sn, paramForSlider: Integer);
     procedure resetSliderPositions(); // Reset param position to init model param value.
     procedure selectParameter(sIndex: Integer); // Get parameter for slider
+    procedure newSliderList(); // Pick parameters for sliders
     procedure resetBtnOnLineSim(); // reset to default look and caption of 'Start simulation'
     procedure runSim();
     procedure runStaticSim();
@@ -218,6 +223,11 @@ begin
   fEditgraph.Border := fbDialogSizeable;
 end;
 
+procedure TMainForm.btnEditSlidersClick(Sender: TObject);
+begin
+  self.newSliderList;
+end;
+
 procedure TMainForm.btnExampleClick(Sender: TObject);
 
 var s : string;
@@ -250,6 +260,7 @@ begin
       if MainController.isOnline = false then
         begin
         self.btnEditGraph.Enabled := false;
+        self.btnEditSliders.Enabled := false;
         if self.chkbxStaticSimRun.Checked then
           begin
           self.resetSim;  // this stops current sim.
@@ -262,6 +273,7 @@ begin
         begin
         self.stopSim;
         self.btnEditGraph.Enabled := true;
+        self.btnEditSliders.Enabled := true;
         self.chkbxStaticSimRun.Enabled := true;
         end;
     except
@@ -357,6 +369,7 @@ begin
   self.currentModelInfo := 'None.';
   if assigned(self.btnModelInfo) then self.btnModelInfo.Enabled := false;
   self.btnEditGraph.Enabled := false;
+  self.btnEditSliders.Enabled := false;
   self.strFileInput := '';
 
   asm // javascript:
@@ -412,6 +425,8 @@ begin
   self.btnRunPause.Enabled := false;
   if assigned(self.pnlSimSpeedMult) then self.trackBarSimSpeed.Enabled := false;
   self.enableStepSizeEdit;
+  if not DEBUG then self.pnlExample.Free;
+
   self.mainController.addSBMLListener( @self.PingSBMLLoaded );
   self.mainController.addSimListener( @self.getVals ); // notify when new Sim results
   self.mainController.addStaticSimResultsListener( @self.getStaticSimResults ); // notify when static run done.
@@ -550,11 +565,76 @@ begin
     sliderP := '';
     SetLength(self.sliderParamAr, self.getNumberOfSliders + 1);    // add a slider
     //sliderP := self.mainController.getModel.getP_names[i];   // needed?
-    self.sliderParamAr[i] := i; // assign param indexto slider ??
+    self.sliderParamAr[i] := i; // assign param indexto slider
     self.addParamSlider(); // <-- Add dynamically created slider
     end;
 
 end;
+
+procedure TMainForm.newSliderList;
+var fSelectParams: TVarSelectForm;
+   // Pass back to caller after closing popup:
+  procedure AfterShowModal(AValue: TModalResult);
+  var
+    i, sliderIndex: Integer; slidersUpdated: boolean;
+    sliderPar: string;
+  begin
+    slidersUpdated := false;
+    for i := 0 to fSelectParams.SpPlotCG.Items.Count - 1 do // chk if user wants new list.
+      begin
+        if fSelectParams.SpPlotCG.checked[i] then slidersUpdated := true;
+      end;
+    if slidersUpdated then
+      begin
+      self.deleteAllSliders;
+      for i := 0 to fSelectParams.SpPlotCG.Items.Count - 1 do
+        begin
+        sliderPar := '';
+        if fSelectParams.SpPlotCG.checked[i] then
+          begin
+          if length(self.sliderParamAr) < MAX_SLIDERS then // Ignore any more that are checked.
+            begin
+            sliderIndex := length(self.sliderParamAr);
+            SetLength(self.sliderParamAr, length(self.sliderParamAr) + 1);
+            self.sliderParamAr[sliderIndex] := i; // assign param index to slider
+            self.addParamSlider(); // <-- Add dynamically created slider
+            end;
+          end;
+        end;
+      end;
+
+  end;
+
+  // async, call for TVarSelectForm
+  procedure AfterCreate(AForm: TObject);
+  var i, lgth: integer;
+     strList: array of String;
+     curStr: string;
+  begin
+    lgth := 0;
+    for i := 0 to length(self.mainController.getModel.getP_Names) -1 do
+    begin
+      curStr := '';
+      curStr := self.mainController.getModel.getP_names[i];
+      lgth := Length(strList);
+      setLength(strList, lgth + 1);
+      strList[lgth] := curStr;
+    end;
+    (AForm as TVarSelectForm).Top := trunc(self.Height*0.1); // put popup %10 from top
+    (AForm as TVarSelectForm).speciesList := strList;
+    (AForm as TVarSelectForm).fillSpeciesCG();
+  end;
+
+begin
+  fSelectParams := TVarSelectForm.CreateNew(@AfterCreate);
+  fSelectParams.Popup := true;
+  fSelectParams.ShowClose := false;
+  fSelectParams.PopupOpacity := 0.3;
+  fSelectParams.Border := fbDialogSizeable;
+  fSelectParams.caption := 'Replace Paramater sliders';
+  fSelectParams.ShowModal(@AfterShowModal);
+end;
+
 
 function TMainForm.calcSliderWidth(): integer;
 begin
@@ -953,6 +1033,7 @@ end;
 procedure TMainForm.runStaticSim();
 begin
   self.btnEditGraph.Enabled := false;
+  self.btnEditSliders.Enabled := false;
   self.mainController.SetRunTime(self.runTime);
   self.mainController.setStaticSimRun(self.chkbxStaticSimRun.Checked );
   self.mainController.SetStepSize(self.stepSize);  // just in case ?
@@ -969,6 +1050,7 @@ begin
   // self.btnParamReset.Enabled := true;
    self.btnSimReset.Enabled := true;
    self.btnEditGraph.Enabled := true;
+   self.btnEditSliders.Enabled := true;
    self.enableStepSizeEdit;
    self.MainController.SetTimerEnabled(false); // Turn off web timer (Stop simulation)
    self.btnRunPause.font.color := clgreen;
@@ -1193,6 +1275,7 @@ begin // Easier to just delete/create than reset time, xaxis labels, etc.
   self.refreshPlotPanels;
   self.getVals( 0, initSVals ); // Display correctly sized graph window on reset
   self.btnEditGraph.Enabled := true;
+  self.btnEditSliders.Enabled := true;
 end;
 
 procedure TMainForm.selectPlotSpecies(plotnumb: Integer);
@@ -1757,7 +1840,6 @@ begin
   //self.btnModelInfo.visible := false;
   if assigned(self.pnlModelInfo) then self.pnlModelInfo.Free;
   if assigned(self.pnlExample) then self.pnlExample.Free;
-  //self.btnExample.Visible := false;
  // if assigned(self.pnlLoadModel) then self.pnlLoadModel.visible := false;
   if assigned(self.pnlLoadModel) then
     begin
