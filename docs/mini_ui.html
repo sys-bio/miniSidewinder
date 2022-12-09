@@ -91,7 +91,8 @@ var staticRun = 'true'; // Display after all calculations are done.
 <script type="text/javascript">
 function runModel() {
 // Use this code if you have a predefined model to run located at some URL:
-fetch('http://localhost/models/simpleRXN.xml')
+//fetch('http://localhost/models/simpleRXN.xml')
+fetch('models/simpleRXN.xml')
   .then(response => response.text())
   .then((data) => {
     console.log(data);
