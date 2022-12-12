@@ -12,7 +12,7 @@ uses
   VCL.TMSFNCCustomControl, VCL.TMSFNCScrollBar, ufModelInfo, ufLabelPopUp,
   Vcl.Menus, WEBLib.Menus, WEBLib.WebCtrls, ufRadioGrpPopup;
 
-const SIDEWINDER_VERSION = 'Version 0.5 alpha';
+const SIDEWINDER_VERSION = 'Version 0.51 alpha';
       DEFAULT_RUNTIME = 10000;
       EDITBOX_HT = 25;
       ZOOM_SCALE = 20;
@@ -22,6 +22,13 @@ const SIDEWINDER_VERSION = 'Version 0.5 alpha';
       NULL_NODE_TAG = '_Null'; // from uNetwork, just in case, probably not necessary
       DEFAULT_NUMB_PLOTS = 1;
       DEBUG = false; // true then show debug console output and any other debug related info
+ // Component look, bootstrap strings:
+      BTN_DISABLED = 'btn btn-dark btn-sm disabled';
+      BTN_ENABLED = 'btn btn-dark btn-sm';
+      LOAD_BTN_DISABLED = 'btn btn-primary btn-sm disabled';
+      LOAD_BTN = 'btn btn-primary btn-sm';
+      BTN_TOP_PANEL_WIDTH = 0.10; // top btn panels percent width of pnlTop
+
 
 type
   TMainForm = class(TWebForm)
@@ -143,6 +150,11 @@ type
     function  disableStepSizeEdit(): boolean;// true: success
     function  enableRunTimeEdit(): boolean;  // true: success
     function  disableRunTimeEdit(): boolean; // true: suncces
+    procedure setTopPanelSpacing; // Set spacing of components
+    procedure setLoadPnlSpacing;
+    procedure setRunPausePnlSpacing;
+    procedure setSimResetPnlSpacing;
+
     procedure setMinUI(isStaticRun: boolean); // Used when model is passed into app.
     procedure setMaxUI(); // Used when user choses model.
     procedure testUI(); // Used for testing
@@ -259,8 +271,10 @@ begin
       self.disableStepSizeEdit;
       if MainController.isOnline = false then
         begin
-        self.btnEditGraph.Enabled := false;
-        self.btnEditSliders.Enabled := false;
+      //  self.btnEditGraph.Enabled := false;
+      //  self.btnEditGraph.ElementClassName := BTN_DISABLED;
+      //  self.btnEditSliders.Enabled := false;
+      //  self.btnEditSliders.ElementClassName := BTN_DISABLED;
         if self.chkbxStaticSimRun.Checked then
           begin
           self.resetSim;  // this stops current sim.
@@ -272,8 +286,6 @@ begin
       else  // stop simulation
         begin
         self.stopSim;
-        self.btnEditGraph.Enabled := true;
-        self.btnEditSliders.Enabled := true;
         self.chkbxStaticSimRun.Enabled := true;
         end;
     except
@@ -307,6 +319,7 @@ begin
       begin
       self.stopSim;
       self.btnRunPause.Enabled := true;
+      self.btnRunPause.ElementClassName := BTN_ENABLED;
       end;
     self.mainController.createSimulation();
     self.simStarted := false;
@@ -343,6 +356,7 @@ begin
  //self.btnResetSimSpecies.enabled := false;
  // self.btnParamReset.enabled := false;
   self.btnSimReset.enabled := false;
+  self.btnSimReset.ElementClassName := BTN_DISABLED;
   self.MainController.loadSBML(AText);
 end;
 
@@ -353,7 +367,8 @@ begin
   self.numbPlots := 0;
   self.slidersPerRow := SLIDERS_PER_ROW;
   self.runTime := DEFAULT_RUNTIME;
-  self.intSliderHeight := 40; //45;
+  self.setTopPanelSpacing;
+  self.intSliderHeight := 30;
 
   self.pnlParamSliders.height := 5;
   self.stepSize := 0.1;
@@ -367,9 +382,15 @@ begin
  // self.saveSimResults := false;
   self.currentGeneration := 0;
   self.currentModelInfo := 'None.';
-  if assigned(self.btnModelInfo) then self.btnModelInfo.Enabled := false;
+  if assigned(self.btnModelInfo) then
+    begin
+    self.btnModelInfo.Enabled := false;
+    self.btnModelInfo.ElementClassName := BTN_DISABLED;
+    end;
   self.btnEditGraph.Enabled := false;
+  self.btnEditGraph.ElementClassName := BTN_DISABLED;
   self.btnEditSliders.Enabled := false;
+  self.btnEditSliders.ElementClassName := BTN_DISABLED;
   self.strFileInput := '';
 
   asm // javascript:
@@ -422,7 +443,9 @@ begin
     self.editRunTime.Text := floatToStr(self.runTime);
   self.btnSimReset.Visible := true;
   self.btnSimReset.Enabled := false;
+  self.btnSimReset.ElementClassName := BTN_DISABLED;
   self.btnRunPause.Enabled := false;
+  self.btnRunPause.ElementClassName := BTN_DISABLED;
   if assigned(self.pnlSimSpeedMult) then self.trackBarSimSpeed.Enabled := false;
   self.enableStepSizeEdit;
   if not DEBUG then self.pnlExample.Free;
@@ -438,6 +461,7 @@ procedure TMainForm.WebFormResize(Sender: TObject);
 begin
   //console.log('Changing');
   self.refreshPlotAndSliderPanels;
+  self.setTopPanelSpacing;
 end;
 
 
@@ -638,9 +662,9 @@ end;
 
 function TMainForm.calcSliderWidth(): integer;
 begin
-   if(trunc(self.pnlParamSliders.Width/self.slidersPerRow) > 150 {200} ) then
+   if(trunc(self.pnlParamSliders.Width/self.slidersPerRow) > 120 ) then
     Result :=  trunc( self.pnlParamSliders.width/self.slidersPerRow )   // three sliders across
-  else Result := 150;
+  else Result := 120;
 end;
 
 procedure TMainForm.ChangeminmaxYaxis1Click(Sender: TObject);
@@ -1003,7 +1027,9 @@ begin
 	   // self.btnResetSimSpecies.Enabled := false;
      // self.btnParamReset.Enabled := false;
       self.btnSimReset.Enabled := false;
+      self.btnSimReset.ElementClassName := BTN_DISABLED;
       self.btnEditGraph.Enabled := false;
+      self.btnEditGraph.ElementClassName := BTN_DISABLED;
       self.disableStepSizeEdit;
       if assigned(self.pnlSimSpeedMult) then self.trackBarSimSpeed.Enabled := true;
       self.btnRunPause.font.color := clred;
@@ -1033,12 +1059,15 @@ end;
 procedure TMainForm.runStaticSim();
 begin
   self.btnEditGraph.Enabled := false;
+  self.btnEditGraph.ElementClassName := BTN_DISABLED;
   self.btnEditSliders.Enabled := false;
+  self.btnEditSliders.ElementClassName := BTN_DISABLED;
   self.mainController.SetRunTime(self.runTime);
   self.mainController.setStaticSimRun(self.chkbxStaticSimRun.Checked );
   self.mainController.SetStepSize(self.stepSize);  // just in case ?
   if assigned(self.pnlSimSpeedMult) then self.trackBarSimSpeed.Enabled := false;
   self.btnRunPause.Enabled := false;
+  self.btnRunPause.ElementClassName := BTN_DISABLED;
   self.mainController.resetCurrTime;
   self.mainController.startStaticSimulation;
 end;
@@ -1049,8 +1078,11 @@ begin
   // self.btnResetSimSpecies.Enabled := true;
   // self.btnParamReset.Enabled := true;
    self.btnSimReset.Enabled := true;
+   self.btnSimReset.ElementClassName := BTN_ENABLED;
    self.btnEditGraph.Enabled := true;
+   self.btnEditGraph.ElementClassName := BTN_ENABLED;
    self.btnEditSliders.Enabled := true;
+   self.btnEditSliders.ElementClassName := BTN_ENABLED;
    self.enableStepSizeEdit;
    self.MainController.SetTimerEnabled(false); // Turn off web timer (Stop simulation)
    self.btnRunPause.font.color := clgreen;
@@ -1138,10 +1170,15 @@ begin
 
   self.pnlParamSliders.height := self.calcParamSlidersPanelHeight;
   self.btnRunPause.Enabled := true;
+  self.btnRunPause.ElementClassName := BTN_ENABLED;
   self.setListBoxInitValues;
   self.setListBoxRateLaws;
   self.setLabelModelInfo;
-  if assigned(self.btnModelInfo) then self.btnModelInfo.Enabled := true;
+  if assigned(self.btnModelInfo) then
+    begin
+    self.btnModelInfo.Enabled := true;
+    self.btnModelInfo.ElementClassName := BTN_ENABLED;
+    end;
  
 end;
 
@@ -1275,7 +1312,9 @@ begin // Easier to just delete/create than reset time, xaxis labels, etc.
   self.refreshPlotPanels;
   self.getVals( 0, initSVals ); // Display correctly sized graph window on reset
   self.btnEditGraph.Enabled := true;
+  self.btnEditGraph.ElementClassName := BTN_ENABLED;
   self.btnEditSliders.Enabled := true;
+  self.btnEditSliders.ElementClassName := BTN_ENABLED;
 end;
 
 procedure TMainForm.selectPlotSpecies(plotnumb: Integer);
@@ -1601,9 +1640,11 @@ begin
     end;
 //  console.log('TMainForm.getStaticSimResults done plotting');
   self.btnSimReset.Enabled := true;
+  self.btnSimReset.ElementClassName := BTN_ENABLED;
   self.stopSim; // ?
   self.resetSim; // ?
   self.btnRunPause.Enabled := true;
+  self.btnRunPause.ElementClassName := BTN_ENABLED;
 end;
 
 
@@ -1830,6 +1871,43 @@ begin
     Result := true;
     end
   else Result := false;
+end;
+
+procedure TMainForm.setTopPanelSpacing;
+//var btnWidth: integer;
+begin
+  self.setLoadPnlSpacing;
+  self.setRunPausePnlSpacing;
+  self.setSimResetPnlSpacing;
+end;
+
+procedure TMainForm.setLoadPnlSpacing;
+//var btnWidth: integer;
+begin
+  if assigned(self.pnlLoadModel) then
+    begin
+    self.pnlLoadModel.Width := trunc(self.pnlTop.Width * BTN_TOP_PANEL_WIDTH);
+    //btnWidth := self.btnLoadModel.Width;
+    self.btnLoadModel.Left := trunc(self.pnlLoadModel.Width/2 - self.btnLoadModel.Width/2);
+    end;
+end;
+
+procedure TMainForm.setRunPausePnlSpacing;
+begin
+  if assigned(self.pnlRunPause) then
+    begin
+    self.pnlRunPause.Width := trunc(self.pnlTop.Width * BTN_TOP_PANEL_WIDTH);
+    self.btnRunPause.Left := trunc(self.pnlRunPause.Width/2 - self.btnRunPause.Width/2);
+    end;
+end;
+
+procedure TMainForm.setSimResetPnlSpacing;
+begin
+  if assigned(self.pnlSimReset) then
+    begin
+    self.pnlSimReset.Width := trunc(self.pnlTop.Width * BTN_TOP_PANEL_WIDTH);
+    self.btnSimReset.Left := trunc(self.pnlSimReset.Width/2 - self.btnSimReset.Width/2);
+    end;
 end;
 
 procedure TMainForm.setMinUI(isStaticRun: boolean); // Used when model is passed into app.

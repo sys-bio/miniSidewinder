@@ -115,6 +115,7 @@ end;
      self.chart.Height := self.Height;
   //   self.chart.OnMouseClickEvent := self.graphEditMouseDown;
      self.chart.Parent := self;
+     self.chart.AxisStrokeWidth := 1;
      self.chart.YAxisMax := self.yMaximum;
    except
     on E: Exception do
@@ -143,7 +144,7 @@ procedure TGraphPanel.setupChart;
 var i: integer;
 begin
   self.yLabel := 'Conc';  // Default
-  self.xLabel := 'Time (sec)'; // Default
+  self.xLabel := 'Unit Time'; // Default
   self.chart.autoScaleUp := self.autoUp;
   self.chart.autoScaleDown := self.autoDown;
   self.chart.YAxisMax := self.yMaximum;

@@ -4,28 +4,30 @@ object MainForm: TMainForm
   OnCreate = WebFormCreate
   OnResize = WebFormResize
   object pnlSimInfo: TWebPanel
-    Left = 814
-    Top = 60
-    Width = 51
-    Height = 396
+    Left = 808
+    Top = 50
+    Width = 57
+    Height = 406
     Align = alRight
-    ExplicitHeight = 370
+    ExplicitTop = 60
+    ExplicitHeight = 396
     object pnlModelInfo: TWebPanel
       Left = 0
       Top = 0
-      Width = 51
+      Width = 57
       Height = 45
       Align = alTop
       BorderColor = clBtnFace
       ChildOrder = 3
+      ExplicitWidth = 51
       DesignSize = (
-        51
+        57
         45)
       object btnModelInfo: TWebButton
-        Left = 5
+        Left = 2
         Top = 10
-        Width = 40
-        Height = 25
+        Width = 50
+        Height = 30
         Hint = 'Model information, if available.'
         Anchors = [akRight]
         Caption = 'Info'
@@ -39,16 +41,17 @@ object MainForm: TMainForm
     object pnlEditGraph: TWebPanel
       Left = 0
       Top = 45
-      Width = 51
+      Width = 57
       Height = 45
       Align = alTop
       BorderColor = clBtnFace
       ChildOrder = 3
+      ExplicitWidth = 51
       object btnEditGraph: TWebButton
-        Left = 5
+        Left = 2
         Top = 10
-        Width = 40
-        Height = 25
+        Width = 50
+        Height = 30
         Hint = 'Change species, update Y axis'
         Caption = 'Plot'
         ChildOrder = 2
@@ -61,21 +64,20 @@ object MainForm: TMainForm
     object pnlExample: TWebPanel
       Left = 0
       Top = 135
-      Width = 51
+      Width = 57
       Height = 45
       Align = alTop
       BorderColor = clBtnFace
       ChildOrder = 3
-      ExplicitLeft = -3
-      ExplicitTop = 186
+      ExplicitWidth = 51
       DesignSize = (
-        51
+        57
         45)
       object btnExample: TWebButton
-        Left = 5
+        Left = 8
         Top = 10
-        Width = 40
-        Height = 25
+        Width = 45
+        Height = 30
         Hint = 'Load example model.'
         Anchors = [akRight]
         Caption = 'Ex.'
@@ -84,23 +86,23 @@ object MainForm: TMainForm
         ShowHint = True
         WidthPercent = 100.000000000000000000
         OnClick = btnExampleClick
+        ExplicitLeft = 2
       end
     end
     object pnlEditSliders: TWebPanel
       Left = 0
       Top = 90
-      Width = 51
+      Width = 57
       Height = 45
       Align = alTop
       BorderColor = clBtnFace
       ChildOrder = 3
-      ExplicitLeft = -3
-      ExplicitTop = 114
+      ExplicitWidth = 51
       object btnEditSliders: TWebButton
-        Left = 5
+        Left = 2
         Top = 10
-        Width = 40
-        Height = 25
+        Width = 50
+        Height = 30
         Hint = 'Chose different parameter sliders'
         Caption = 'Slider'
         HeightPercent = 100.000000000000000000
@@ -112,33 +114,35 @@ object MainForm: TMainForm
   end
   object pnlPlot: TWebPanel
     Left = 0
-    Top = 60
-    Width = 814
-    Height = 396
+    Top = 50
+    Width = 808
+    Height = 406
     Align = alClient
     ChildOrder = 1
-    ExplicitWidth = 784
-    ExplicitHeight = 370
+    ExplicitTop = 60
+    ExplicitWidth = 814
+    ExplicitHeight = 396
   end
   object pnlTop: TWebPanel
     Left = 0
     Top = 0
     Width = 865
-    Height = 60
+    Height = 50
     Align = alTop
     ChildOrder = 3
     object pnlSimSpeedMult: TWebPanel
-      Left = 185
+      Left = 189
       Top = 0
-      Width = 145
-      Height = 60
+      Width = 139
+      Height = 50
       Hint = 'Speed up simulation, limited by browser resources.'
       Align = alLeft
       ChildOrder = 5
       ShowHint = True
+      ExplicitHeight = 60
       object lblSpeedMult: TWebLabel
-        Left = 20
-        Top = 8
+        Left = 10
+        Top = 5
         Width = 98
         Height = 13
         Hint = 'Speed up/down simulation'
@@ -147,8 +151,8 @@ object MainForm: TMainForm
         WidthPercent = 100.000000000000000000
       end
       object lblSpeedMultVal: TWebLabel
-        Left = 120
-        Top = 8
+        Left = 112
+        Top = 5
         Width = 12
         Height = 13
         Caption = '1x'
@@ -157,7 +161,7 @@ object MainForm: TMainForm
       end
       object lblSpeedMultMin: TWebLabel
         Left = 10
-        Top = 30
+        Top = 23
         Width = 22
         Height = 13
         Caption = '0.1x'
@@ -165,8 +169,8 @@ object MainForm: TMainForm
         WidthPercent = 100.000000000000000000
       end
       object lblSpeedMultMax: TWebLabel
-        Left = 125
-        Top = 30
+        Left = 115
+        Top = 23
         Width = 12
         Height = 13
         Caption = '3x'
@@ -175,9 +179,12 @@ object MainForm: TMainForm
       end
       object trackBarSimSpeed: TWebTrackBar
         Left = 38
-        Top = 27
-        Width = 80
-        Height = 20
+        Top = 30
+        Width = 70
+        Height = 0
+        ElementClassName = 'form-range '
+        HeightStyle = ssPercent
+        HeightPercent = 10.000000000000000000
         Max = 30
         Min = 1
         Position = 10
@@ -186,18 +193,20 @@ object MainForm: TMainForm
       end
     end
     object pnlRunTime: TWebPanel
-      Left = 395
+      Left = 393
       Top = 0
       Width = 65
-      Height = 60
+      Height = 50
       Hint = 'Set simulation run time. Static run only.'
       Align = alLeft
       BorderColor = clBtnFace
       ChildOrder = 7
       ShowHint = True
+      ExplicitLeft = 395
+      ExplicitHeight = 60
       object lblRunTime: TWebLabel
-        Left = 10
-        Top = 8
+        Left = 5
+        Top = 5
         Width = 48
         Height = 13
         Caption = 'Run Time:'
@@ -206,7 +215,7 @@ object MainForm: TMainForm
       end
       object editRunTime: TWebEdit
         Left = 5
-        Top = 25
+        Top = 20
         Width = 55
         Height = 20
         ChildOrder = 1
@@ -219,17 +228,19 @@ object MainForm: TMainForm
       Left = 0
       Top = 0
       Width = 65
-      Height = 60
+      Height = 50
       Align = alLeft
       BorderColor = clBtnFace
       ChildOrder = 8
+      ExplicitHeight = 60
       object btnLoadModel: TWebButton
-        Left = 9
-        Top = 16
-        Width = 50
-        Height = 25
+        Left = 7
+        Top = 10
+        Width = 55
+        Height = 30
         Hint = 'Load SBML model'
         Caption = 'SBML'
+        ElementClassName = 'btn btn-primary btn-sm'
         HeightPercent = 100.000000000000000000
         ShowHint = True
         WidthPercent = 100.000000000000000000
@@ -237,21 +248,24 @@ object MainForm: TMainForm
       end
     end
     object pnlSimReset: TWebPanel
-      Left = 125
+      Left = 129
       Top = 0
       Width = 60
-      Height = 60
+      Height = 50
       Align = alLeft
       BorderColor = clBtnFace
       ChildOrder = 8
+      ExplicitLeft = 125
+      ExplicitHeight = 60
       object btnSimReset: TWebButton
-        Left = 7
-        Top = 16
-        Width = 45
-        Height = 25
+        Left = 1
+        Top = 10
+        Width = 55
+        Height = 30
         Hint = 'Reset simulation'
         Caption = 'Reset '
         ChildOrder = 1
+        ElementClassName = 'btn btn-dark btn-sm'
         HeightPercent = 100.000000000000000000
         ShowHint = True
         WidthPercent = 100.000000000000000000
@@ -261,18 +275,20 @@ object MainForm: TMainForm
     object pnlRunPause: TWebPanel
       Left = 65
       Top = 0
-      Width = 60
-      Height = 60
+      Width = 64
+      Height = 50
       Align = alLeft
       BorderColor = clBtnFace
       ChildOrder = 8
+      ExplicitHeight = 60
       object btnRunPause: TWebButton
-        Left = 6
-        Top = 16
-        Width = 45
-        Height = 25
+        Left = 3
+        Top = 10
+        Width = 55
+        Height = 30
         Hint = 'Run model'
         Caption = 'Run'
+        ElementClassName = 'btn btn-dark btn-sm'
         HeightPercent = 100.000000000000000000
         ShowHint = True
         WidthPercent = 100.000000000000000000
@@ -280,32 +296,40 @@ object MainForm: TMainForm
       end
     end
     object pnlStepSize: TWebPanel
-      Left = 330
+      Left = 328
       Top = 0
       Width = 65
-      Height = 60
+      Height = 50
       Hint = 'Integrator step size. 1000 = 1 time unit (usually sec)'
       Align = alLeft
       BorderColor = clBtnFace
       ChildOrder = 8
       ShowHint = True
+      ExplicitLeft = 330
+      ExplicitHeight = 60
       DesignSize = (
         65
-        60)
+        50)
       object lblStepSize: TWebLabel
         Left = 8
         Top = 5
         Width = 50
-        Height = 13
+        Height = 14
         Caption = 'Step (ms):'
+        Font.Charset = ANSI_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Arial'
+        Font.Style = []
         HeightPercent = 100.000000000000000000
+        ParentFont = False
         WidthPercent = 100.000000000000000000
       end
       object edtStepSize: TWebEdit
         Left = 10
-        Top = 25
+        Top = 20
         Width = 50
-        Height = 22
+        Height = 20
         Hint = 'Change step size for integrator.'
         Anchors = [akLeft]
         ChildOrder = 3
@@ -317,20 +341,21 @@ object MainForm: TMainForm
       end
     end
     object pnlStaticSim: TWebPanel
-      Left = 460
+      Left = 458
       Top = 0
       Width = 80
-      Height = 60
+      Height = 50
       Align = alLeft
       BorderColor = clBtnFace
       ChildOrder = 7
-      ExplicitLeft = 645
+      ExplicitLeft = 460
+      ExplicitHeight = 60
       DesignSize = (
         80
-        60)
+        50)
       object chkbxStaticSimRun: TWebCheckBox
         Left = 5
-        Top = 18
+        Top = 13
         Width = 100
         Height = 22
         Hint = 'Plot results after simulation is complete.'
@@ -343,6 +368,7 @@ object MainForm: TMainForm
         State = cbUnchecked
         WidthPercent = 100.000000000000000000
         OnClick = chkbxStaticSimRunClick
+        ExplicitTop = 18
       end
     end
   end

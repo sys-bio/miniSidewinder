@@ -6,6 +6,8 @@ uses System.SysUtils, System.Classes, System.Generics.Collections, StrUtils,
   JS, Web, WEBLib.Graphics, WEBLib.Controls, WEBLib.Forms, WEBLib.Dialogs,
   Vcl.Controls, WEBLib.ExtCtrls, Vcl.StdCtrls, WEBLib.StdCtrls{, ufVarSelect};
 
+const LABEL_FONT = 'Arial';
+      LABEL_FONT_SZ = 8;
 
 type
 TEditSliderEvent = procedure( index: integer{; xPos, yPos: Integer} ) of object;
@@ -63,12 +65,19 @@ implementation
     self.sliderPTBar := TWebTrackBar.create(self);
     self.sliderPTBar.parent := self;
     self.sliderPTBar.OnChange := trackBarChange;
+    self.sliderPTBar.ElementClassName := 'form-range';
     self.sliderPHLabel := TWebLabel.create(self);
     self.sliderPHLabel.parent := self;
+    self.sliderPHLabel.Font.Size := LABEL_FONT_SZ;
+    self.sliderPHLabel.Font.Name := LABEL_FONT;
     self.sliderPLLabel := TWebLabel.create(self);
     self.sliderPLLabel.parent := self;
+    self.sliderPLLabel.Font.Size := LABEL_FONT_SZ;
+    self.sliderPLLabel.Font.Name := LABEL_FONT;
     self.sliderPTBLabel := TWebLabel.create(self);
     self.sliderPTBLabel.parent := self;
+    self.sliderPTBLabel.Font.Size := LABEL_FONT_SZ;
+    self.sliderPTBLabel.Font.Name := LABEL_FONT;
     self.configPSliderTBar;
     self.Invalidate;
   end;
@@ -105,28 +114,29 @@ var sliderTBarWidth : integer;
     self.sliderPTBar.visible:= True;
     self.sliderPTBar.Tag:= self.tag;  // keep track of slider index number.
     self.sliderPTBar.Left:= 20; //45;
-    self.sliderPTBar.Top:= 17{27};
+    self.sliderPTBar.Top:= 17{25};
     self.sliderPTBar.Width:= sliderTBarWidth;
-    self.sliderPTBar.Height:= 20;
-
+    //self.sliderPTBar.Height:= 5; //20;
+    self.sliderPTBar.HeightPercent := 20;
+    self.sliderPTBar.HeightStyle := ssPercent;
     // Value (high) positioned on the right-side of slider
     self.sliderPHLabel.visible:= True;
     self.sliderPHLabel.Tag:= self.tag;
-    self.sliderPHLabel.Top:= 19;//21;
+    self.sliderPHLabel.Top:= 12;//19;
    // self.sliderPHLabel.Left:= sliderPanelWidth - trunc (0.15*sliderPanelWidth);
     self.sliderPHLabel.Left:= self.Width - trunc (0.39 * self.Width); // trunc (0.25 * self.Width);
 
     // Value (low) positioned on the left-side of slider
     self.sliderPLLabel.visible:= True;
     self.sliderPLLabel.Tag:= self.tag;
-    self.sliderPLLabel.Top:= 19; //21;
+    self.sliderPLLabel.Top:= 12; //19;
     self.sliderPLLabel.Left:= 4;
 
     // parameter label and current value
     self.sliderPTBLabel.visible:= True;
     self.sliderPTBLabel.Tag:= self.tag;
     self.sliderPTBLabel.Left:= 25;
-    self.sliderPTBLabel.Top:= 3;
+    self.sliderPTBLabel.Top:= 1;
   end;
 
 
