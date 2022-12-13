@@ -144,7 +144,7 @@ procedure TGraphPanel.setupChart;
 var i: integer;
 begin
   self.yLabel := 'Conc';  // Default
-  self.xLabel := 'Unit Time'; // Default
+  self.xLabel := 'unit time'; // Default
   self.chart.autoScaleUp := self.autoUp;
   self.chart.autoScaleDown := self.autoDown;
   self.chart.YAxisMax := self.yMaximum;

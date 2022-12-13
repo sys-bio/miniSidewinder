@@ -1,0 +1,116 @@
+<html>
+
+<head>
+    <title>Minimum UI Demo </title>
+	
+	<style>
+body {
+  background-color: linen;
+
+}
+
+
+
+#sidewinderFrame70 {
+        border: 3px line;
+        width: 70%;
+        height: 70%;
+		overflow-y:scroll;
+		overflow-x:scroll;
+    }
+
+#sidewinderFrame90 {
+        border: 3px line;
+        width: 90%;
+        height: 90%;
+    }
+
+	</style
+</head>
+<body>
+<script type="text/javascript">
+var iframeSize = 'sidewinderFrame70';
+</script>
+<p>
+Below is miniSidewinder demo. 
+</p>
+ <p>
+ <script type="text/javascript">
+ // This is the data that needs to be populated.
+var newModel = "empty"; // SBML model in XML format. Some ways of populating string listed below.
+var newRT = '25';  // Length of run
+var newSS = '0.050'; // integrator step size, thus 500 points (25/0.05)
+var staticRun = 'true'; // Display after all calculations are done.
+size70();
+</script>
+
+
+ </p>
+ 
+ 
+ 
+ <script type="text/javascript">
+ function getInfo() {
+   sessionStorage.setItem("MODEL", newModel);
+   sessionStorage.setItem('RUNTIME', newRT);
+   sessionStorage.setItem('STEPSIZE', newSS);
+   sessionStorage.setItem('STATIC', staticRun);
+   document.getElementById(iframeSize).src = "Debug/index.html?"; // Location of miniSidewinder
+  // document.getElementById('sidewinderFrame').src = "Debug/index.html?"; // Location of miniSidewinder
+ }
+ </script> 
+
+<script type="text/javascript">
+function runModel() {
+// Use this code if you have a predefined model to run located at some URL:
+//fetch('http://localhost/models/simpleRXN.xml')
+fetch('models/simpleRXN.xml')
+  .then(response => response.text())
+  .then((data) => {
+    console.log(data);
+	newModel = data;
+	getInfo();
+  })
+  
+ }
+// END of predefined model code.
+</script> 
+ <script type="text/javascript">
+function size50() {
+ iframeSize = 'sidewinderFrame50';
+ newRT = '35';  // Length of run
+ newSS = '.10'; 
+ staticRun = 'true'; 
+ runModel();
+}
+function size70() {
+ iframeSize = 'sidewinderFrame70';
+ newRT = '35';  // Length of run
+ newSS = '.10'; 
+ staticRun = 'true'; 
+ runModel();
+}
+function size90() {
+ iframeSize = 'sidewinderFrame90';
+ newRT = '35';  // Length of run
+ newSS = '.10'; 
+ staticRun = 'true'; 
+ runModel();
+}
+
+function size50realTime() {
+ iframeSize = 'sidewinderFrame50';
+ newRT = '';  // Length of run, not needed for realtime run
+ newSS = '.10'; 
+ staticRun = 'false'; 
+ runModel();
+ 
+}
+
+
+</script 
+  
+  
+</body>
+
+</html>
