@@ -29,11 +29,13 @@ body {
 </head>
 <body>
 <script type="text/javascript">
+ if (typeof window !== 'undefined') {
+ // Perform sessionStorage action
+ const item = sessionStorage.getItem('key')
+ }
 var iframeSize = 'sidewinderFrame70';
 </script>
-<p>
-Below is miniSidewinder demo. 
-</p>
+
  <p>
  <script type="text/javascript">
  // This is the data that needs to be populated.
