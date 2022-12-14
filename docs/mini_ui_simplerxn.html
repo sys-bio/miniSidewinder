@@ -19,12 +19,6 @@ body {
 		overflow-x:scroll;
     }
 
-#sidewinderFrame90 {
-        border: 3px line;
-        width: 90%;
-        height: 90%;
-    }
-
 	</style
 </head>
 <body>
@@ -49,15 +43,14 @@ var staticRun = 'true'; // Display after all calculations are done.
 
  </p>
  
- 
- 
  <script type="text/javascript">
  function getInfo() {
    sessionStorage.setItem("MODEL", newModel);
    sessionStorage.setItem('RUNTIME', newRT);
    sessionStorage.setItem('STEPSIZE', newSS);
    sessionStorage.setItem('STATIC', staticRun);
-   document.getElementById(iframeSize).src = "Debug/index.html?"; // Location of miniSidewinder
+   window.location.href = ('Debug/index.html?')
+  // document.getElementById(iframeSize).src = "Debug/index.html?"; // Location of miniSidewinder
   // document.getElementById('sidewinderFrame').src = "Debug/index.html?"; // Location of miniSidewinder
  }
  </script> 
@@ -78,13 +71,7 @@ fetch('models/simpleRXN.xml')
 // END of predefined model code.
 </script> 
  <script type="text/javascript">
-function size50() {
- iframeSize = 'sidewinderFrame50';
- newRT = '35';  // Length of run
- newSS = '.10'; 
- staticRun = 'true'; 
- runModel();
-}
+
 function size70() {
  iframeSize = 'sidewinderFrame70';
  newRT = '35';  // Length of run
@@ -92,23 +79,6 @@ function size70() {
  staticRun = 'true'; 
  runModel();
 }
-function size90() {
- iframeSize = 'sidewinderFrame90';
- newRT = '35';  // Length of run
- newSS = '.10'; 
- staticRun = 'true'; 
- runModel();
-}
-
-function size50realTime() {
- iframeSize = 'sidewinderFrame50';
- newRT = '';  // Length of run, not needed for realtime run
- newSS = '.10'; 
- staticRun = 'false'; 
- runModel();
- 
-}
-
 
 </script >
 
