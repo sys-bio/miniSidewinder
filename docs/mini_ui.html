@@ -1,8 +1,6 @@
 <html>
 
 <head>
-    <title>Minimum UI Demo </title>
-	
 	<style>
 body {
   background-color: linen;
@@ -17,14 +15,6 @@ body {
 		overflow-x:scroll;
     }
 
-#sidewinderFrame70 {
-        border: 3px line;
-        width: 70%;
-        height: 70%;
-		overflow-y:scroll;
-		overflow-x:scroll;
-    }
-
 #sidewinderFrame90 {
         border: 3px line;
         width: 90%;
@@ -34,6 +24,8 @@ body {
 	</style
 </head>
 <body>
+ 
+
 <script type="text/javascript">
 var iframeSize = 'sidewinderFrame70';
 </script>
@@ -42,6 +34,7 @@ Below is miniSidewinder demo.
 </p>
  <p>
  <script type="text/javascript">
+ var modelURL = '';
  // This is the data that needs to be populated.
 var newModel = "empty"; // SBML model in XML format. Some ways of populating string listed below.
 var newRT = '25';  // Length of run
@@ -53,23 +46,18 @@ var staticRun = 'true'; // Display after all calculations are done.
  </p>
  
  <p>
-  <button onclick="size50()">Load model, static sim (50% of page). </button>
+  <button onclick="size50()">Load feedback model, static sim (50% of page). </button>
  </p>
  <p>
-  <button onclick="size50realTime()">Load model, real time sim (50% of page). </button>
+  <button onclick="size50realTime()">Load feedback model, real time sim (50% of page). </button>
  </p>
  
  <p>
  <iframe id='sidewinderFrame50' > </iframe> 
  </p>
+ 
  <p>
-  <button onclick="size70()">Load model, static sim (70% of page). </button>
- </p>
- <p>
- <iframe id='sidewinderFrame70' > </iframe> 
- </p>
- <p>
-  <button onclick="size90()">Load model, static sim (90% of page). </button>
+  <button onclick="size90()">Load simple rxn model, static sim (90% of page). </button>
  </p>
  <p>
  <iframe id='sidewinderFrame90' > </iframe> 
@@ -92,7 +80,8 @@ var staticRun = 'true'; // Display after all calculations are done.
 function runModel() {
 // Use this code if you have a predefined model to run located at some URL:
 //fetch('http://localhost/models/simpleRXN.xml')
-fetch('models/simpleRXN.xml')
+//fetch('models/feedback.xml')
+fetch(modelURL)
   .then(response => response.text())
   .then((data) => {
     console.log(data);
@@ -109,20 +98,16 @@ function size50() {
  newRT = '35';  // Length of run
  newSS = '.10'; 
  staticRun = 'true'; 
+ modelURL = 'models/feedback.xml';
  runModel();
 }
-function size70() {
- iframeSize = 'sidewinderFrame70';
- newRT = '35';  // Length of run
- newSS = '.10'; 
- staticRun = 'true'; 
- runModel();
-}
+
 function size90() {
  iframeSize = 'sidewinderFrame90';
  newRT = '35';  // Length of run
  newSS = '.10'; 
- staticRun = 'true'; 
+ staticRun = 'true';
+ modelURL ='models/simpleRXN.xml'; 
  runModel();
 }
 
@@ -131,6 +116,7 @@ function size50realTime() {
  newRT = '';  // Length of run, not needed for realtime run
  newSS = '.10'; 
  staticRun = 'false'; 
+ modelURL = 'models/feedback.xml';
  runModel();
  
 }

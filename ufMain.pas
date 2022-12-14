@@ -157,6 +157,7 @@ type
 
     procedure setMinUI(isStaticRun: boolean); // Used when model is passed into app.
     procedure setMaxUI(); // Used when user choses model.
+    procedure clearBrowserSessionStorage;
     procedure testUI(); // Used for testing
 
   public
@@ -454,6 +455,8 @@ begin
   self.mainController.addSBMLListener( @self.PingSBMLLoaded );
   self.mainController.addSimListener( @self.getVals ); // notify when new Sim results
   self.mainController.addStaticSimResultsListener( @self.getStaticSimResults ); // notify when static run done.
+
+  self.clearBrowserSessionStorage;
 
 end;
 
@@ -1945,6 +1948,16 @@ begin
   console.log('Max UI');
   //TODO
 end;
+
+procedure TMainForm.clearBrowserSessionStorage;
+ // Delete contents of sessionStorage, if browser refresh button is pushed then
+ // default values are loaded into miniSidewinder.
+begin
+  asm
+    sessionStorage.clear;
+  end;
+end;
+
 procedure TMainForm.testUI(); // Used for testing
 begin
   console.log('Test UI');
