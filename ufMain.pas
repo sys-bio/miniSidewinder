@@ -410,6 +410,7 @@ begin
         sRun = true;
       }
     }
+    // TODO: add xaxislabel and yaxislabel key-value pairs.
     this.strFileInput = newModel;
   end;
    // Assume sbml model. XML format. May need to parse later for other formats.
