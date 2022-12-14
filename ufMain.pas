@@ -94,6 +94,8 @@ type
     procedure editRunTimeExit(Sender: TObject);
     procedure btnEditGraphClick(Sender: TObject);
     procedure btnEditSlidersClick(Sender: TObject);
+    procedure WebFormDestroy(Sender: TObject);
+    procedure WebFormExit(Sender: TObject);
 
   private
     numbPlots: Integer; // Number of plots displayed
@@ -460,6 +462,18 @@ begin
 
 end;
 
+
+procedure TMainForm.WebFormDestroy(Sender: TObject);
+begin
+  self.clearBrowserSessionStorage;
+  console.log(' On form destroy..');
+end;
+
+procedure TMainForm.WebFormExit(Sender: TObject);
+begin
+  self.clearBrowserSessionStorage;
+  console.log(' On form exit..');
+end;
 
 procedure TMainForm.WebFormResize(Sender: TObject);
 begin
@@ -1953,6 +1967,7 @@ procedure TMainForm.clearBrowserSessionStorage;
  // Delete contents of sessionStorage, if browser refresh button is pushed then
  // default values are loaded into miniSidewinder.
 begin
+  console.log('clearBrowserSessionStorage');
   asm
     sessionStorage.clear;
   end;

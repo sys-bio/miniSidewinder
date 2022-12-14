@@ -2,6 +2,8 @@ object MainForm: TMainForm
   Width = 865
   Height = 680
   OnCreate = WebFormCreate
+  OnDestroy = WebFormDestroy
+  OnExit = WebFormExit
   OnResize = WebFormResize
   object pnlSimInfo: TWebPanel
     Left = 808
