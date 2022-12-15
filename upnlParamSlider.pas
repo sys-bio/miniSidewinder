@@ -65,7 +65,9 @@ implementation
     self.sliderPTBar := TWebTrackBar.create(self);
     self.sliderPTBar.parent := self;
     self.sliderPTBar.OnChange := trackBarChange;
-    self.sliderPTBar.ElementClassName := 'form-range';
+    //self.sliderPTBar.ElementClassName := 'slider' ;//'form-range';
+    //self.sliderPTBar.ElementFont := efProperty;
+    //self.sliderPTBar.ElementPosition := epAbsolute;
     self.sliderPHLabel := TWebLabel.create(self);
     self.sliderPHLabel.parent := self;
     self.sliderPHLabel.Font.Size := LABEL_FONT_SZ;
@@ -114,28 +116,31 @@ var sliderTBarWidth : integer;
     self.sliderPTBar.visible:= True;
     self.sliderPTBar.Tag:= self.tag;  // keep track of slider index number.
     self.sliderPTBar.Left:= 20; //45;
-    self.sliderPTBar.Top:= 17{25};
+    self.sliderPTBar.Top:= 13; //17;
     self.sliderPTBar.Width:= sliderTBarWidth;
-    //self.sliderPTBar.Height:= 5; //20;
-    self.sliderPTBar.HeightPercent := 20;
-    self.sliderPTBar.HeightStyle := ssPercent;
+   // self.sliderPTBar.Height:= 0; //10;
+   // self.sliderPTBar.HeightPercent := 10;
+   // self.sliderPTBar.HeightStyle := ssPercent;
+    self.sliderPTBar.ElementClassName := 'slider' ;//'form-range';
+    self.sliderPTBar.ElementFont := efProperty;
+    self.sliderPTBar.ElementPosition := epAbsolute;
     // Value (high) positioned on the right-side of slider
     self.sliderPHLabel.visible:= True;
     self.sliderPHLabel.Tag:= self.tag;
-    self.sliderPHLabel.Top:= 12;//19;
+    self.sliderPHLabel.Top:= 14;//19;
    // self.sliderPHLabel.Left:= sliderPanelWidth - trunc (0.15*sliderPanelWidth);
     self.sliderPHLabel.Left:= self.Width - trunc (0.39 * self.Width); // trunc (0.25 * self.Width);
 
     // Value (low) positioned on the left-side of slider
     self.sliderPLLabel.visible:= True;
     self.sliderPLLabel.Tag:= self.tag;
-    self.sliderPLLabel.Top:= 12; //19;
+    self.sliderPLLabel.Top:= 14; //19;
     self.sliderPLLabel.Left:= 4;
 
     // parameter label and current value
     self.sliderPTBLabel.visible:= True;
     self.sliderPTBLabel.Tag:= self.tag;
-    self.sliderPTBLabel.Left:= 25;
+    self.sliderPTBLabel.Left:= 23;
     self.sliderPTBLabel.Top:= 1;
   end;
 

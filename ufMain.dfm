@@ -11,8 +11,6 @@ object MainForm: TMainForm
     Width = 57
     Height = 406
     Align = alRight
-    ExplicitTop = 60
-    ExplicitHeight = 396
     object pnlModelInfo: TWebPanel
       Left = 0
       Top = 0
@@ -21,7 +19,6 @@ object MainForm: TMainForm
       Align = alTop
       BorderColor = clBtnFace
       ChildOrder = 3
-      ExplicitWidth = 51
       DesignSize = (
         57
         45)
@@ -48,7 +45,6 @@ object MainForm: TMainForm
       Align = alTop
       BorderColor = clBtnFace
       ChildOrder = 3
-      ExplicitWidth = 51
       object btnEditGraph: TWebButton
         Left = 2
         Top = 10
@@ -71,7 +67,6 @@ object MainForm: TMainForm
       Align = alTop
       BorderColor = clBtnFace
       ChildOrder = 3
-      ExplicitWidth = 51
       DesignSize = (
         57
         45)
@@ -88,7 +83,6 @@ object MainForm: TMainForm
         ShowHint = True
         WidthPercent = 100.000000000000000000
         OnClick = btnExampleClick
-        ExplicitLeft = 2
       end
     end
     object pnlEditSliders: TWebPanel
@@ -99,7 +93,6 @@ object MainForm: TMainForm
       Align = alTop
       BorderColor = clBtnFace
       ChildOrder = 3
-      ExplicitWidth = 51
       object btnEditSliders: TWebButton
         Left = 2
         Top = 10
@@ -121,9 +114,6 @@ object MainForm: TMainForm
     Height = 406
     Align = alClient
     ChildOrder = 1
-    ExplicitTop = 60
-    ExplicitWidth = 814
-    ExplicitHeight = 396
   end
   object pnlTop: TWebPanel
     Left = 0
@@ -141,7 +131,6 @@ object MainForm: TMainForm
       Align = alLeft
       ChildOrder = 5
       ShowHint = True
-      ExplicitHeight = 60
       object lblSpeedMult: TWebLabel
         Left = 10
         Top = 5
@@ -184,7 +173,7 @@ object MainForm: TMainForm
         Top = 30
         Width = 70
         Height = 0
-        ElementClassName = 'form-range '
+        ElementClassName = 'slider'
         HeightStyle = ssPercent
         HeightPercent = 10.000000000000000000
         Max = 30
@@ -204,8 +193,6 @@ object MainForm: TMainForm
       BorderColor = clBtnFace
       ChildOrder = 7
       ShowHint = True
-      ExplicitLeft = 395
-      ExplicitHeight = 60
       object lblRunTime: TWebLabel
         Left = 5
         Top = 5
@@ -234,7 +221,6 @@ object MainForm: TMainForm
       Align = alLeft
       BorderColor = clBtnFace
       ChildOrder = 8
-      ExplicitHeight = 60
       object btnLoadModel: TWebButton
         Left = 7
         Top = 10
@@ -257,8 +243,6 @@ object MainForm: TMainForm
       Align = alLeft
       BorderColor = clBtnFace
       ChildOrder = 8
-      ExplicitLeft = 125
-      ExplicitHeight = 60
       object btnSimReset: TWebButton
         Left = 1
         Top = 10
@@ -282,7 +266,6 @@ object MainForm: TMainForm
       Align = alLeft
       BorderColor = clBtnFace
       ChildOrder = 8
-      ExplicitHeight = 60
       object btnRunPause: TWebButton
         Left = 3
         Top = 10
@@ -307,8 +290,6 @@ object MainForm: TMainForm
       BorderColor = clBtnFace
       ChildOrder = 8
       ShowHint = True
-      ExplicitLeft = 330
-      ExplicitHeight = 60
       DesignSize = (
         65
         50)
@@ -350,8 +331,6 @@ object MainForm: TMainForm
       Align = alLeft
       BorderColor = clBtnFace
       ChildOrder = 7
-      ExplicitLeft = 460
-      ExplicitHeight = 60
       DesignSize = (
         80
         50)
@@ -370,7 +349,6 @@ object MainForm: TMainForm
         State = cbUnchecked
         WidthPercent = 100.000000000000000000
         OnClick = chkbxStaticSimRunClick
-        ExplicitTop = 18
       end
     end
   end

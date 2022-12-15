@@ -371,7 +371,7 @@ begin
   self.slidersPerRow := SLIDERS_PER_ROW;
   self.runTime := DEFAULT_RUNTIME;
   self.setTopPanelSpacing;
-  self.intSliderHeight := 30;
+  self.intSliderHeight := 35;//30;
 
   self.pnlParamSliders.height := 5;
   self.stepSize := 0.1;

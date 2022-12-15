@@ -27,7 +27,11 @@ body {
  
 
 <script type="text/javascript">
-var iframeSize = 'sidewinderFrame70';
+  if (typeof window !== 'undefined') {
+  // Perform sessionStorage action
+    const item = sessionStorage.getItem('key')
+  }
+  var iframeSize = 'sidewinderFrame70';
 </script>
 <p>
 Below is miniSidewinder demo. 
