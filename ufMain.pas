@@ -107,6 +107,10 @@ type
     strListInitVals: TStringList;
     strListRates: TStringList;
     currentModelInfo: string;
+    xAxisLabel: string;
+    yAxisLabel: string;
+    spToPlot: string; // Passed in through session store, comma separated list;
+    parForSliders: string; // Passed in "   ", comma separated list;
 
     procedure initializePlots();
     procedure initializePlot( n: integer);
@@ -126,6 +130,7 @@ type
     procedure resetSliderPositions(); // Reset param position to init model param value.
     procedure selectParameter(sIndex: Integer); // Get parameter for slider
     procedure newSliderList(); // Pick parameters for sliders
+    function  checkIfInParForSlidersList(paramToCheck: string): boolean; // see if in inputed list of params
     procedure resetBtnOnLineSim(); // reset to default look and caption of 'Start simulation'
     procedure runSim();
     procedure runStaticSim();
@@ -144,6 +149,7 @@ type
     procedure deleteAllPlots();
     function  getEmptyPlotPosition(): Integer;
     function  getPlotPBIndex(plotTag: integer): Integer;
+    function  checkIfInSpeciesPlotList(spToCheck: string): boolean;// check if species is in self.spToPlot list
     procedure setListBoxInitValues();
     procedure displayModelInfo();
     procedure setListBoxRateLaws();
@@ -395,6 +401,10 @@ begin
   self.btnEditSliders.Enabled := false;
   self.btnEditSliders.ElementClassName := BTN_DISABLED;
   self.strFileInput := '';
+  self.xAxisLabel := '';
+  self.yAxisLabel := '';
+  self.spToPlot := '';
+  self.parForSliders := '';
 
   asm // javascript:
     var newModel = sessionStorage.getItem("MODEL");
@@ -413,7 +423,23 @@ begin
         sRun = true;
       }
     }
-    // TODO: add xaxislabel and yaxislabel key-value pairs.
+
+    if(sessionStorage.getItem("SLIDERS") != null) {
+      this.parForSliders = sessionStorage.getItem("SLIDERS");
+      }
+    if(sessionStorage.getItem("PLOT_SPECIES") != null) {
+      this.spToPlot = sessionStorage.getItem("PLOT_SPECIES");
+      }
+    if(sessionStorage.getItem("X_LABEL") != null) {
+      this.xAxisLabel = sessionStorage.getItem("X_LABEL");
+    }
+    else { this.xAxisLabel = 'unit time'; } // Default
+
+    if(sessionStorage.getItem("Y_LABEL") != null) {
+      this.yAxisLabel = sessionStorage.getItem("Y_LABEL");
+    } else { this.yAxisLabel = 'Conc'; } // default
+
+
     this.strFileInput = newModel;
   end;
    // Assume sbml model. XML format. May need to parse later for other formats.
@@ -457,7 +483,8 @@ begin
   self.mainController.addSBMLListener( @self.PingSBMLLoaded );
   self.mainController.addSimListener( @self.getVals ); // notify when new Sim results
   self.mainController.addStaticSimResultsListener( @self.getStaticSimResults ); // notify when static run done.
-
+ // console.log('Species to Plot: ', self.spToPlot);
+ // console.log(' Length of spToPlot: ', length(self.spToPlot));
   self.clearBrowserSessionStorage;
 
 end;
@@ -601,16 +628,33 @@ begin
   numParSliders := 0;
   numParSliders := length(self.mainController.getModel.getP_Names);
   if numParSliders > MAX_SLIDERS then numParSliders := MAX_SLIDERS;
-
+ // console.log('AddAllParamSliders: Length of parForSliders: ',length(self.parForSliders));
   for i := 0 to numParSliders -1 do
     begin
     sliderP := '';
-    SetLength(self.sliderParamAr, self.getNumberOfSliders + 1);    // add a slider
-    //sliderP := self.mainController.getModel.getP_names[i];   // needed?
-    self.sliderParamAr[i] := i; // assign param indexto slider
-    self.addParamSlider(); // <-- Add dynamically created slider
+    // CHeck if param on init slider list:
+    sliderP := self.mainController.getModel.getP_Names[i];
+    if (self.checkIfInParForSlidersList(sliderP)) or (length(self.parForSliders) < 1) then
+      begin
+      SetLength(self.sliderParamAr, length(self.sliderParamAr) + 1);    // add a slider
+      self.sliderParamAr[length(self.sliderParamAr)-1] := i; // assign param index to slider
+      self.addParamSlider(); // <-- Add dynamically created slider
+      end;
     end;
+  self.parForSliders := ''; // clear it out
+end;
 
+function TMainForm.checkIfInParForSlidersList(paramToCheck: string): boolean;
+var i: integer;
+    parList: array of string;
+begin
+  Result := false;
+  parList := splitString(self.parForSliders, ',');
+  for i := 0 to length(parList) -1 do
+    begin
+    if paramToCheck = parList[i].Trim then
+      Result := true;
+    end;
 end;
 
 procedure TMainForm.newSliderList;
@@ -762,7 +806,7 @@ begin
   Result := (numRows - 1) * self.intSliderHeight{ SLIDERPHEIGHT};
 end;
 
-function  TMainForm.getNumberOfSliders(): integer;
+function  TMainForm.getNumberOfSliders(): integer;// WHY? just get length()
 begin
   if self.pnlSliderAr <> nil then
     Result := length(self.pnlSliderAr)
@@ -1235,17 +1279,21 @@ begin
       plotSp := self.mainController.getModel.getS_names[i];
       if ( plotSp.contains( NULL_NODE_TAG ) ) then plotSp := ''  // Null node
       else
-      begin
-        if self.mainController.getModel.getSBMLspecies(plotSp).isSetInitialAmount then
+        begin
+        if (self.checkIfInSpeciesPlotList(plotSp)) or (length(self.spToPlot) < 1) then
           begin
-          if self.mainController.getModel.getSBMLspecies(plotSp).getInitialAmount > maxYVal then
-            maxYVal := self.mainController.getModel.getSBMLspecies(plotSp).getInitialAmount;
+          if self.mainController.getModel.getSBMLspecies(plotSp).isSetInitialAmount then
+            begin
+            if self.mainController.getModel.getSBMLspecies(plotSp).getInitialAmount > maxYVal then
+              maxYVal := self.mainController.getModel.getSBMLspecies(plotSp).getInitialAmount;
+            end
+          else
+            if self.mainController.getModel.getSBMLspecies(plotSp).getInitialConcentration > maxYVal then
+              maxYVal := self.mainController.getModel.getSBMLspecies(plotSp).getInitialConcentration;
           end
-        else
-          if self.mainController.getModel.getSBMLspecies(plotSp).getInitialConcentration > maxYVal then
-            maxYVal := self.mainController.getModel.getSBMLspecies(plotSp).getInitialConcentration;
-      end;
-     self.plotSpecies[self.numbPlots].Add(plotSp);
+        else plotSp := ''; // do not plot
+        end;
+      self.plotSpecies[self.numbPlots].Add(plotSp);
 
     end;
   for i := 0 to Length(self.mainController.getModel.getSBMLspeciesAr) -1 do
@@ -1279,6 +1327,8 @@ begin
     self.graphPanelList := TList<TGraphPanel>.create;
   self.graphPanelList.Add( TGraphPanel.create(pnlPlot, plotPositionToAdd, yMax) );
   self.graphPanelList[plotPositionToAdd -1].setChartTimeInterval(self.stepSize);
+  self.graphPanelList[plotPositionToAdd -1].setXAxisLabel(self.xAxisLabel);
+  self.graphPanelList[plotPositionToAdd -1].setYAxisLabel(self.yAxisLabel);
   if self.chkbxStaticSimRun.Checked then
     begin
     self.graphPanelList[plotPositionToAdd -1].setStaticGraph(true);
@@ -1448,6 +1498,22 @@ begin
   fPlotSpecies.ShowModal(@AfterShowModal);
 end;
 
+function TMainForm.checkIfInSpeciesPlotList(spToCheck: string): boolean;
+var i: integer;
+   spList: array of string;
+begin
+  Result := false;
+  spList := splitString(self.spToPlot, ',');
+  for i := 0 to length(spList) -1 do
+    begin
+    if spTocheck = spList[i].Trim then
+      Result := true; // sp is in list
+    end;
+
+end;
+
+
+
 procedure TMainForm.deletePlot(plotIndex: Integer);
 var tempObj: TObject;
 begin
@@ -1485,7 +1551,7 @@ begin
   // console.log('Delete Slider: slider #: ',sn);
   self.pnlSliderAr[sn].free;
   delete(self.pnlSliderAr, (sn), 1);
-  delete(self.sliderParamAr,(sn), 1);  // added
+  delete(self.sliderParamAr,(sn), 1);
   self.pnlParamSliders.Invalidate;
 end;
 
@@ -1960,16 +2026,22 @@ end;
 procedure TMainForm.setMaxUI(); // Used when user choses model.
 begin
   console.log('Max UI');
-  //TODO
+  //TODO ?
 end;
 
 procedure TMainForm.clearBrowserSessionStorage;
  // Delete contents of sessionStorage, if browser refresh button is pushed then
  // default values are loaded into miniSidewinder.
 begin
-  console.log('clearBrowserSessionStorage');
+  //console.log('clearBrowserSessionStorage');
   asm
-    sessionStorage.clear;
+   // sessionStorage.clear;
+    sessionStorage.setItem('MODEL', 'empty');
+    sessionStorage.setItem('RUNTIME', '0');
+    sessionStorage.setItem('STEPSIZE', '0.00');
+    sessionStorage.setItem('STATIC', 'false');
+    sessionStorage.setItem('SLIDERS', '');
+    sessionStorage.setItem('PLOT_SPECIES', '');
   end;
 end;
 

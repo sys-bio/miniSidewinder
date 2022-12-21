@@ -172,6 +172,7 @@ function TpnlParamSlider.formatValueToStr(newVal: double): string;
 var strValue: string;
 begin
   // TODO
+//  console.log('TpnlParamSlider.formatValueToStr: ', newVal);
   if (newVal > 9999) or (newVal < 0.0001) then
     begin
     if newVal = 0 then Result := floatToStr(newVal)

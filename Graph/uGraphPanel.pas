@@ -65,6 +65,10 @@ public
   procedure setChartWidth(newWidth: integer);
   procedure setChartTimeInterval(newInterval: double);
   function  getChartTimeInterval(): double;
+  procedure setXAxisLabel(newLabel: string);
+  function  getXAxisLabel(): string;
+  procedure setYAxisLabel(newLabel: string);
+  function  getYAxisLabel(): string;
   procedure setYMax(newYMax: double);
   function  getYMax(): double;
   procedure setXMax(newXMax: double);
@@ -101,6 +105,8 @@ begin
   self.chartBackGroundColor := -1;
   self.userDeleteGraph := false;
   self.userChangeVarSeries := false;
+  self.yLabel := 'Conc';  // Default
+  self.xLabel := 'unit time'; // Default
   self.xMax := DEFAULT_X_MAX;
   self.yMinimum := 0;
   if yMax > 0 then self.yMaximum := yMax
@@ -143,8 +149,8 @@ end;
 procedure TGraphPanel.setupChart;
 var i: integer;
 begin
-  self.yLabel := 'Conc';  // Default
-  self.xLabel := 'unit time'; // Default
+ // self.yLabel := 'Conc';  // Default
+ // self.xLabel := 'unit time'; // Default
   self.chart.autoScaleUp := self.autoUp;
   self.chart.autoScaleDown := self.autoDown;
   self.chart.YAxisMax := self.yMaximum;
@@ -451,6 +457,26 @@ begin
     self.chart.autoScaleUp := false;
     self.chart.autoScaleDown := false;
     end;
+end;
+
+procedure TGraphPanel.setXAxisLabel(newLabel: string);
+begin
+  self.xLabel := newLabel;
+end;
+
+function TGraphPanel.getXAxisLabel(): string;
+begin
+  Result := self.xLabel;
+end;
+
+procedure TGraphPanel.setYAxisLabel(newLabel: string);
+begin
+  self.yLabel := newLabel;
+end;
+
+function TGraphPanel.getYAxisLabel(): string;
+begin
+  Result := self.yLabel;
 end;
 
 procedure TGraphPanel.notifyGraphEvent(plot_id: integer; eventType: integer);
