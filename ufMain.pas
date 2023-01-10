@@ -384,7 +384,7 @@ begin
   self.edtStepSize.Text := floatToStr(self.stepSize * 1000);
   self.disableRunTimeEdit;
   self.simStarted := false;
-  sliderEditPopupsList := TList<TWebPopupMenu>.create;
+  self.sliderEditPopupsList := TList<TWebPopupMenu>.create;
   self.mainController := TControllerMain.Create();
   self.mainController.setOnline(false);
   self.mainController.setODEsolver;
@@ -412,10 +412,12 @@ begin
     if(newRT > 0) {
       this.runTime = newRT;
     }
+    console.log('Runtime passed in: ',sessionStorage.getItem("RUNTIME"));
     var newSS = parseFloat(sessionStorage.getItem("STEPSIZE"));
     if(newSS > 0) {
       this.stepSize = newSS;
     }
+   // console.log('Stepsize passed in: ',sessionStorage.getItem("STEPSIZE"));
     var staticRun = sessionStorage.getItem("STATIC");
     if( staticRun != null ) {
       if(staticRun.toUpperCase() == 'TRUE') {
@@ -423,7 +425,7 @@ begin
         sRun = true;
       }
     }
-
+   // console.log('Static run? passed in: ',sessionStorage.getItem("STATIC"));
     if(sessionStorage.getItem("SLIDERS") != null) {
       this.parForSliders = sessionStorage.getItem("SLIDERS");
       }
@@ -601,7 +603,6 @@ begin
   sliderPanelLeft := self.calcSliderLeft(i);
   sliderPanelWidth := self.calcSliderWidth;
 
-
   self.pnlSliderAr[i] := TpnlParamSlider.create(self.pnlParamSliders, i,{ @self.EditSliderList,}
                                                 @self.paramSliderOnChange );
 
@@ -724,8 +725,8 @@ end;
 
 function TMainForm.calcSliderWidth(): integer;
 begin
-   if(trunc(self.pnlParamSliders.Width/self.slidersPerRow) > 120 ) then
-    Result :=  trunc( self.pnlParamSliders.width/self.slidersPerRow )   // three sliders across
+   if(round(self.pnlParamSliders.Width/self.slidersPerRow) > 120 ) then
+    Result := round( (self.pnlParamSliders.width)/self.slidersPerRow )   // four sliders across
   else Result := 120;
 end;
 
@@ -1045,6 +1046,7 @@ end;
 procedure TMainForm.refreshSliderPanels;
 var i, sliderWidth, sliderTop, sliderLeft: integer;
 begin
+ // self.pnlParamSliders.Width := self.pnlPlot.Width + self.pnlSimInfo.Width + 5;
   sliderWidth := self.calcSliderWidth;
   if assigned(self.pnlSliderAr) then
     begin

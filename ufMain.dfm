@@ -6,24 +6,25 @@ object MainForm: TMainForm
   OnExit = WebFormExit
   OnResize = WebFormResize
   object pnlSimInfo: TWebPanel
-    Left = 808
+    Left = 806
     Top = 50
-    Width = 57
+    Width = 59
     Height = 406
     Align = alRight
     object pnlModelInfo: TWebPanel
       Left = 0
       Top = 0
-      Width = 57
+      Width = 59
       Height = 45
       Align = alTop
       BorderColor = clBtnFace
       ChildOrder = 3
+      ExplicitWidth = 57
       DesignSize = (
-        57
+        59
         45)
       object btnModelInfo: TWebButton
-        Left = 2
+        Left = 4
         Top = 10
         Width = 50
         Height = 30
@@ -35,16 +36,18 @@ object MainForm: TMainForm
         ShowHint = True
         WidthPercent = 100.000000000000000000
         OnClick = btnModelInfoClick
+        ExplicitLeft = 2
       end
     end
     object pnlEditGraph: TWebPanel
       Left = 0
       Top = 45
-      Width = 57
+      Width = 59
       Height = 45
       Align = alTop
       BorderColor = clBtnFace
       ChildOrder = 3
+      ExplicitWidth = 57
       object btnEditGraph: TWebButton
         Left = 2
         Top = 10
@@ -62,16 +65,17 @@ object MainForm: TMainForm
     object pnlExample: TWebPanel
       Left = 0
       Top = 135
-      Width = 57
+      Width = 59
       Height = 45
       Align = alTop
       BorderColor = clBtnFace
       ChildOrder = 3
+      ExplicitWidth = 57
       DesignSize = (
-        57
+        59
         45)
       object btnExample: TWebButton
-        Left = 8
+        Left = 10
         Top = 10
         Width = 45
         Height = 30
@@ -83,16 +87,18 @@ object MainForm: TMainForm
         ShowHint = True
         WidthPercent = 100.000000000000000000
         OnClick = btnExampleClick
+        ExplicitLeft = 8
       end
     end
     object pnlEditSliders: TWebPanel
       Left = 0
       Top = 90
-      Width = 57
+      Width = 59
       Height = 45
       Align = alTop
       BorderColor = clBtnFace
       ChildOrder = 3
+      ExplicitWidth = 57
       object btnEditSliders: TWebButton
         Left = 2
         Top = 10
@@ -110,10 +116,11 @@ object MainForm: TMainForm
   object pnlPlot: TWebPanel
     Left = 0
     Top = 50
-    Width = 808
+    Width = 806
     Height = 406
     Align = alClient
     ChildOrder = 1
+    ExplicitWidth = 808
   end
   object pnlTop: TWebPanel
     Left = 0
