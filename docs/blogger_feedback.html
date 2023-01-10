@@ -1,0 +1,97 @@
+<html>
+
+<head>
+    	
+ <style>
+
+#sidewinderFrame {
+        border: 3px line;
+        width: 100%;
+        height: 100%;
+		overflow-y:scroll;
+		overflow-x:scroll;
+    }
+
+ </style
+</head>
+<body>
+
+<script type="text/javascript">
+ if (typeof window !== 'undefined') {
+ // Perform sessionStorage action
+ const item = sessionStorage.getItem('key')
+ const item2 = localStorage.getItem('key')
+ }
+var iframeSize = 'sidewinderFrame';
+</script>
+
+<p> 
+ <script type="text/javascript">
+ // This is the data that needs to be populated:
+var modelLocation = "https://bartjuw.github.io/miniSidewinder/models/feedback.xml";  // URL of SBML model
+//var modelLocation = "/models/feedback.xml";  // URL of SBML model
+var newModel = "empty"; // SBML model in XML format. Populate string using javascript fetch(modelLocation).
+var newRT = '35';  // Length of run
+var newSS = '0.050'; // integrator step size, thus 500 points (25/0.05)
+var staticRun = 'true'; // Display after all calculations are done.
+var parSliders = 'X0, VM1, Keq1, h'; // param sliders, exact id match
+var spPlot = 'S1, S4'; // Species to plot, exact id match
+var yLabel = 'conc (uM)';
+var xLabel = 'sec';
+</script>
+
+ </p>
+ 
+  <script type="text/javascript">
+function runModel2() {
+// Use this code if you have a predefined model to run located at some URL:
+//fetch('http://localhost/models/simpleRXN.xml')
+fetch(modelLocation)
+  .then(response => response.text())
+  .then((data) => {
+    console.log(data);
+	newModel = data;
+	getInfo();
+  })
+  
+ }
+// END of predefined model code.
+</script> 
+
+<p>
+<script type="text/javascript">
+ runModel2();
+ </script>
+<!-- <button onclick="runModel2()">Load feedback model</button> -->
+
+ <iframe id="sidewinderFrame"> </iframe>
+ </p>
+ 
+ 
+  <script type="text/javascript">
+ function getInfo() {
+   sessionStorage.setItem("MODEL", newModel);
+   sessionStorage.setItem('RUNTIME', newRT);
+   localStorage.setItem('RUNTIME', newRT);
+   sessionStorage.setItem('STEPSIZE', newSS);
+   sessionStorage.setItem('STATIC', staticRun);
+   sessionStorage.setItem('SLIDERS', parSliders);
+   sessionStorage.setItem('PLOT_SPECIES', spPlot);
+   sessionStorage.setItem('X_LABEL', xLabel);
+   sessionStorage.setItem('Y_LABEL', yLabel);
+   if(sessionStorage.getItem('RUNTIME') == newRT) {
+     console.log("Runtime is set: ", newRT);
+   // Location of miniSidewinder:
+     document.getElementById('sidewinderFrame').src = "https://bartjuw.github.io/miniSidewinder/Debug/index.html?"; 
+ // document.getElementById('sidewinderFrame').src = "/Debug/index.html?";
+   } 
+   
+ }
+ </script> 
+ 
+
+ 
+  
+</body>
+
+</html>
