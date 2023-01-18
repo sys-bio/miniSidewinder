@@ -1,7 +1,16 @@
+
 <html>
 
 <head>
+    <title>Minimum UI Demo </title>
+	
 	<style>
+body {
+  background-color: linen;
+
+}
+
+
 
 #sidewinderFrame70 {
         border: 3px line;
@@ -10,36 +19,33 @@
 		overflow-y:scroll;
 		overflow-x:scroll;
     }
+
 	</style
 </head>
 <body>
- 
-
 <script type="text/javascript">
-  if (typeof window !== 'undefined') {
-  // Perform sessionStorage action
-    const item = sessionStorage.getItem('key')
-  }
-  var iframeSize = 'sidewinderFrame70';
+ if (typeof window !== 'undefined') {
+ // Perform sessionStorage action
+ const item = sessionStorage.getItem('key')
+ }
+var iframeSize = 'sidewinderFrame70';
 </script>
 
  <p>
  <script type="text/javascript">
-// This is the data that needs to be populated.
-var modelURL = "models/BIOMD0098_Goldbeter1990.xml";
+ // This is the data that needs to be populated.
 var newModel = "empty"; // SBML model in XML format. Some ways of populating string listed below.
-var newRT = '10';  // Length of run
-var newSS = '0.050'; // integrator step size, thus 200 points (10/0.05)
+var newRT = '20';  // Length of run
+var newSS = '0.10'; // integrator step size, thus 500 points (20/0.10)
 var staticRun = 'true'; // Display after all calculations are done.
-var parSliders = 'v0, VM1, Keq1, h'; // param sliders, exact id match
-var spPlot = 'Z, Y'; // Species to plot, exact id match
+var parSliders = 'v0, Vm2, n, K2, m'; // param sliders, exact id match
+var spPlot = 'Y, Z'; // Species to plot, exact id match
 var yLabel = 'conc (uM)';
 var xLabel = 'sec';
 </script>
 
 
  </p>
- 
  
  <script type="text/javascript">
  function getInfo() {
@@ -51,7 +57,8 @@ var xLabel = 'sec';
    sessionStorage.setItem('PLOT_SPECIES', spPlot);
    sessionStorage.setItem('X_LABEL', xLabel);
    sessionStorage.setItem('Y_LABEL', yLabel);
-   window.location.href = "Debug/index.html"; // Location of miniSidewinder
+   window.location.href = ('Debug/index.html?')
+  // document.getElementById(iframeSize).src = "Debug/index.html?"; // Location of miniSidewinder
   // document.getElementById('sidewinderFrame').src = "Debug/index.html?"; // Location of miniSidewinder
  }
  </script> 
@@ -61,7 +68,6 @@ function runModel() {
 // Use this code if you have a predefined model to run located at some URL:
 //fetch('http://localhost/models/simpleRXN.xml')
 fetch('models/BIOMD0098_Goldbeter1990.xml')
-//fetch(modelURL)
   .then(response => response.text())
   .then((data) => {
     console.log(data);
@@ -72,17 +78,16 @@ fetch('models/BIOMD0098_Goldbeter1990.xml')
  }
 // END of predefined model code.
 </script> 
+ <script type="text/javascript">
 
-<script type="text/javascript">
 function size70() {
  iframeSize = 'sidewinderFrame70';
- newRT = '10';  // Length of run
- newSS = '.10'; 
  staticRun = 'true'; 
  runModel();
 }
-</script 
- 
+
+</script >
+
 <script type="text/javascript">
  size70();
 </script>  
