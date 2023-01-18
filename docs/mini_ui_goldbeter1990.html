@@ -34,7 +34,7 @@ var iframeSize = 'sidewinderFrame70';
  <p>
  <script type="text/javascript">
  // This is the data that needs to be populated.
-var newModel = "empty"; // SBML model in XML format. Some ways of populating string listed below.
+var newModel = "models/BIOMD0098_Goldbeter1990.xml"; // SBML model in XML format. Some ways of populating string listed below.
 var newRT = '10';  // Length of run
 var newSS = '0.10'; // integrator step size, thus 100 points (10/0.10)
 var staticRun = 'false'; // Display after all calculations are done.
@@ -67,7 +67,8 @@ var xLabel = 'sec';
 function runModel() {
 // Use this code if you have a predefined model to run located at some URL:
 //fetch('http://localhost/models/simpleRXN.xml')
-fetch('models/BIOMD0098_Goldbeter1990.xml')
+//fetch('models/BIOMD0098_Goldbeter1990.xml')
+fetch(newModel)
   .then(response => response.text())
   .then((data) => {
     console.log(data);
