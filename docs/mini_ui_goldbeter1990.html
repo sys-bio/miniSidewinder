@@ -51,7 +51,7 @@ var xLabel = 'sec';
    sessionStorage.setItem('PLOT_SPECIES', spPlot);
    sessionStorage.setItem('X_LABEL', xLabel);
    sessionStorage.setItem('Y_LABEL', yLabel);
-   window.location.href = "Debug/index.html?"; // Location of miniSidewinder
+   window.location.href = "Debug/index.html"; // Location of miniSidewinder
   // document.getElementById('sidewinderFrame').src = "Debug/index.html?"; // Location of miniSidewinder
  }
  </script> 
@@ -60,8 +60,8 @@ var xLabel = 'sec';
 function runModel() {
 // Use this code if you have a predefined model to run located at some URL:
 //fetch('http://localhost/models/simpleRXN.xml')
-//fetch('models/feedback.xml')
-fetch(modelURL)
+fetch('models/BIOMD0098_Goldbeter1990.xm')
+//fetch(modelURL)
   .then(response => response.text())
   .then((data) => {
     console.log(data);
@@ -73,13 +73,12 @@ fetch(modelURL)
 // END of predefined model code.
 </script> 
 
- <script type="text/javascript">
+<script type="text/javascript">
 function size70() {
  iframeSize = 'sidewinderFrame70';
  newRT = '10';  // Length of run
  newSS = '.10'; 
  staticRun = 'true'; 
- //modelURL = 'models/feedback.xml';
  runModel();
 }
 </script 
