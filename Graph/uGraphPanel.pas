@@ -77,6 +77,7 @@ public
   procedure toggleLegendVisibility();
   function  isLegendVisible(): boolean;
   procedure toggleAutoScaleYaxis();
+  function  isAutoScale(): boolean;
   procedure setStaticGraph(val: boolean);
   procedure adjustPanelHeight(newHeight: integer); // adjust height and top, uses self.tag as well
   procedure getVals( newTime: Double; newVals: TVarNameValList);// Get new values (species amt) from simulation run
@@ -447,6 +448,11 @@ begin
     self.autoDown := true;
     self.chart.autoScaleDown := true;
     end;
+end;
+
+function TGraphPanel.isAutoScale(): boolean;
+begin
+  Result := self.autoUp;
 end;
 
 procedure TGraphPanel.updateYMinMax();

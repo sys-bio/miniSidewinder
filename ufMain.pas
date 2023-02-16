@@ -10,7 +10,7 @@ uses
   uModel, uSBMLClasses, uSBMLClasses.rule, upnlParamSlider,
   VCL.TMSFNCTypes, VCL.TMSFNCUtils, VCL.TMSFNCGraphics, VCL.TMSFNCGraphicsTypes,
   VCL.TMSFNCCustomControl, VCL.TMSFNCScrollBar, ufModelInfo, ufLabelPopUp,
-  Vcl.Menus, WEBLib.Menus, WEBLib.WebCtrls, ufRadioGrpPopup;
+  Vcl.Menus, WEBLib.Menus, WEBLib.WebCtrls, ufChkGroupEditPlot;
 
 const SIDEWINDER_VERSION = 'Version 0.51 alpha';
       DEFAULT_RUNTIME = 10000;
@@ -204,7 +204,7 @@ implementation
 {$R *.dfm}
 
 
-procedure TMainForm.btnEditGraphClick(Sender: TObject);
+{procedure TMainForm.btnEditGraphClick(Sender: TObject);
 var fEditgraph: TfPlotEdit;
     indexChosen: integer;
 
@@ -243,6 +243,72 @@ begin
   fEditgraph.PopupOpacity := 0.3;
   fEditgraph.Border := fbDialogSizeable;
 end;
+ }
+
+procedure TMainForm.btnEditGraphClick(Sender: TObject);
+var fEditgraph: TfChkGroupEditPlot;
+    indexChosen: integer;
+
+  procedure AfterShowModal(AValue: TModalResult);
+  begin
+   {if assigned(self.graphPanelList[0]) then
+     begin
+     case indexChosen of
+       0: self.graphPanelList[0].toggleLegendVisibility;
+       1: self.graphPanelList[0].toggleAutoScaleYaxis;
+       2: self.graphPanelList[0].updateYMinMax;
+       3: begin
+          self.deletePlot(0);
+          self.selectPlotSpecies(1); // want position
+          end;
+       end;
+     end; }
+  end;
+
+  procedure processUserCheck(Sender: TObject;  AIndex: Integer);
+  begin
+    indexChosen := AIndex;
+    if assigned(self.graphPanelList[0]) then
+     begin
+     case indexChosen of
+       0: self.graphPanelList[0].toggleLegendVisibility;
+       1: self.graphPanelList[0].toggleAutoScaleYaxis;
+       2: begin
+          self.graphPanelList[0].updateYMinMax;
+          fEditGraph.uncheckEditYAxis;
+          end;
+       3: begin
+          self.deletePlot(0);
+          self.selectPlotSpecies(1); // want position
+          fEditGraph.uncheckEditPlotSpecies;
+          end;
+       end;
+     end;
+  end;
+
+  procedure AfterCreate(AForm: TObject);
+  begin
+   (AForm as TfChkGroupEditPlot).chkGrpEditPlot.OnCheckClick := processUserCheck;
+   if assigned(self.graphPanelList[0]) then
+    begin
+    if self.graphPanelList[0].isLegendVisible then (AForm as TfChkGroupEditPlot).checkLegendVisible
+    else (AForm as TfChkGroupEditPlot).uncheckLegendInvisible;
+
+    if self.graphPanelList[0].isAutoScale then (AForm as TfChkGroupEditPlot).checkAutoscale
+    else (AForm as TfChkGroupEditPlot).uncheckAutoscale;
+    end;
+  end;
+
+begin
+  indexChosen := -1;
+  fEditgraph := TfChkGroupEditPlot.CreateNew(@AfterCreate);
+  fEditgraph.Popup := true;
+  fEditgraph.ShowClose := true;
+  fEditgraph.ShowModal(@AfterShowModal);
+  fEditgraph.PopupOpacity := 0.3;
+  fEditgraph.Border := fbDialogSizeable;
+end;
+
 
 procedure TMainForm.btnEditSlidersClick(Sender: TObject);
 begin

@@ -24,16 +24,6 @@ object fChkGroupEditPlot: TfChkGroupEditPlot
     ChildOrder = 1
     HeightPercent = 100.000000000000000000
     WidthPercent = 100.000000000000000000
-  end
-  object btnCancelPlotEdit: TWebButton
-    Left = 151
-    Top = 184
-    Width = 57
-    Height = 25
-    Caption = 'Cancel'
-    ChildOrder = 2
-    HeightPercent = 100.000000000000000000
-    WidthPercent = 100.000000000000000000
-    OnClick = btnCancelPlotEditClick
+    OnClick = btnOkPlotEditClick
   end
 end
