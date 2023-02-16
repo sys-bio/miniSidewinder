@@ -1,6 +1,6 @@
 object fPlotEdit: TfPlotEdit
   Width = 237
-  Height = 209
+  Height = 220
   object rgEditPlot: TWebRadioGroup
     Left = 24
     Top = 31

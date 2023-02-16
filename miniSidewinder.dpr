@@ -35,7 +35,8 @@ uses
   ufModelInfo in 'ufModelInfo.pas' {fModelInfo: TWebForm} {*.html},
   uTestModel in 'uTestModel.pas',
   ufVarSelect in 'ufVarSelect.pas' {VarSelectForm: TWebForm},
-  ufRadioGrpPopup in 'ufRadioGrpPopup.pas' {fPlotEdit: TWebForm} {*.html};
+  ufRadioGrpPopup in 'ufRadioGrpPopup.pas' {fPlotEdit: TWebForm} {*.html},
+  ufChkGroupEditPlot in 'ufChkGroupEditPlot.pas' {fChkGroupEditPlot: TWebForm} {*.html};
 
 {$R *.res}
 
@@ -46,5 +47,6 @@ begin
   Application.CreateForm(TFYAxisMinMaxEdit, FYAxisMinMaxEdit);
   Application.CreateForm(TfModelInfo, fModelInfo);
   Application.CreateForm(TfPlotEdit, fPlotEdit);
+  Application.CreateForm(TfChkGroupEditPlot, fChkGroupEditPlot);
   Application.Run;
 end.
