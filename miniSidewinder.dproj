@@ -155,11 +155,6 @@
             <FormType>dfm</FormType>
             <DesignClass>TWebForm</DesignClass>
         </DCCReference>
-        <DCCReference Include="ufRadioGrpPopup.pas">
-            <Form>fPlotEdit</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TWebForm</DesignClass>
-        </DCCReference>
         <DCCReference Include="ufChkGroupEditPlot.pas">
             <Form>fChkGroupEditPlot</Form>
             <FormType>dfm</FormType>

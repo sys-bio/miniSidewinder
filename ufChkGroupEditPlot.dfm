@@ -1,9 +1,10 @@
 object fChkGroupEditPlot: TfChkGroupEditPlot
-  Width = 245
-  Height = 235
+  Width = 190
+  Height = 174
+  Caption = 'Edit Plot'
   object chkGrpEditPlot: TWebCheckGroup
-    Left = 32
-    Top = 47
+    Left = 14
+    Top = 8
     Width = 160
     Height = 113
     Caption = 'Edit Plot'
@@ -16,8 +17,8 @@ object fChkGroupEditPlot: TfChkGroupEditPlot
     Role = ''
   end
   object btnOkPlotEdit: TWebButton
-    Left = 151
-    Top = 8
+    Left = 119
+    Top = 134
     Width = 57
     Height = 25
     Caption = 'Ok'
