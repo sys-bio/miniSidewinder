@@ -1,5 +1,5 @@
 # miniSidewinder
-initial demo for a stripped down version of sidewinder (see: https://github.com/sys-bio/sidewinder)
+Initial demo for a stripped down version of sidewinder.
 
 Demo embedded in simple webpage: https://bartjuw.github.io/miniSidewinder/
 
