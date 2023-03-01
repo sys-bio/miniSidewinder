@@ -2,13 +2,14 @@ object VarSelectForm: TVarSelectForm
   Top = 20
   Width = 200
   Height = 145
+  Color = clCream
   CSSLibrary = cssBootstrap
   ShowClose = False
   OnCreate = plotFormCreate
   object okButton1: TWebButton
-    Left = 145
+    Left = 150
     Top = 2
-    Width = 42
+    Width = 40
     Height = 30
     Anchors = [akTop, akRight]
     Caption = 'OK'
@@ -25,10 +26,11 @@ object VarSelectForm: TVarSelectForm
     OnClick = okButton1Click
   end
   object SpPlotCG: TWebCheckGroup
-    Left = 8
-    Top = 32
-    Width = 140
-    Height = 91
+    Left = 0
+    Top = 0
+    Width = 91
+    Height = 145
+    Align = alLeft
     Caption = ''
     ChildOrder = 2
     Columns = 1
@@ -40,5 +42,7 @@ object VarSelectForm: TVarSelectForm
     ParentFont = False
     Role = ''
     OnCheckClick = SpPlotCGCheckClick
+    ExplicitTop = 54
+    ExplicitHeight = 200
   end
 end

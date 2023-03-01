@@ -69,9 +69,9 @@ begin
     if length(self.speciesList[i]) > maxLength then
       maxLength := length(self.speciesList[i]);
     end;
-  if maxLength < 10 then
-    maxLength := 10;
-  result := maxLength * 10;
+  if maxLength < 8 then
+    maxLength := 8;
+  result := maxLength * 7;
 end;
 
 procedure TVarSelectForm.fillSpeciesCG();
@@ -84,7 +84,7 @@ begin
   self.SpPlotCG.height := round(2.7 * self.SpPlotCG.Font.Size * length(speciesList));
 
   self.SpPlotCG.Width := self.setChkGrpWidth ;// Adjust chkgrp width to fit longest string
-
+  self.Width := self.SpPlotCG.Width + self.okButton1.Width + 20; // adjust form width
   for i := 0 to length(speciesList)-1 do
     SpPlotCG.Items.Add ('&nbsp; ' + speciesList[i]);
 end;

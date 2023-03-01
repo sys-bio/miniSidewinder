@@ -10,9 +10,9 @@ uses
  0 = legend visible
  1 = Autoscale
 
- 2 = Change plot species
+
 }
-const LEGEND_VIS = 0; AUTO_SCALE = 1; CHANGE_SPECIES = 2;
+const LEGEND_VIS = 0; AUTO_SCALE = 1;
 
 type
   TfChkGroupEditPlot = class(TWebForm)
@@ -24,7 +24,9 @@ type
     editYAxisMin: TWebEdit;
     pnlYAxisMinMax: TWebPanel;
     lblEditYAxis: TWebLabel;
+    btnChangePlotSp: TWebButton;
     procedure btnOkPlotEditClick(Sender: TObject);
+    procedure btnChangePlotSpClick(Sender: TObject);
 
   private
     { Private declarations }
@@ -35,7 +37,7 @@ type
     procedure checkAutoscale();
     procedure uncheckAutoscale();
    // procedure uncheckEditYAxis();
-    procedure uncheckEditPlotSpecies();
+   // procedure uncheckEditPlotSpecies();
     function  getEditYMax(): double;
     function  getEditYMin(): double;
   end;
@@ -46,6 +48,13 @@ var
 implementation
 
 {$R *.dfm}
+
+
+
+procedure TfChkGroupEditPlot.btnChangePlotSpClick(Sender: TObject);
+begin
+// TODO
+end;
 
 procedure TfChkGroupEditPlot.btnOkPlotEditClick(Sender: TObject);
 var lForm: TWebForm;
@@ -78,10 +87,10 @@ begin
   self.chkGrpEditPlot.Checked[EDIT_Y_AXIS] := false;
 end; }
 
-procedure TfChkGroupEditPlot.uncheckEditPlotSpecies();
+{procedure TfChkGroupEditPlot.uncheckEditPlotSpecies();
 begin
   self.chkGrpEditPlot.Checked[CHANGE_SPECIES] := false;
-end;
+end;  }
 
 function TfChkGroupEditPlot.getEditYMax(): double;
 begin

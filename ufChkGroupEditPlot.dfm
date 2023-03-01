@@ -1,26 +1,33 @@
 object fChkGroupEditPlot: TfChkGroupEditPlot
-  Width = 245
-  Height = 223
-  Caption = 'Edit Plot'
+  Width = 232
+  Height = 269
+  Color = clCream
+  ElementClassName = ' '
+  ElementFont = efCSS
   object chkGrpEditPlot: TWebCheckGroup
     Left = 14
     Top = 8
     Width = 126
-    Height = 97
-    Caption = 'Edit Plot'
+    Height = 81
+    Caption = 'Edit Plot:'
     Columns = 1
+    Font.Charset = ANSI_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -12
+    Font.Name = 'Tahoma'
+    Font.Style = []
     Items.Strings = (
       'View Legend'
-      'Autoscale'
-      'Change plot species')
+      'Autoscale')
+    ParentFont = False
     Role = ''
   end
   object btnOkPlotEdit: TWebButton
-    Left = 83
-    Top = 177
+    Left = 95
+    Top = 217
     Width = 45
     Height = 30
-    Caption = 'Ok'
+    Caption = 'OK'
     ChildOrder = 1
     ElementClassName = 'btn btn-primary btn-sm'
     HeightPercent = 100.000000000000000000
@@ -29,45 +36,58 @@ object fChkGroupEditPlot: TfChkGroupEditPlot
   end
   object pnlYAxisMinMax: TWebPanel
     Left = 14
-    Top = 111
-    Width = 213
+    Top = 103
+    Width = 203
     Height = 60
     ChildOrder = 6
+    Color = clCream
     object lblYAxisMin: TWebLabel
       Left = 10
       Top = 26
-      Width = 51
-      Height = 13
-      Caption = 'Y axis min:'
+      Width = 35
+      Height = 14
+      Caption = 'Y min:'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -12
+      Font.Name = 'Tahoma'
+      Font.Style = []
       HeightPercent = 100.000000000000000000
+      ParentFont = False
       WidthPercent = 100.000000000000000000
     end
     object lblYAxisMax: TWebLabel
-      Left = 105
+      Left = 100
       Top = 26
-      Width = 55
-      Height = 13
-      Caption = 'Y axis max:'
+      Width = 38
+      Height = 14
+      Caption = 'Y max:'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -12
+      Font.Name = 'Tahoma'
+      Font.Style = []
       HeightPercent = 100.000000000000000000
+      ParentFont = False
       WidthPercent = 100.000000000000000000
     end
     object lblEditYAxis: TWebLabel
       Left = 8
       Top = 0
-      Width = 134
-      Height = 13
+      Width = 128
+      Height = 14
       Caption = 'Update Y axis min-max:'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
-      Font.Height = -11
+      Font.Height = -12
       Font.Name = 'Tahoma'
-      Font.Style = [fsBold]
+      Font.Style = []
       HeightPercent = 100.000000000000000000
       ParentFont = False
       WidthPercent = 100.000000000000000000
     end
     object editYAxisMin: TWebEdit
-      Left = 67
+      Left = 52
       Top = 24
       Width = 30
       Height = 22
@@ -77,7 +97,7 @@ object fChkGroupEditPlot: TfChkGroupEditPlot
       WidthPercent = 100.000000000000000000
     end
     object editYAxisMax: TWebEdit
-      Left = 165
+      Left = 145
       Top = 24
       Width = 40
       Height = 22
@@ -86,5 +106,17 @@ object fChkGroupEditPlot: TfChkGroupEditPlot
       Text = '2'
       WidthPercent = 100.000000000000000000
     end
+  end
+  object btnChangePlotSp: TWebButton
+    Left = 14
+    Top = 175
+    Width = 126
+    Height = 30
+    Caption = 'Edit plot species'
+    ChildOrder = 3
+    ElementClassName = 'btn btn-outline-secondary btn-sm'
+    HeightPercent = 100.000000000000000000
+    WidthPercent = 100.000000000000000000
+    OnClick = btnChangePlotSpClick
   end
 end

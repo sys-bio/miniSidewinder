@@ -234,24 +234,20 @@ var fEditgraph: TfChkGroupEditPlot;
        0: self.graphPanelList[0].toggleLegendVisibility;
        1: self.graphPanelList[0].toggleAutoScaleYaxis;
       { 2: begin
-          self.graphPanelList[0].updateYMinMax;
-          fEditGraph.uncheckEditYAxis;
-          end;}
-       2: begin
           self.deletePlot(0);
           self.selectPlotSpecies(1); // want position
           fEditGraph.uncheckEditPlotSpecies;
-          end;
+          end;}
        end;
      end;
   end;
+
+
 
   procedure okClick(Sender: TObject);
   var lForm: TfChkGroupEditPlot;
       yMin, yMax: double;
   begin
-    // Check if ymax min/max has changed, if so then update
-
     lForm := TfChkGroupEditPlot((Sender as TWebButton).Parent);
     yMin := lForm.getEditYMin;
     yMax := lForm.getEditYMax;
@@ -261,12 +257,20 @@ var fEditgraph: TfChkGroupEditPlot;
     lForm.Free;
   end;
 
-
+  procedure changePlotSpClick(Sender: TObject);
+  begin
+    if assigned(self.graphPanelList[0]) then
+      begin
+      self.deletePlot(0);  // plot index
+      self.selectPlotSpecies(1); // want plot position
+      end;
+  end;
 
   procedure AfterCreate(AForm: TObject);
   begin
    (AForm as TfChkGroupEditPlot).chkGrpEditPlot.OnCheckClick := processUserCheck;
    (AForm as TfChkGroupEditPlot).btnOkPlotEdit.OnClick := okClick;
+   (AForm as TfChkGroupEditPlot).btnChangePlotSp.OnClick := changePlotSpClick;
    if assigned(self.graphPanelList[0]) then
     begin
     (AForm as TfChkGroupEditPlot).editYAxisMax.Text := floattostr(self.graphPanelList[0].getYMax);
@@ -764,7 +768,7 @@ begin
   fSelectParams.ShowClose := false;
   fSelectParams.PopupOpacity := 0.3;
   fSelectParams.Border := fbDialogSizeable;
-  fSelectParams.caption := 'Replace Paramater sliders';
+  fSelectParams.Caption := 'Replace Paramater sliders';
   fSelectParams.ShowModal(@AfterShowModal);
 end;
 
