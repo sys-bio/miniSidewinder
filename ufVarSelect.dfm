@@ -11,7 +11,7 @@ object VarSelectForm: TVarSelectForm
     Top = 2
     Width = 40
     Height = 30
-    Anchors = [akTop, akRight]
+    Anchors = [akTop]
     Caption = 'OK'
     ChildOrder = 1
     ElementClassName = 'btn btn-primary btn-sm'

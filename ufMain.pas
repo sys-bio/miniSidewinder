@@ -759,6 +759,7 @@ var fSelectParams: TVarSelectForm;
     end;
     (AForm as TVarSelectForm).Top := trunc(self.Height*0.1); // put popup %10 from top
     (AForm as TVarSelectForm).speciesList := strList;
+    (AForm as TVarSelectForm).ParentFormHeight := self.Height;
     (AForm as TVarSelectForm).fillSpeciesCG();
   end;
 
@@ -981,6 +982,7 @@ var
   procedure AfterCreate(AForm: TObject);
   var paramList: array of string;
   begin
+    (AForm as TVarSelectForm).ParentFormHeight := self.Height;
     (AForm as TVarSelectForm).Top := trunc(self.Height*0.2); // put popup %20 from top
     if length(self.mainController.getModel.getP_Names) > MAX_SLIDERS then
       (AForm as TVarSelectForm).speciesList := self.getParamsNotAssignedSliders
@@ -1535,6 +1537,7 @@ procedure TMainForm.selectPlotSpecies(plotnumb: Integer);
           strList[lgth] := curStr;
         end;
     end;
+    (AForm as TVarSelectForm).ParentFormHeight := self.Height;
     (AForm as TVarSelectForm).Top := trunc(self.Height*0.2); // put popup %20 from top
     (AForm as TVarSelectForm).speciesList := strList;
     (AForm as TVarSelectForm).fillSpeciesCG();

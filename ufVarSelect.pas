@@ -13,24 +13,24 @@ type
   TVarSelectForm = class(TWebForm)
     okButton1: TWebButton;
     SpPlotCG: TWebCheckGroup;
-
     procedure plotFormCreate(Sender: TObject);
     procedure okButton1Click(Sender: TObject);
     procedure SpPlotCGCheckClick(Sender: TObject; AIndex: Integer);
     procedure setSpPlotCGFontColor( newColor: TColor);
-    function  setChkGrpWidth(): integer; // adjusts width based on longest string in speciesList
     procedure unCheckGroup();
     procedure checkGroup();
-  //
+
   private
-    { Private declarations }
+    function  setChkGrpWidth(): integer; // adjusts width based on longest string in speciesList
+    procedure setWidths();
+    procedure setHeights();
   public
-    { Public declarations }
-     speciesList: array of String;
-     PlotWForm: TVarSelectForm;
-     procedure fillSpeciesCG();
-     procedure chkSpecies(index: integer);
-     procedure unChkSpecies(index: integer);
+    speciesList: array of String;
+    ParentFormHeight: integer; // Height of main form, do not want form to be taller
+    PlotWForm: TVarSelectForm;
+    procedure fillSpeciesCG();
+    procedure chkSpecies(index: integer);
+    procedure unChkSpecies(index: integer);
   end;
 
 implementation
@@ -50,6 +50,7 @@ end;
 procedure TVarSelectForm.plotFormCreate(Sender: TObject);
 begin
   //console.log('Species select form created');
+  self.ParentFormHeight := 200; // default
 end;
 
 
@@ -58,6 +59,14 @@ begin
 // TODO ??
 end;
 
+procedure TVarSelectForm.setHeights();
+var tmpHt: integer;
+begin
+  self.SpPlotCG.height := round(2.6 * self.SpPlotCG.Font.Size * self.SpPlotCG.Items.Count);
+  tmpHt := self.SpPlotCG.Height + 30;
+  if tmpHt < self.ParentFormHeight then self.Height := tmpHt
+  else self.Height := trunc(self.ParentFormHeight - self.ParentFormHeight * 0.2);
+end;
 
 function  TVarSelectForm.setChkGrpWidth(): integer;
 var i, maxLength: integer;
@@ -70,21 +79,23 @@ begin
     end;
   if maxLength < 8 then
     maxLength := 8;
-  result := maxLength * 8;
+  result := maxLength * 9;
+end;
+
+procedure TVarSelectForm.setWidths();
+begin
+  self.SpPlotCG.Width := self.setChkGrpWidth ;// Adjust chkgrp width to fit longest string
+  self.okButton1.Left := self.SpPlotCG.Width + self.SpPlotCG.Left + 5;
+  self.Width := self.SpPlotCG.Width + self.okButton1.Width + 25; // adjust form width
 end;
 
 procedure TVarSelectForm.fillSpeciesCG();
 var i : integer;
 begin
-  self.SpPlotCG.Width := self.setChkGrpWidth ;// Adjust chkgrp width to fit longest string
-  self.Width := self.SpPlotCG.Width + self.okButton1.Width + 25; // adjust form width
+  self.setWidths;
   for i := 0 to length(speciesList)-1 do
     SpPlotCG.Items.Add ('&nbsp; ' + speciesList[i]);
-
-  self.SpPlotCG.height := round(2.6 * self.SpPlotCG.Font.Size * self.SpPlotCG.Items.Count);
-  self.Height := self.SpPlotCG.Height + 30;
- // console.log('TVarSelectForm.fillSpeciesCG, height of SpPlotCG: ',self.SpPlotCG.height);
- // console.log('TVarSelectForm.fillSpeciesCG, height of TVarSelectForm: ',self.height);
+  self.setHeights;
 end;
 
 procedure TVarSelectForm.unCheckGroup();
