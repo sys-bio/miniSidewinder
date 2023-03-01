@@ -6,12 +6,8 @@ uses
   System.SysUtils, System.Classes, JS, Web, WEBLib.Graphics, WEBLib.Controls,
   WEBLib.Forms, WEBLib.Dialogs, Vcl.Controls, WEBLib.StdCtrls, Vcl.StdCtrls,
   WEBLib.ExtCtrls;
-{
- 0 = legend visible
- 1 = Autoscale
-
-
-}
+{ 0 = legend visible
+  1 = Autoscale }
 const LEGEND_VIS = 0; AUTO_SCALE = 1;
 
 type
@@ -36,8 +32,6 @@ type
     procedure uncheckLegendInvisible();
     procedure checkAutoscale();
     procedure uncheckAutoscale();
-   // procedure uncheckEditYAxis();
-   // procedure uncheckEditPlotSpecies();
     function  getEditYMax(): double;
     function  getEditYMin(): double;
   end;
@@ -49,11 +43,9 @@ implementation
 
 {$R *.dfm}
 
-
-
 procedure TfChkGroupEditPlot.btnChangePlotSpClick(Sender: TObject);
 begin
-// TODO
+// TODO?
 end;
 
 procedure TfChkGroupEditPlot.btnOkPlotEditClick(Sender: TObject);
@@ -81,16 +73,6 @@ procedure TfChkGroupEditPlot.uncheckAutoscale();
 begin
   self.chkGrpEditPlot.Checked[AUTO_SCALE] := false;
 end;
-
-{procedure TfChkGroupEditPlot.uncheckEditYAxis();
-begin
-  self.chkGrpEditPlot.Checked[EDIT_Y_AXIS] := false;
-end; }
-
-{procedure TfChkGroupEditPlot.uncheckEditPlotSpecies();
-begin
-  self.chkGrpEditPlot.Checked[CHANGE_SPECIES] := false;
-end;  }
 
 function TfChkGroupEditPlot.getEditYMax(): double;
 begin

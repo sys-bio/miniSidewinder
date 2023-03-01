@@ -1,7 +1,7 @@
 object VarSelectForm: TVarSelectForm
   Top = 20
   Width = 200
-  Height = 145
+  Height = 160
   Color = clCream
   CSSLibrary = cssBootstrap
   ShowClose = False
@@ -29,8 +29,7 @@ object VarSelectForm: TVarSelectForm
     Left = 0
     Top = 0
     Width = 91
-    Height = 145
-    Align = alLeft
+    Height = 140
     Caption = ''
     ChildOrder = 2
     Columns = 1
@@ -42,7 +41,5 @@ object VarSelectForm: TVarSelectForm
     ParentFont = False
     Role = ''
     OnCheckClick = SpPlotCGCheckClick
-    ExplicitTop = 54
-    ExplicitHeight = 200
   end
 end

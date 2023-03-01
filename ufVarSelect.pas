@@ -15,7 +15,6 @@ type
     SpPlotCG: TWebCheckGroup;
 
     procedure plotFormCreate(Sender: TObject);
-  //  procedure WebFormShow(Sender: TObject);
     procedure okButton1Click(Sender: TObject);
     procedure SpPlotCGCheckClick(Sender: TObject; AIndex: Integer);
     procedure setSpPlotCGFontColor( newColor: TColor);
@@ -77,16 +76,15 @@ end;
 procedure TVarSelectForm.fillSpeciesCG();
 var i : integer;
 begin
-  if length(speciesList) > 10 then
-    self.Height := 20*length(speciesList);  //15
-
-  // Adjust chkgrp height as List may not fit with default height:
-  self.SpPlotCG.height := round(2.7 * self.SpPlotCG.Font.Size * length(speciesList));
-
   self.SpPlotCG.Width := self.setChkGrpWidth ;// Adjust chkgrp width to fit longest string
-  self.Width := self.SpPlotCG.Width + self.okButton1.Width + 20; // adjust form width
+  self.Width := self.SpPlotCG.Width + self.okButton1.Width + 25; // adjust form width
   for i := 0 to length(speciesList)-1 do
     SpPlotCG.Items.Add ('&nbsp; ' + speciesList[i]);
+
+  self.SpPlotCG.height := round(2.6 * self.SpPlotCG.Font.Size * self.SpPlotCG.Items.Count);
+  self.Height := self.SpPlotCG.Height + 30;
+ // console.log('TVarSelectForm.fillSpeciesCG, height of SpPlotCG: ',self.SpPlotCG.height);
+ // console.log('TVarSelectForm.fillSpeciesCG, height of TVarSelectForm: ',self.height);
 end;
 
 procedure TVarSelectForm.unCheckGroup();
