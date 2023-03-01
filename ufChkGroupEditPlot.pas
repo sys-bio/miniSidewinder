@@ -4,30 +4,40 @@ interface
 
 uses
   System.SysUtils, System.Classes, JS, Web, WEBLib.Graphics, WEBLib.Controls,
-  WEBLib.Forms, WEBLib.Dialogs, Vcl.Controls, WEBLib.StdCtrls, Vcl.StdCtrls;
+  WEBLib.Forms, WEBLib.Dialogs, Vcl.Controls, WEBLib.StdCtrls, Vcl.StdCtrls,
+  WEBLib.ExtCtrls;
 {
  0 = legend visible
  1 = Autoscale
- 2 = Edit Y axis
- 3 = Change plot species
+
+ 2 = Change plot species
 }
-const LEGEND_VIS = 0; AUTO_SCALE = 1; EDIT_Y_AXIS = 2; CHANGE_SPECIES = 3;
+const LEGEND_VIS = 0; AUTO_SCALE = 1; CHANGE_SPECIES = 2;
 
 type
   TfChkGroupEditPlot = class(TWebForm)
     chkGrpEditPlot: TWebCheckGroup;
     btnOkPlotEdit: TWebButton;
+    lblYAxisMin: TWebLabel;
+    lblYAxisMax: TWebLabel;
+    editYAxisMax: TWebEdit;
+    editYAxisMin: TWebEdit;
+    pnlYAxisMinMax: TWebPanel;
+    lblEditYAxis: TWebLabel;
     procedure btnOkPlotEditClick(Sender: TObject);
 
   private
     { Private declarations }
   public
+
     procedure checkLegendVisible();
     procedure uncheckLegendInvisible();
     procedure checkAutoscale();
     procedure uncheckAutoscale();
-    procedure uncheckEditYAxis();
+   // procedure uncheckEditYAxis();
     procedure uncheckEditPlotSpecies();
+    function  getEditYMax(): double;
+    function  getEditYMin(): double;
   end;
 
 var
@@ -63,14 +73,32 @@ begin
   self.chkGrpEditPlot.Checked[AUTO_SCALE] := false;
 end;
 
-procedure TfChkGroupEditPlot.uncheckEditYAxis();
+{procedure TfChkGroupEditPlot.uncheckEditYAxis();
 begin
   self.chkGrpEditPlot.Checked[EDIT_Y_AXIS] := false;
-end;
+end; }
 
 procedure TfChkGroupEditPlot.uncheckEditPlotSpecies();
 begin
   self.chkGrpEditPlot.Checked[CHANGE_SPECIES] := false;
+end;
+
+function TfChkGroupEditPlot.getEditYMax(): double;
+begin
+  try
+    Result := strtofloat(self.editYAxisMax.Text);
+  except
+    Result := 0.0;
+  end;
+end;
+
+function  TfChkGroupEditPlot.getEditYMin(): double;
+begin
+  try
+    Result := strtofloat(self.editYAxisMin.Text);
+  except
+    Result := 0.0;
+  end;
 end;
 
 end.

@@ -99,9 +99,7 @@ begin
   self.runTime := 500; // sec
 //  self.networkUpdate := false;
   self.saveSBMLFlag := false;
-//  self.currNetworkCtrl := networkCtrl;
- // self.addSBMLListener( @networkCtrl.SBMLUpdated );
- // networkCtrl.network.OnNetworkEvent := self.networkUpdated;
+
 end;
 
 procedure TControllerMain.resetCurrTime();

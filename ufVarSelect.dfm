@@ -3,14 +3,13 @@ object VarSelectForm: TVarSelectForm
   Width = 200
   Height = 145
   CSSLibrary = cssBootstrap
-  ElementClassName = ' bg-dark border border-dark'
   ShowClose = False
   OnCreate = plotFormCreate
   object okButton1: TWebButton
     Left = 145
-    Top = 0
-    Width = 40
-    Height = 25
+    Top = 2
+    Width = 42
+    Height = 30
     Anchors = [akTop, akRight]
     Caption = 'OK'
     ChildOrder = 1
@@ -27,14 +26,14 @@ object VarSelectForm: TVarSelectForm
   end
   object SpPlotCG: TWebCheckGroup
     Left = 8
-    Top = 31
+    Top = 32
     Width = 140
     Height = 91
     Caption = ''
     ChildOrder = 2
     Columns = 1
     Font.Charset = DEFAULT_CHARSET
-    Font.Color = clWhite
+    Font.Color = clBlack
     Font.Height = -11
     Font.Name = 'Tahoma'
     Font.Style = []

@@ -71,9 +71,10 @@ public
   function  getYAxisLabel(): string;
   procedure setYMax(newYMax: double);
   function  getYMax(): double;
+  function  getYMin(): double;
   procedure setXMax(newXMax: double);
   function  getXMax(): double;
-  procedure updateYMinMax();
+  procedure updateYMinMax(yMin: double; yMax:double);
   procedure toggleLegendVisibility();
   function  isLegendVisible(): boolean;
   procedure toggleAutoScaleYaxis();
@@ -83,6 +84,7 @@ public
   procedure getVals( newTime: Double; newVals: TVarNameValList);// Get new values (species amt) from simulation run
   procedure setStaticSimResults( newResults: TList<TTimeVarNameValList> ); // get sim results to plot
   procedure notifyGraphEvent(plot_id: integer; eventType: integer);
+  procedure chartUpdateYMinMax(yMax: double; yMin: double); // Listener
   property OnEditGraphEvent: TEditGraphEvent read fEditGraphEvent write fEditGraphEvent;
 end;
 
@@ -94,7 +96,6 @@ begin
   self.plotEditInProgress := false;
   self.staticGraph := false;
   self.SetParent(newParent);
- // self.OnMouseDown := graphEditMouseDown;
   if graphPosition > -1 then self.tag := graphPosition
   else self.tag := 0;
   self.Width := newParent.Width;
@@ -122,8 +123,13 @@ end;
      self.chart.Height := self.Height;
   //   self.chart.OnMouseClickEvent := self.graphEditMouseDown;
      self.chart.Parent := self;
+     self.chart.OnYMinMaxChangeEvent := self.chartUpdateYMinMax;
      self.chart.AxisStrokeWidth := 1;
-     self.chart.YAxisMax := self.yMaximum;
+   //  console.log('createChart: yMax: ', self.yMaximum);
+     if self.yMaximum > 0 then self.chart.YAxisMax := self.yMaximum
+     else self.chart.YAxisMax := DEFAULT_Y_MAX;
+     if self.yMinimum < 0 then self.chart.YAxisMin := 0
+     else self.chart.YAxisMin := self.yMinimum;
    except
     on E: Exception do
       notifyUser(E.message);
@@ -146,7 +152,6 @@ begin
   //self.Color := clBlack;
   self.setupChart();
 end;
-
 procedure TGraphPanel.setupChart;
 var i: integer;
 begin
@@ -205,6 +210,14 @@ begin
 
 end;
 
+
+procedure TGraphPanel.chartUpdateYMinMax(yMax: double; yMin: double);
+// Listener: graphPanel notified that chart y min/max has changed
+begin
+//console.log('TGraphPanel.chartUpdateYMinMax', yMax);
+  self.yMaximum := yMax;
+  self.yMinimum := yMin;
+end;
 procedure TGraphPanel.setYMax(newYMax: double);
 begin
   if self.chart.YAxisMin < newYMax then
@@ -214,6 +227,11 @@ end;
 function  TGraphPanel.getYMax(): double;
 begin
   Result := self.yMaximum;
+end;
+
+function  TGraphPanel.getYMin(): double;
+begin
+  Result := self.yMinimum;
 end;
 
 procedure TGraphPanel.setXMax(newXMax: double);
@@ -332,12 +350,16 @@ begin
       self.chart.updateSerie(j, newTime, newVals.getNameValById(self.chart.series[j].name).Val );
     end;
   self.chart.plot;
-  //self.chart.Invalidate;   // ??
+
 end;
 
 procedure TGraphPanel.setStaticSimResults( newResults: TList<TTimeVarNameValList> );
 var i, j: integer;
 begin
+//console.log('TGraphPanel.setStaticSimResults: yMax before: ', self.yMaximum);
+  self.yMaximum := self.chart.YAxisMax;
+  self.yMinimum := self.chart.YAxisMin;
+ // console.log('yMax after: ', self.yMaximum);
   for i := 0 to newResults.count -1 do
     begin
     for j := 0 to length(self.chart.series) -1 do
@@ -455,14 +477,19 @@ begin
   Result := self.autoUp;
 end;
 
-procedure TGraphPanel.updateYMinMax();
+procedure TGraphPanel.updateYMinMax(yMin: double; yMax: double);
 begin
-  self.chart.userUpdateMinMax;
-  if self.chart.autoScaleUp then  // Turn off autoscale.
+ // self.chart.userUpdateMinMax;
+  if yMin <0 then yMin := 0; // No negative amts
+
+  if (yMin <> self.yMinimum) or (yMax <> self.yMaximum ) then
+    if yMax > yMin then
+      self.chart.userUpdateMinMax(yMin, yMax);
+{  if self.chart.autoScaleUp then  // Turn off autoscale.
     begin
     self.chart.autoScaleUp := false;
     self.chart.autoScaleDown := false;
-    end;
+    end;    }
 end;
 
 procedure TGraphPanel.setXAxisLabel(newLabel: string);

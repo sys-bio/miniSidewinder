@@ -379,10 +379,6 @@ object MainForm: TMainForm
       Caption = 'Toggle auto scale'
       OnClick = oggleautoscale1Click
     end
-    object ChangeminmaxYaxis1: TMenuItem
-      Caption = 'Change min/max Y axis'
-      OnClick = ChangeminmaxYaxis1Click
-    end
     object Changeplotspecies1: TMenuItem
       Caption = 'Change plot species'
       OnClick = Changeplotspecies1Click

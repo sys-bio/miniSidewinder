@@ -54,7 +54,6 @@ type
     graphEditPopup: TWebPopupMenu;
     ogglelegend1: TMenuItem;
     oggleautoscale1: TMenuItem;
-    ChangeminmaxYaxis1: TMenuItem;
     Changeplotspecies1: TMenuItem;
     pnlRunTime: TWebPanel;
     lblRunTime: TWebLabel;
@@ -88,7 +87,7 @@ type
     procedure chkbxStaticSimRunClick(Sender: TObject);
     procedure ogglelegend1Click(Sender: TObject);
     procedure oggleautoscale1Click(Sender: TObject);
-    procedure ChangeminmaxYaxis1Click(Sender: TObject);
+  //  procedure ChangeminmaxYaxis1Click(Sender: TObject);
     procedure Changeplotspecies1Click(Sender: TObject);
     procedure ChangeParameter1Click(Sender: TObject);
     procedure editRunTimeExit(Sender: TObject);
@@ -204,46 +203,7 @@ implementation
 {$R *.dfm}
 
 
-{procedure TMainForm.btnEditGraphClick(Sender: TObject);
-var fEditgraph: TfPlotEdit;
-    indexChosen: integer;
 
-  procedure AfterShowModal(AValue: TModalResult);
-  begin
-   if assigned(self.graphPanelList[0]) then
-     begin
-     case indexChosen of
-       0: self.graphPanelList[0].toggleLegendVisibility;
-       1: self.graphPanelList[0].toggleAutoScaleYaxis;
-       2: self.graphPanelList[0].updateYMinMax;
-       3: begin
-          self.deletePlot(0);
-          self.selectPlotSpecies(1); // want position
-          end;
-       end;
-     end;
-  end;
-
-  procedure rgChange(Sender: TObject);
-  begin
-    indexChosen := (Sender as TWebRadioGroup).ItemIndex;
-  end;
-
-  procedure AfterCreate(AForm: TObject);
-  begin
-   (AForm as TfPlotEdit).rgEditPlot.OnChange := rgChange;
-  end;
-
-begin
-  indexChosen := -1;
-  fEditgraph := TfPlotEdit.CreateNew(@AfterCreate);
-  fEditgraph.Popup := true;
-  fEditgraph.ShowClose := true;
-  fEditgraph.ShowModal(@AfterShowModal);
-  fEditgraph.PopupOpacity := 0.3;
-  fEditgraph.Border := fbDialogSizeable;
-end;
- }
 
 procedure TMainForm.btnEditGraphClick(Sender: TObject);
 var fEditgraph: TfChkGroupEditPlot;
@@ -273,11 +233,11 @@ var fEditgraph: TfChkGroupEditPlot;
      case indexChosen of
        0: self.graphPanelList[0].toggleLegendVisibility;
        1: self.graphPanelList[0].toggleAutoScaleYaxis;
-       2: begin
+      { 2: begin
           self.graphPanelList[0].updateYMinMax;
           fEditGraph.uncheckEditYAxis;
-          end;
-       3: begin
+          end;}
+       2: begin
           self.deletePlot(0);
           self.selectPlotSpecies(1); // want position
           fEditGraph.uncheckEditPlotSpecies;
@@ -286,11 +246,31 @@ var fEditgraph: TfChkGroupEditPlot;
      end;
   end;
 
+  procedure okClick(Sender: TObject);
+  var lForm: TfChkGroupEditPlot;
+      yMin, yMax: double;
+  begin
+    // Check if ymax min/max has changed, if so then update
+
+    lForm := TfChkGroupEditPlot((Sender as TWebButton).Parent);
+    yMin := lForm.getEditYMin;
+    yMax := lForm.getEditYMax;
+    if assigned(self.graphPanelList[0]) then
+      self.graphPanelList[0].updateYMinMax(yMin, yMax);
+    lForm.Close;
+    lForm.Free;
+  end;
+
+
+
   procedure AfterCreate(AForm: TObject);
   begin
    (AForm as TfChkGroupEditPlot).chkGrpEditPlot.OnCheckClick := processUserCheck;
+   (AForm as TfChkGroupEditPlot).btnOkPlotEdit.OnClick := okClick;
    if assigned(self.graphPanelList[0]) then
     begin
+    (AForm as TfChkGroupEditPlot).editYAxisMax.Text := floattostr(self.graphPanelList[0].getYMax);
+    (AForm as TfChkGroupEditPlot).editYAxisMin.Text := floattostr(self.graphPanelList[0].getYMin);
     if self.graphPanelList[0].isLegendVisible then (AForm as TfChkGroupEditPlot).checkLegendVisible
     else (AForm as TfChkGroupEditPlot).uncheckLegendInvisible;
 
@@ -306,7 +286,7 @@ begin
   fEditgraph.ShowClose := true;
   fEditgraph.ShowModal(@AfterShowModal);
   fEditgraph.PopupOpacity := 0.3;
-  fEditgraph.Border := fbDialogSizeable;
+  //fEditgraph.Border := fbDialogSizeable;
 end;
 
 
@@ -795,7 +775,7 @@ begin
     Result := round( (self.pnlParamSliders.width)/self.slidersPerRow )   // four sliders across
   else Result := 120;
 end;
-
+ {
 procedure TMainForm.ChangeminmaxYaxis1Click(Sender: TObject);
 var i: integer;
 begin
@@ -809,7 +789,7 @@ begin
       end
     else console.log('Bad index number TMainForm.ChangeminmaxYaxis1Click');
     end;
-end;
+end; }
 
 procedure TMainForm.ChangeParameter1Click(Sender: TObject);
 var i: integer;
@@ -1787,6 +1767,7 @@ begin
     begin
     for i := 0  to self.graphPanelList.count -1 do
       begin
+     // self.graphPanelList[i].setYMax();
       self.graphPanelList[i].setStaticSimResults(newResults);
       end;
     end;

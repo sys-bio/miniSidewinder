@@ -10,6 +10,8 @@ type
    TNotifyMouseClickEvent = procedure( Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer ) of object;
 
+   TNotifyYAxisMinMaxChangeEvent = procedure( yMax: double; yMin: double) of object;
+
   TWebScrollingChart = class (TWebGraphicControl)
     private
       FParent: TWebControl;
@@ -21,7 +23,9 @@ type
       lbEditGraph: TWebListBox;
       FMouseMoveEvent: TMouseMoveEvent;
       FMouseClickEvent:  TNotifyMouseClickEvent; // Notify listener of mouse click over plot area
+      FYAxisMinMaxEvent: TNotifyYAxisMinMaxChangeEvent;
       minMaxUpdate: TFYAxisMinMaxEdit;
+
 
       // methods to published properties
       function GetAxisColor: TColor;
@@ -140,7 +144,7 @@ type
       procedure plot;
       function GetInterval: Cardinal; // msec
       procedure SetInterval(Value: Cardinal); // msec
-      procedure userUpdateMinMax();
+      procedure userUpdateMinMax(newYMin: double; newYMax: double);
 
       property OnTimer: TNotifyEvent read GetOnTimer write SetOnTimer;
       property Enabled: Boolean read GetEnabledTimer write SetEnabledTimer default false;
@@ -148,6 +152,7 @@ type
       property ReferenceLegend: TPivot read GetReferenceLegend write SetReferenceLegend;
       property Parent: TWebControl read FParent write SetAParent;
       property OnMouseClickEvent: TNotifyMouseClickEvent read FMouseClickEvent write FMouseClickEvent;
+      property OnYMinMaxChangeEvent:TNotifyYAxisMinMaxChangeEvent read FYAxisMinMaxEvent write FYAxisMinMaxEvent;
 
     published
       property AxisColor: TColor read GetAxisColor write SetAxisColor;
@@ -834,8 +839,10 @@ begin
 end;
 procedure TWebScrollingChart.setDefaultValues;
 begin
+//console.log('TWebScrollingChart.setDefaultValues: yMax: ', self.YAxisMax);
   setXAxisRange(TConst.DEFAULT_X_MIN, TConst.DEFAULT_X_MAX);
-  setYAxisRange(TConst.DEFAULT_Y_MIN, TConst.DEFAULT_Y_MAX);
+  if (self.yAxisMax  <= 0) or (self.YAxisMin < 0) then
+    setYAxisRange(TConst.DEFAULT_Y_MIN, TConst.DEFAULT_Y_MAX);
   time := 0;
 end;
 procedure TWebScrollingChart.setXAxisRange(xMin, xMax: double);
@@ -846,27 +853,20 @@ begin
 end;
 procedure TWebScrollingChart.setYAxisRange(yMin, yMax: double);
 begin
+ // console.log('TWebScrollingChart.setYAxisRange: yMax: ', yMax);
   plane.initialValueYMin := yMin;
   plane.initialValueYMax := yMax;
   plane.setYAxisRange(yMin, yMax);
+  if Assigned(FYAxisMinMaxEvent) then
+    FYAxisMinMaxEvent(yMax, yMin);
 end;
 
-procedure TWebScrollingChart.userUpdateMinMax();
-
-  procedure AfterCreate(AForm: TObject);
-  begin
-    (AForm as TFYAxisMinMaxEdit).Top := trunc(self.Height*0.1);
-    (AForm as TFYAxisMinMaxEdit).setDefaultYMinMax(self.GetYAxisMin, self.GetYAxisMax);
-  end;
+procedure TWebScrollingChart.userUpdateMinMax(newYmin: double; newYMax:double);
+// Ymin/max updated outside of TWebScrollingChart
 begin
-   self.minMaxUpdate := TFYAxisMinMaxEdit.createNew(@AfterCreate);
-   self.minMaxUpdate.OnUpdateYMaxMinValsEvent := self.SetYAxisRange;
-   self.minMaxUpdate.Popup := true;
-   self.minMaxUpdate.ShowClose := true;
-   self.minMaxUpdate.PopupOpacity := 0.3;
-  // self.minMaxUpdate.ElementClassName := 'bg-dark border border-dark' ;
-   self.minMaxUpdate.Border := fbDialogSizeable;
-   self.minMaxUpdate.caption := 'Set Y axis min, max:';
+
+   self.SetYAxisRange(newYmin, newYMax);
+
 end;
 
 procedure TWebScrollingChart.Resize;
