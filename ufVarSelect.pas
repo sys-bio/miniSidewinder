@@ -70,7 +70,7 @@ begin
     end;
   if maxLength < 8 then
     maxLength := 8;
-  result := maxLength * 7;
+  result := maxLength * 8;
 end;
 
 procedure TVarSelectForm.fillSpeciesCG();
