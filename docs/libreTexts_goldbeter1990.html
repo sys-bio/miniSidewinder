@@ -30,9 +30,9 @@ var iframeSize = 'sidewinderFrame70';
  // This is the data that needs to be populated.
 var newModel = "models/BIOMD0098_Goldbeter1990.xml"; // SBML model in XML format. Some ways of populating string listed below.
 var newRT = '10';  // Length of run
-var newSS = '0.10'; // integrator step size, thus 100 points (10/0.10)
+var newSS = '0.010'; // integrator step size, thus 1000 points (10/0.010)
 var staticRun = 'true'; // Display after all calculations are done.
-var parSliders = 'v0, Vm2, n, K2, m'; // param sliders, exact id match
+var parSliders = 'v0, v1, beta, Vm2, n, K2, Vm2, m, Kr, Ka'; // param sliders, exact id match
 var spPlot = 'Y, Z'; // Species to plot, exact id match
 var yLabel = 'conc (uM)';
 var xLabel = 'sec';
