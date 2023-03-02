@@ -52,9 +52,7 @@ type
     btnExample: TWebButton;
     chkbxStaticSimRun: TWebCheckBox;
     graphEditPopup: TWebPopupMenu;
-    ogglelegend1: TMenuItem;
-    oggleautoscale1: TMenuItem;
-    Changeplotspecies1: TMenuItem;
+    editPlot1: TMenuItem;
     pnlRunTime: TWebPanel;
     lblRunTime: TWebLabel;
     editRunTime: TWebEdit;
@@ -85,10 +83,10 @@ type
     procedure btnModelInfoClick(Sender: TObject);
     procedure btnExampleClick(Sender: TObject);
     procedure chkbxStaticSimRunClick(Sender: TObject);
-    procedure ogglelegend1Click(Sender: TObject);
+    procedure editPlot1Click(Sender: TObject);
     procedure oggleautoscale1Click(Sender: TObject);
   //  procedure ChangeminmaxYaxis1Click(Sender: TObject);
-    procedure Changeplotspecies1Click(Sender: TObject);
+  //  procedure Changeplotspecies1Click(Sender: TObject);
     procedure ChangeParameter1Click(Sender: TObject);
     procedure editRunTimeExit(Sender: TObject);
     procedure btnEditGraphClick(Sender: TObject);
@@ -593,19 +591,19 @@ begin
 
 end;
 
-procedure TMainForm.ogglelegend1Click(Sender: TObject);
+procedure TMainForm.editPlot1Click(Sender: TObject);
 var i: integer;
 begin
- // console.log( ' legend');
   if Sender is TMenuItem then
     begin
    // console.log('Menu Item');
     i := TMenuItem(Sender).tag -1; // want index.
     if i > -1 then
       begin
-      self.graphPanelList[i].toggleLegendVisibility;
+      btnEditGraphClick(Sender);
+      //self.graphPanelList[i].toggleLegendVisibility;
       end
-    else console.log('Bad index number TMainForm.ogglelegend1Click');
+    else console.log('Bad index number TMainForm.editPlot1Click');
     end;
 end;
 
@@ -808,7 +806,7 @@ begin
     end;
 end;
 
-procedure TMainForm.Changeplotspecies1Click(Sender: TObject);
+{procedure TMainForm.Changeplotspecies1Click(Sender: TObject);
 var i: integer;
 begin
   console.log( ' Change plot species');
@@ -821,7 +819,7 @@ begin
     self.selectPlotSpecies(i+1); // want position
     end;
 end;
-
+      }
 function TMainForm.calcSliderLeft(index: integer): integer;
 var
   i: Integer;

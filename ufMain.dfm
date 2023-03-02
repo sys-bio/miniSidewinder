@@ -371,17 +371,9 @@ object MainForm: TMainForm
     Appearance.SubmenuIndicator = '&#9658;'
     Left = 752
     Top = 494
-    object ogglelegend1: TMenuItem
-      Caption = 'Toggle legend'
-      OnClick = ogglelegend1Click
-    end
-    object oggleautoscale1: TMenuItem
-      Caption = 'Toggle auto scale'
-      OnClick = oggleautoscale1Click
-    end
-    object Changeplotspecies1: TMenuItem
-      Caption = 'Change plot species'
-      OnClick = Changeplotspecies1Click
+    object editPlot1: TMenuItem
+      Caption = 'Edit plot'
+      OnClick = editPlot1Click
     end
   end
 end
