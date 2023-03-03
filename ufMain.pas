@@ -12,7 +12,9 @@ uses
   VCL.TMSFNCCustomControl, VCL.TMSFNCScrollBar, ufModelInfo, ufLabelPopUp,
   Vcl.Menus, WEBLib.Menus, WEBLib.WebCtrls, ufChkGroupEditPlot;
 
-const SIDEWINDER_VERSION = 'Version 0.51 alpha';
+const SIDEWINDER_VERSION = 'miniSidewinder Version 0.8.0';
+      COPYRIGHT = 'Copyright 2023, Bartholomew Jardine and Herbert Sauro, University of Washington, USA';
+      GRANT_INFO = 'This project is funded by NIH/NIGMS (R01-GM123032-04)';
       DEFAULT_RUNTIME = 10000;
       EDITBOX_HT = 25;
       ZOOM_SCALE = 20;
@@ -66,7 +68,9 @@ type
     pnlEditGraph: TWebPanel;
     pnlExample: TWebPanel;
     pnlEditSliders: TWebPanel;
-    btnEditSliders: TWebButton; // Only needed if # model params is greater than MAX_SLIDERS
+    btnEditSliders: TWebButton;
+    pnlAbout: TWebPanel;
+    btnAbout: TWebButton; // Only needed if # model params is greater than MAX_SLIDERS
 
     procedure WebFormCreate(Sender: TObject);
     procedure btnSimResetClick(Sender: TObject);
@@ -93,6 +97,7 @@ type
     procedure btnEditSlidersClick(Sender: TObject);
     procedure WebFormDestroy(Sender: TObject);
     procedure WebFormExit(Sender: TObject);
+    procedure btnAboutClick(Sender: TObject);
 
   private
     numbPlots: Integer; // Number of plots displayed
@@ -201,7 +206,13 @@ implementation
 {$R *.dfm}
 
 
-
+procedure TMainForm.btnAboutClick(Sender: TObject);
+var infoStr: string;
+begin
+infoStr := SIDEWINDER_VERSION + sLineBreak;
+infoStr := infoStr + COPYRIGHT + sLineBreak + GRANT_INFO;
+  notifyUser(infoStr);
+end;
 
 procedure TMainForm.btnEditGraphClick(Sender: TObject);
 var fEditgraph: TfChkGroupEditPlot;
@@ -209,18 +220,8 @@ var fEditgraph: TfChkGroupEditPlot;
 
   procedure AfterShowModal(AValue: TModalResult);
   begin
-   {if assigned(self.graphPanelList[0]) then
-     begin
-     case indexChosen of
-       0: self.graphPanelList[0].toggleLegendVisibility;
-       1: self.graphPanelList[0].toggleAutoScaleYaxis;
-       2: self.graphPanelList[0].updateYMinMax;
-       3: begin
-          self.deletePlot(0);
-          self.selectPlotSpecies(1); // want position
-          end;
-       end;
-     end; }
+   // NOTHING for now.ok, thanks
+
   end;
 
   procedure processUserCheck(Sender: TObject;  AIndex: Integer);

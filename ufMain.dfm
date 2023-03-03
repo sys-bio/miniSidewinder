@@ -106,6 +106,27 @@ object MainForm: TMainForm
         OnClick = btnEditSlidersClick
       end
     end
+    object pnlAbout: TWebPanel
+      Left = 0
+      Top = 361
+      Width = 59
+      Height = 45
+      Align = alBottom
+      BorderColor = clBtnFace
+      ChildOrder = 4
+      ExplicitTop = 346
+      object btnAbout: TWebButton
+        Left = 1
+        Top = 8
+        Width = 54
+        Height = 30
+        Caption = 'About'
+        ElementClassName = 'btn btn-dark btn-sm'
+        HeightPercent = 100.000000000000000000
+        WidthPercent = 100.000000000000000000
+        OnClick = btnAboutClick
+      end
+    end
   end
   object pnlPlot: TWebPanel
     Left = 0
