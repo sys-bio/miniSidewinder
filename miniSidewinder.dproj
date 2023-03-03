@@ -165,8 +165,6 @@
         <None Include="sbml\libsbml.wasm"/>
         <None Include="sbml\readSBMLmodel.js"/>
         <None Include="sbml\writeSBMLmodel.js"/>
-        <None Include="math\euler_solver.js"/>
-        <None Include="math\RK4solver.js"/>
         <None Include="ufVarSelect.html"/>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
@@ -206,12 +204,6 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="math\euler_solver.js" Configuration="Debug" Class="ProjectFile">
-                    <Platform Name="Win32">
-                        <RemoteDir>.\</RemoteDir>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
                 <DeployFile LocalName="Win32\Debug\miniSidewinder.exe" Configuration="Debug" Class="ProjectOutput">
                     <Platform Name="Win32">
                         <RemoteName>miniSidewinder.exe</RemoteName>
@@ -225,12 +217,6 @@
                     </Platform>
                 </DeployFile>
                 <DeployFile LocalName="sbml\libsbml.js" Configuration="Debug" Class="ProjectFile">
-                    <Platform Name="Win32">
-                        <RemoteDir>.\</RemoteDir>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="math\RK4solver.js" Configuration="Debug" Class="ProjectFile">
                     <Platform Name="Win32">
                         <RemoteDir>.\</RemoteDir>
                         <Overwrite>true</Overwrite>

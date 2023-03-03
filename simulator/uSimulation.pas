@@ -10,7 +10,7 @@ interface
 type
   TUpdateValEvent = procedure(time:double; updatedVals: TVarNameValList) of object;
   TSimResults = procedure(simResults: TList<TTimeVarNameValList>) of object;
-  ODESolver = (EULER, RK4, LSODAS);
+  ODESolver = (EULER, RK4, LSODAS); // ONLY LSODAS used
  TSimulationJS = class (TObject)
    private
     np, ny: Integer;  // Number of parameters, species (ny).
@@ -47,7 +47,7 @@ type
     constructor Create ( runTime, nStepSize: double; newModel: TModel; solver: ODESolver ); Overload ;
     procedure setODEsolver(solverToUse: ODESolver);
     procedure nextEval(newTime: double; s: array of double; newPVals: array of double);
-    procedure eval (newTime: double; s: array of double) ; // currently not used
+  //  procedure eval (newTime: double; s: array of double) ; // currently not used
     procedure eval2 ( time:double; s: array of double); // LSODA integrator
     property OnUpdate: TUpdateValEvent read FUpdate write FUpdate;
     { Notify listener of updated values }
@@ -230,7 +230,7 @@ begin
 //  console.log( '** s Init eqs: ', self.s_InitAssignEqs );
 end;
 
-procedure TSimulationJS.nextEval(newTime: double; s: array of double; newPVals: array of double);
+ procedure TSimulationJS.nextEval(newTime: double; s: array of double; newPVals: array of double);
 begin
 //??  self.setStepSize(self.step);
   self.p := newPVals;
@@ -238,13 +238,14 @@ begin
   if length(s) > 0 then
     begin
       if self.solverUsed = LSODAS then
-        self.eval2(newTime, s)
-      else
-        self.eval(newTime, s);
+        self.eval2(newTime, s);
+      //else
+      //  self.eval(newTime, s);
     end;
 end;
+
   // eval code probably no longer works as we use LSODA exclusively. See self.eval2()
-procedure  TSimulationJS.eval ( newTime: double; s : array of double );
+ {procedure  TSimulationJS.eval ( newTime: double; s : array of double );
  var i, j: Integer;
  var numSteps: Integer;
      y: TVector;
@@ -265,7 +266,7 @@ begin
   asm
 
    var s_init = [...s];
-   switch(this.solverUsed) {
+   switch(this.solverUsed)
    case 0:
      var ODE_func = new Function('p','s','dydt_s', 'time', this.eqList);
     // console.log('EULER being used.');
@@ -273,10 +274,10 @@ begin
      var calcODE = new EulerIntegrator(this.step);
      calcODE.calc_dydt(this.p,s, this.dydt, this.time , ODE_func);
      this.time = this.time + this.step;
-     for (var j=0; j< this.ny; j++) {
+   //  for (var j=0; j< this.ny; j++)
     //console.log('dydt ',j,': ',this.dydt[j]);
-      s[j] = s[j]+this.dydt[j];
-     }
+   //   s[j] = s[j]+this.dydt[j];
+
    break;
    case 1:
       // ************************
@@ -286,9 +287,9 @@ begin
       s = [...s_init];
       var rk4Calc = new RK4Integrator( s,ODE_func,this.time,this.step,this.p);
       rk4Calc.step();
-      for (var j=0; j< this.ny; j++) {
-        s[j] = rk4Calc.y[j];
-      }
+    //  for (var j=0; j< this.ny; j++)
+    //    s[j] = rk4Calc.y[j];
+    //
       this.time = rk4Calc.t;
       this.updateVals(this.time,s);
    //  console.log( 'Time: ', this.time, 's[0]: ',s[0],', s[1]: ', s[1] );
@@ -301,7 +302,7 @@ begin
     this.lode.Setfcn (ODE_func2);
     break; // end of case LSODA
 
-   }  // end of case Block.
+     // end of case Block.
 
     this.updateVals(this.time,s);
    end;  // end of asm block
@@ -331,9 +332,8 @@ begin
       tNext:= tNext + self.step;
     end;
    end;
- //
 
-end;
+end;  }
 
 procedure  TSimulationJS.eval2 ( time:double; s: array of double);
  var i,j: Integer;
