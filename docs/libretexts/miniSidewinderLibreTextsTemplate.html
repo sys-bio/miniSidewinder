@@ -1,0 +1,26 @@
+<!--  Template for calling Simulator with model -->
+<script type="text/javascript" src="/@api/deki/files/69598/miniSidewinderSimSetup.js"></script>
+<script type="text/javascript">
+ const iframeID ="simulator1";  // Id of iframe used below.
+ 
+// *** This is the data that needs to be populated: *** 
+ const modelURL = "/@api/deki/files/69600/BIOMD0098_Goldbeter1990.xml"; // Location of SBML model in XML format.
+ const newRT = '10';  // Length of run in time units
+ const newSS = '0.010'; // step size, for 0.1 integrator step size: 100 points (10/0.10)
+ const staticRun = 'true'; // 'true':Display after all calculations are done.
+ const parSliders = 'v0, v1, beta, Vm2, Vm3, n, K2, Vm2, m, Kr, Ka, kf, k'; // param sliders, exact id match
+ const spPlot = 'Y, Z'; // Species to plot, exact id match
+ const yLabel = 'conc (uM)';
+ const xLabel = 'sec';
+ // *** End of data to be populated. ***
+
+function runSim() {
+
+ console.log('Values to be passed in:');
+ console.log(iframeID, modelURL, newRT, newSS, staticRun, parSliders, spPlot, xLabel, yLabel);
+ runModel(iframeID, modelURL, newRT, newSS, staticRun, parSliders, spPlot, xLabel, yLabel);
+ }
+</script><iframe height="80%" id="simulator1" width="80%"></iframe>
+<script type="text/javascript"> runSim(); </script>
+
+<!-- END of Simulator Template  -->
