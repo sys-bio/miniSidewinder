@@ -1,4 +1,5 @@
 <!--  Template for calling Simulator with model -->
+<!--  Place in webpage where appropriate        -->
 <script type="text/javascript" src="/@api/deki/files/69598/miniSidewinderSimSetup.js"></script>
 <script type="text/javascript">
  const iframeID ="simulator1";  // Id of iframe used below.
@@ -15,12 +16,13 @@
  // *** End of data to be populated. ***
 
 function runSim() {
-
- console.log('Values to be passed in:');
- console.log(iframeID, modelURL, newRT, newSS, staticRun, parSliders, spPlot, xLabel, yLabel);
- runModel(iframeID, modelURL, newRT, newSS, staticRun, parSliders, spPlot, xLabel, yLabel);
+  if (iframeID == "simulator1") {
+    console.log('Values to be passed in:');
+    console.log(iframeID, modelURL, newRT, newSS, staticRun, parSliders, spPlot, xLabel, yLabel);
+    runModel(iframeID, modelURL, newRT, newSS, staticRun, parSliders, spPlot, xLabel, yLabel);
+  } 
  }
-</script><iframe height="80%" id="simulator1" width="80%"></iframe>
+</script><iframe height="80%" id="simulator1" width="80%"></iframe> <!-- Adjust frame size as needed -->
 <script type="text/javascript"> runSim(); </script>
 
 <!-- END of Simulator Template  -->

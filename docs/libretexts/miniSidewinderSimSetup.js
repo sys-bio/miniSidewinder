@@ -16,7 +16,8 @@
    sessionStorage.setItem('X_LABEL', xLabel);
    sessionStorage.setItem('Y_LABEL', yLabel);
   // window.location.href = ('Debug/index.html?')
-   document.getElementById(iframeId).src = '/@api/deki/files/69599/miniSidewinder_index.html'; // Location of miniSidewinder
+   //window.location.href = ('/@api/deki/files/69599/miniSidewinder_index.html');
+  document.getElementById(iframeId).src = '/@api/deki/files/69599/miniSidewinder_index.html'; // Location of miniSidewinder
  }
  
 
