@@ -38,6 +38,9 @@ function runModel(frameId, modelURL, newRT, newSS, staticRun, parSliders, spPlot
 	   newModel = data;
 	   getInfo(frameId, newModel, newRT, newSS, staticRun, parSliders, spPlot, xLabel, yLabel);
      })
+	 .catch(rejected => {
+		console.log('modelURL fetch request rejected: ', rejected);  
+	 });
  } catch(error) {
 	 var errmsg = 'Model not loaded from: ' + modelURL + '. ' + error;
 	 alert(errmsg);
