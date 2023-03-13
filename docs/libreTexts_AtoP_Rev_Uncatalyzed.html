@@ -43,8 +43,8 @@ if (typeof newModel =='undefined'){
    sessionStorage.setItem('PLOT_SPECIES', spPlot);
    sessionStorage.setItem('X_LABEL', xLabel);
    sessionStorage.setItem('Y_LABEL', yLabel);
-   //window.location.href = ('Debug/index.html?')
-   document.getElementById(iframeSizeAtoP).src = "Debug/index.html?"; // Location of miniSidewinder
+   window.location.href = ('Debug/index.html?')
+   //document.getElementById(iframeSizeAtoP).src = "Debug/index.html?"; // Location of miniSidewinder
   // document.getElementById('sidewinderFrame').src = "Debug/index.html?"; // Location of miniSidewinder
  }
  </script> 
@@ -52,6 +52,7 @@ if (typeof newModel =='undefined'){
 <script type="text/javascript">
 function runModel() {
 // Use this code if you have a predefined model to run located at some URL:
+  newModel = "libretexts/models/AtoP_Rev_Uncatalyzed.xml"; // SBML model in XML format. Some ways of populating string listed below.
 //fetch('http://localhost/models/simpleRXN.xml')
 //fetch('models/BIOMD0098_Goldbeter1990.xml')
 fetch(newModel)
@@ -59,6 +60,17 @@ fetch(newModel)
   .then((data) => {
     console.log(data);
 	newModel = data;
+	// This is the data that needs to be populated.
+ 	
+ 	newRT = '5';  // Length of run
+ 	newSS = '0.10'; // integrator step size, thus 1000 points (10/0.010)
+ 	staticRun = 'true'; // Display after all calculations are done.
+ 	parSliders = '_F_, Kf_r0, Kr_r0, c0'; // param sliders, exact id match
+ 	spPlot = ''; // Species to plot, exact id match, '' for default vals
+ 	yLabel = 'conc (uM)';
+ 	xLabel = 'sec';
+// End of data to be populated.
+	
 	getInfo();
   })
   
@@ -68,17 +80,8 @@ fetch(newModel)
  <script type="text/javascript">
 
 function size100() {
- iframeSizeAtoP = 'sidewinderFrameAtoP';
-// This is the data that needs to be populated.
- newModel = "libretexts/models/AtoP_Rev_Uncatalyzed.xml"; // SBML model in XML format. Some ways of populating string listed below.
- newRT = '5';  // Length of run
- newSS = '0.10'; // integrator step size, thus 1000 points (10/0.010)
- staticRun = 'true'; // Display after all calculations are done.
- parSliders = '_F_, Kf_r0, Kr_r0, c0'; // param sliders, exact id match
- spPlot = ''; // Species to plot, exact id match, '' for default vals
- yLabel = 'conc (uM)';
- xLabel = 'sec';
-// End of data to be populated.
+// iframeSizeAtoP = 'sidewinderFrameAtoP';
+
  runModel();
 }
 
