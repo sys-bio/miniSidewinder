@@ -42,23 +42,23 @@ var xLabel = 'sec';
  </p>
  
  <script type="text/javascript">
- function getInfo() {
-   sessionStorage.setItem("MODEL", newModel);
-   sessionStorage.setItem('RUNTIME', newRT);
-   sessionStorage.setItem('STEPSIZE', newSS);
-   sessionStorage.setItem('STATIC', staticRun);
-   sessionStorage.setItem('SLIDERS', parSliders);
-   sessionStorage.setItem('PLOT_SPECIES', spPlot);
+ function getInfo2(frame,model,rt, ss,static,pars,sp) {
+   sessionStorage.setItem("MODEL", model);
+   sessionStorage.setItem('RUNTIME', rt);
+   sessionStorage.setItem('STEPSIZE', ss);
+   sessionStorage.setItem('STATIC', static);
+   sessionStorage.setItem('SLIDERS', pars);
+   sessionStorage.setItem('PLOT_SPECIES', sp);
    sessionStorage.setItem('X_LABEL', xLabel);
    sessionStorage.setItem('Y_LABEL', yLabel);
-   window.location.href = ('Debug/index.html?')
-  // document.getElementById(iframeSize).src = "Debug/index.html?"; // Location of miniSidewinder
+  // window.location.href = ('Debug/index.html?')
+   document.getElementById(frame).src = "Debug/index.html?"; // Location of miniSidewinder
   // document.getElementById('sidewinderFrame').src = "Debug/index.html?"; // Location of miniSidewinder
  }
  </script> 
 
 <script type="text/javascript">
-function runModel() {
+function runModel2() {
 // Use this code if you have a predefined model to run located at some URL:
 newModel = "models/BIOMD0098_Goldbeter1990.xml"; // SBML model in XML format. Some ways of populating string listed below.
 //fetch('http://localhost/models/simpleRXN.xml')
@@ -68,7 +68,7 @@ fetch(newModel)
   .then((data) => {
     console.log(data);
 	newModel = data;
-	//iframeSize = 'sidewinderFramegoldbeter'; 
+	iframeSize = 'sidewinderFramegoldbeter'; 
  	
  	newRT = '10';  // Length of run
  	newSS = '0.010'; // integrator step size, thus 1000 points (10/0.010)
@@ -77,7 +77,7 @@ fetch(newModel)
  	spPlot = 'Y, Z'; // Species to plot, exact id match
  	yLabel = 'conc (uM)';
  	xLabel = 'sec';
-	getInfo();
+	getInfo2(iframeSize,newModel,newRT,newSS,staticRun,parSliders,spPlot);
   })
   
  }
@@ -93,7 +93,7 @@ function size100() {
 </script >
 
 <script type="text/javascript">
- size100();
+ runModel2();
 </script>  
   
 </body>
