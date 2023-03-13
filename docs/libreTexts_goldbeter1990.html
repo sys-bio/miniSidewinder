@@ -51,8 +51,8 @@ var xLabel = 'sec';
    sessionStorage.setItem('PLOT_SPECIES', sp);
    sessionStorage.setItem('X_LABEL', xLabel);
    sessionStorage.setItem('Y_LABEL', yLabel);
-  // window.location.href = ('Debug/index.html?')
-   document.getElementById(frame).src = "Debug/index.html?"; // Location of miniSidewinder
+   window.location.href = ('Debug/index.html?')
+  // document.getElementById(frame).src = "Debug/index.html?"; // Location of miniSidewinder
   // document.getElementById('sidewinderFrame').src = "Debug/index.html?"; // Location of miniSidewinder
  }
  </script> 
@@ -67,7 +67,7 @@ fetch(newModel)
   .then(response => response.text())
   .then((data) => {
     console.log(data);
-	newModel = data;
+	//newModel = data;
 	iframeSize = 'sidewinderFramegoldbeter'; 
  	
  	newRT = '10';  // Length of run
@@ -77,7 +77,7 @@ fetch(newModel)
  	spPlot = 'Y, Z'; // Species to plot, exact id match
  	yLabel = 'conc (uM)';
  	xLabel = 'sec';
-	getInfo2(iframeSize,newModel,newRT,newSS,staticRun,parSliders,spPlot);
+	getInfo2(iframeSize,data,newRT,newSS,staticRun,parSliders,spPlot);
   })
   
  }
@@ -87,7 +87,7 @@ fetch(newModel)
 
 function size100() {
 
- runModel();
+ //runModel();
 }
 
 </script >
