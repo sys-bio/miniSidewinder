@@ -28,12 +28,12 @@ var iframeSize = 'sidewinderFrame70';
  <p>
  <script type="text/javascript">
  // This is the data that needs to be populated.
-var newModel = "models/BIOMD0098_Goldbeter1990.xml"; // SBML model in XML format. Some ways of populating string listed below.
-var newRT = '10';  // Length of run
-var newSS = '0.010'; // integrator step size, thus 1000 points (10/0.010)
-var staticRun = 'true'; // Display after all calculations are done.
-var parSliders = 'v0, v1, beta, Vm2, Vm3, n, K2, Vm2, m, Kr, Ka, kf, k'; // param sliders, exact id match
-var spPlot = 'Y, Z'; // Species to plot, exact id match
+var newModel = ""; // SBML model in XML format. Some ways of populating string listed below.
+var newRT = '';  // Length of run
+var newSS = ''; // integrator step size, thus 1000 points (10/0.010)
+var staticRun = ''; // Display after all calculations are done.
+var parSliders = ''; // param sliders, exact id match
+var spPlot = ''; // Species to plot, exact id match
 var yLabel = 'conc (uM)';
 var xLabel = 'sec';
 </script>
@@ -77,6 +77,14 @@ fetch(newModel)
 
 function size100() {
  iframeSize = 'sidewinderFramegoldbeter'; 
+ newModel = "models/BIOMD0098_Goldbeter1990.xml"; // SBML model in XML format. Some ways of populating string listed below.
+ newRT = '10';  // Length of run
+ newSS = '0.010'; // integrator step size, thus 1000 points (10/0.010)
+ staticRun = 'true'; // Display after all calculations are done.
+ parSliders = 'v0, v1, beta, Vm2, Vm3, n, K2, Vm2, m, Kr, Ka, kf, k'; // param sliders, exact id match
+ spPlot = 'Y, Z'; // Species to plot, exact id match
+ yLabel = 'conc (uM)';
+ xLabel = 'sec';
  runModel();
 }
 
