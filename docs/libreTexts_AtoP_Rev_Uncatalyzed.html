@@ -18,14 +18,16 @@ var iframeSizeAtoP = '';
  <p>
  <script type="text/javascript">
  // This is the data that needs to be populated.
-var newModel = "libretexts/models/AtoP_Rev_Uncatalyzed.xml"; // SBML model in XML format. Some ways of populating string listed below.
-var newRT = '5';  // Length of run
-var newSS = '0.10'; // integrator step size, thus 1000 points (10/0.010)
-var staticRun = 'true'; // Display after all calculations are done.
-var parSliders = '_F_, Kf_r0, Kr_r0, c0'; // param sliders, exact id match
-var spPlot = ''; // Species to plot, exact id match, '' for default vals
-var yLabel = 'conc (uM)';
-var xLabel = 'sec';
+if (typeof newModel =='undefined'){
+  var newModel = ""; // SBML model in XML format. Some ways of populating string listed below.
+  var newRT = '';  // Length of run
+  var newSS = ''; // integrator step size, thus 1000 points (10/0.010)
+  var staticRun = 'true'; // Display after all calculations are done.
+  var parSliders = ''; // param sliders, exact id match
+  var spPlot = ''; // Species to plot, exact id match, '' for default vals
+  var yLabel = 'conc (uM)';
+  var xLabel = 'sec';
+}
 </script>
 
 
@@ -67,7 +69,16 @@ fetch(newModel)
 
 function size100() {
  iframeSizeAtoP = 'sidewinderFrameAtoP';
- //staticRun = 'true'; 
+ //staticRun = 'true';
+// This is the data that needs to be populated.
+ newModel = "libretexts/models/AtoP_Rev_Uncatalyzed.xml"; // SBML model in XML format. Some ways of populating string listed below.
+ newRT = '5';  // Length of run
+ newSS = '0.10'; // integrator step size, thus 1000 points (10/0.010)
+ staticRun = 'true'; // Display after all calculations are done.
+ parSliders = '_F_, Kf_r0, Kr_r0, c0'; // param sliders, exact id match
+ spPlot = ''; // Species to plot, exact id match, '' for default vals
+ yLabel = 'conc (uM)';
+ xLabel = 'sec';
  runModel();
 }
 
