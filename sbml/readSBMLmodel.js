@@ -55,11 +55,17 @@ class ProcessSBML {
    else {
      if( this.model.isSetName()) { tModela.setModelId(this.model.getName()); }
      }
+
+ //  if( this.model.isSetTimeUnitsAtribbute() ) { NOT working ??
+ //  if( this.model.isSetTimeUnits() ) {
+ //    console.log('getting timeUnits...');
+ //    tModela.setModelTimeUnits(this.model.getTimeUnits());
+ //  }
    tModela.numSpecies = this.model.getNumSpecies();
    tModela.numParams = this.model.getNumParameters();
    tModela.numCompartments = this.model.getNumCompartments();
    const numInitAssignments = this.model.getNumInitialAssignments();
-   console.log(' Number of Init assignments: ',numInitAssignments);
+   //console.log(' Number of Init assignments: ',numInitAssignments);
    tModela.numEvents = this.model.getNumEvents();
    console.log( 'Number of events: ', this.model.getNumEvents() );
    tModela.numRules = this.model.getNumRules();
@@ -200,6 +206,7 @@ getRules(tModela, tRule) {
     var i;
     for (i=0; i < tModela.numCompartments; i++) {
       const newComp = this.model.getCompartment(i);
+     // console.log('getCompartments(): Compartment: ', newComp);
       tComp.setID(newComp.getId());
       if (newComp.isSetSize()) {
         tComp.setSize(newComp.getSize()); }
@@ -239,12 +246,15 @@ getRules(tModela, tRule) {
       var numTotalSpecies;
       var j;
       var k;
+      var comp = ''; // Compartment where rxn takes place.
       var reactants = [];  // an array of strings for each rxn
       var reactStoich = []; // number for each reactant per rxn
       var products = [];   // an array of strings
       var prodStoich = [];
       numTotalSpecies = this.model.getReaction(i).getNumReactants();
-
+      if(this.model.getReaction(i).isSetCompartment()) {
+        comp = this.model.getReaction(i).getCompartment();
+      }
       for (j=0; j < numTotalSpecies; j++) {
     // Get info for SpeciesReference object:
         reactants[j] = this.model.getReaction(i).getReactant(j).getSpecies();
@@ -273,7 +283,7 @@ getRules(tModela, tRule) {
       // this.model.getReaction(i).getKineticLaw().getNumLocalParameters();
    //console.log('--> kinetic law: ',this.model.getReaction(i).getKineticLaw().getFormula());
       tModela.addSBMLReaction(this.model.getReaction(i).getId(), products, prodStoich,
-                              reactants, reactStoich, kineticForm, rxnReversible);
+                              reactants, reactStoich, kineticForm, rxnReversible, comp);
     }
     return tModela;
   }
@@ -550,7 +560,7 @@ getRules(tModela, tRule) {
      }
      else if (this.isGlobalRenderSet) {
        this.currentRenderInfo = this.globalRenderInfo;
-       console.log('GlobalRender id: ', this.globalRenderInfo.getId());
+      // console.log('GlobalRender id: ', this.globalRenderInfo.getId());
      }
 
      if(this.currentRenderInfo.isSetId()){

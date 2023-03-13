@@ -1735,13 +1735,14 @@ end;
 // Get new values (species amt) from simulation run (ODE integrator)
 procedure TMainForm.getVals( newTime: Double; newVals: TVarNameValList );
 var i: Integer;
- // newValsAr: array of double;
+  //newValsAr: array of double;
   currentStepSize:double;
+  //dataStr: string;    // May use later.
 begin
   // Update table of data;
- // newValsAr := newVals.getValAr;
-//  dataStr := '';
- { dataStr := floatToStrf(newTime, ffFixed, 4, 4) + ', ';
+  //newValsAr := newVals.getValAr;
+ { dataStr := '';
+  dataStr := floatToStrf(newTime, ffFixed, 4, 4) + ', ';
   for i := 0 to length(newValsAr) - 1 do
     begin
       if not containsText(newVals.getNameVal(i).getId, '_Null') then // do not show null nodes
@@ -1753,7 +1754,7 @@ begin
         end;
     end;  }
  // simResultsMemo.Lines.Add(dataStr);  Not used
-
+ //  console.log(dataStr);
   // Update plots:
   if self.graphPanelList.count > 0 then
     begin

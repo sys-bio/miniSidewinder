@@ -114,7 +114,6 @@ object MainForm: TMainForm
       Align = alBottom
       BorderColor = clBtnFace
       ChildOrder = 4
-      ExplicitTop = 346
       object btnAbout: TWebButton
         Left = 1
         Top = 8

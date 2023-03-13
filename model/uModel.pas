@@ -52,7 +52,7 @@ type
    function  getNumReactions : integer;
    procedure addSBMLReaction(rxnid:String; prods: array of String; prodStoich: array of double;
              reactants: array of String; reactantsStoich: array of double;
-             kineticLaw: String; newReverse: boolean); overload;
+             kineticLaw: String; newReverse: boolean; newCompId: string); overload;
    procedure addSBMLReaction(newReaction: SBMLReaction); overload;
    function  getModelId(): string;
    procedure setModelId(newId: string);
@@ -228,7 +228,7 @@ procedure TModel.SBML_UpdateEvent();
 
  procedure TModel.addSBMLReaction(rxnid:String; prods: array of String; prodStoich: array of double;
          reactants: array of String; reactantsStoich: array of double;
-         kineticLaw: String; newReverse: boolean); overload;
+         kineticLaw: String; newReverse: boolean; newCompId: string); overload;
  var
    newRxn: SBMLReaction;
    len: integer;
@@ -236,6 +236,7 @@ procedure TModel.SBML_UpdateEvent();
    I: Integer;
    paramArray: array of String;
  begin
+
    setlength(p, Length(prods));
    paramArray:= ['nothing', 'empty']; // Local Parameter values, not used for now.
    for I := 0 to Length(prods)-1 do
@@ -254,6 +255,9 @@ procedure TModel.SBML_UpdateEvent();
 
    newRxn:= SBMLReaction.create(rxnid, p, r);
    newRxn.setReversible(newReverse);
+   if self.getSBMLcompartment(newCompId) <> nil then
+     newRxn.setCompartment(newCompId)
+   else console.log('SBMLreaction.create(): compartment Id not known: ', newCompId);
    newRxn.kineticLawStr:= kineticLaw;   // Get rid of.....?
    //newId: String; newFormula: String; paramArr: array of String
    newRxn.setKineticLaw(SBMLkineticLaw.create('dummy', kineticLaw ,paramArray));
@@ -772,8 +776,8 @@ begin
       self.getSBMLSpecies(0).setId('G1');
     end;
 
-    console.log('Formula: ',self.getReaction(0).getKineticLaw.getFormula());
-    console.log('species: ',self.getReaction(0).getReactant(0).getId());
+   // console.log('Formula: ',self.getReaction(0).getKineticLaw.getFormula());
+   // console.log('species: ',self.getReaction(0).getReactant(0).getId());
     self.SBML_UpdateEvent();
   end;
 

@@ -29,6 +29,7 @@ TFormatODEs = class
     paramsStrAr: array of String;    // keep to convert short name to long name.
     sVals: array of double;   // init val of species, same size as speciesStrAr
     pVals: array of double;   // init val of parameters, same size as paramsStrAr.
+    //compartments: TList<String>;  // NOT needed ??
 
   function  buildODE_LHS( rxn: SBMLreaction ): array of String; // build the 'dydt_s[]=' or '-dydt_s[]=', store in rhsSymbols
   function  getODEeqLoc(Speciesdydt : String): Integer; // return index of Species in odeEqs.
@@ -70,7 +71,7 @@ var i, j,k,  count: Integer;
     lhsSymbols: array of String; // contains the 'dydt_s[]=' argument.
     found_dydt: Integer;
     splitStrAr: TStringDynArray;
-
+    rxnComp: string;  // compartment id that rxn is in
 begin
   self.assignParamEqs := nil;
   self.assignSpeciesEqs := nil;
@@ -87,12 +88,13 @@ begin
   self.pVals := model.getP_Vals;
   self.BuildAssignmentEqs(model);
   self.buildInitialAssignEqs(model);
-
+  //self.compartments := TList<String>.create;
   // *******************************************************************
   // go through each reaction eq and replace all species and params in arrays:
   rxns:= Copy(model.getReactions(), 0, model.getNumReactions());
   for j := 0 to Length(rxns)-1 do
       begin
+      rxnComp := '';
       if rxns[j].isSetKineticLaw() then
          begin
          lhsSymbols := buildODE_LHS(rxns[j]);  // check if existing LHS, then just // add eq to it.
@@ -100,7 +102,17 @@ begin
          curODE := model.convertFuncDefToKineticLaw(curODE); // Get any Func Def that kin law uses, and substiute
          end
       else odeStrs[j] := '';
-
+      if rxns[j].isSetCompartment then
+        begin
+        rxnComp := rxns[j].getCompartment;
+      //  if not self.compartments.Contains(rxnComp) then
+      //    self.compartments.Add(rxnComp);
+        end;
+      // For equations using species concentrations then need compartment in denomenator:
+      //  ds/st = 1/Comp * (curODE);
+      if rxnComp <> '' then
+         curODE := '(1/' + rxnComp + ') *(' + curODE + ')';
+     // console.log(' TFormatODEs.create: ', curODE);
       odeStrs[j] := replaceStrNames(speciesStrAr, curODE,'s');
       odeStrs[j] := replaceStrNames(paramsStrAr, odeStrs[j],'p');
       setLength (odeEqs,length(lhsSymbols) + count);
