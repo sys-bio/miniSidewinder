@@ -67,6 +67,15 @@ fetch(newModel)
   .then((data) => {
     console.log(data);
 	newModel = data;
+	iframeSize = 'sidewinderFramegoldbeter'; 
+ 	newModel = "models/BIOMD0098_Goldbeter1990.xml"; // SBML model in XML format. Some ways of populating string listed below.
+ 	newRT = '10';  // Length of run
+ 	newSS = '0.010'; // integrator step size, thus 1000 points (10/0.010)
+ 	staticRun = 'true'; // Display after all calculations are done.
+ 	parSliders = 'v0, v1, beta, Vm2, Vm3, n, K2, Vm2, m, Kr, Ka, kf, k'; // param sliders, exact id match
+ 	spPlot = 'Y, Z'; // Species to plot, exact id match
+ 	yLabel = 'conc (uM)';
+ 	xLabel = 'sec';
 	getInfo();
   })
   
@@ -76,15 +85,7 @@ fetch(newModel)
  <script type="text/javascript">
 
 function size100() {
- iframeSize = 'sidewinderFramegoldbeter'; 
- newModel = "models/BIOMD0098_Goldbeter1990.xml"; // SBML model in XML format. Some ways of populating string listed below.
- newRT = '10';  // Length of run
- newSS = '0.010'; // integrator step size, thus 1000 points (10/0.010)
- staticRun = 'true'; // Display after all calculations are done.
- parSliders = 'v0, v1, beta, Vm2, Vm3, n, K2, Vm2, m, Kr, Ka, kf, k'; // param sliders, exact id match
- spPlot = 'Y, Z'; // Species to plot, exact id match
- yLabel = 'conc (uM)';
- xLabel = 'sec';
+
  runModel();
 }
 
