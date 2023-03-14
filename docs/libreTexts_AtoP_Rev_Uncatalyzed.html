@@ -3,94 +3,43 @@
 
 <head>
     <title>Minimum UI Demo </title>
-	
+<script type="text/javascript" src="miniSidewinderSimSetup.js"></script>
+<script type="text/javascript">	
 
 </head>
 <body>
+
+
 <script type="text/javascript">
- if (typeof window !== 'undefined') {
- // Perform sessionStorage action
- const item = sessionStorage.getItem('key')
- }
-var iframeSizeAtoP = '';
-</script>
-
- <p>
- <script type="text/javascript">
- // This is the data that needs to be populated.
-if (typeof newModel =='undefined'){
-  var newModel = ""; // SBML model in XML format. Some ways of populating string listed below.
-  var newRT = '';  // Length of run
-  var newSS = ''; // integrator step size, thus 1000 points (10/0.010)
-  var staticRun = 'true'; // Display after all calculations are done.
-  var parSliders = ''; // param sliders, exact id match
-  var spPlot = ''; // Species to plot, exact id match, '' for default vals
-  var yLabel = 'conc (uM)';
-  var xLabel = 'sec';
-}
-</script>
-
-
- </p>
  
- <script type="text/javascript">
- function getInfo() {
-   sessionStorage.setItem("MODEL", newModel);
-   sessionStorage.setItem('RUNTIME', newRT);
-   sessionStorage.setItem('STEPSIZE', newSS);
-   sessionStorage.setItem('STATIC', staticRun);
-   sessionStorage.setItem('SLIDERS', parSliders);
-   sessionStorage.setItem('PLOT_SPECIES', spPlot);
-   sessionStorage.setItem('X_LABEL', xLabel);
-   sessionStorage.setItem('Y_LABEL', yLabel);
-   window.location.href = ('Debug/index.html?')
-   //document.getElementById(iframeSizeAtoP).src = "Debug/index.html?"; // Location of miniSidewinder
-  // document.getElementById('sidewinderFrame').src = "Debug/index.html?"; // Location of miniSidewinder
- }
- </script> 
 
-<script type="text/javascript">
-function runModel() {
-// Use this code if you have a predefined model to run located at some URL:
-  newModel = "libretexts/models/AtoP_Rev_Uncatalyzed.xml"; // SBML model in XML format. Some ways of populating string listed below.
-//fetch('http://localhost/models/simpleRXN.xml')
-//fetch('models/BIOMD0098_Goldbeter1990.xml')
-fetch(newModel)
-  .then(response => response.text())
-  .then((data) => {
-    console.log(data);
-	newModel = data;
-	// This is the data that needs to be populated.
- 	
- 	newRT = '5';  // Length of run
- 	newSS = '0.10'; // integrator step size, thus 1000 points (10/0.010)
- 	staticRun = 'true'; // Display after all calculations are done.
- 	parSliders = '_F_, Kf_r0, Kr_r0, c0'; // param sliders, exact id match
- 	spPlot = ''; // Species to plot, exact id match, '' for default vals
- 	yLabel = 'conc (uM)';
- 	xLabel = 'sec';
-// End of data to be populated.
-	
-	getInfo();
-  })
+function runSim() {
   
+    const iframeID ="simulatorAtoP";  // unique Id of iframe used below.
+ 
+	// *** This is the data that needs to be populated: *** 
+	const modelURL = "libretexts/models/AtoP_Rev_Uncatalyzed.xml"; // Location of SBML model in XML format.
+	const newRT = '5';  // Length of run in time units
+	const newSS = '0.10'; // step size, for 0.1 integrator step size: 100 points (10/0.10)
+	const staticRun = 'true'; // 'true':Display after all calculations are done.
+	const parSliders = '_F_, Kf_r0, Kr_r0, c0'; // param sliders, exact id match
+	const spPlot = ''; // Species to plot, exact id match, '' for default vals
+	const yLabel = 'conc (uM)';
+	const xLabel = 'sec';
+ // *** End of data to be populated. ***
+ 
+    console.log('Values to be passed in:');
+    console.log(iframeID, modelURL, newRT, newSS, staticRun, parSliders, spPlot, xLabel, yLabel);
+    runModel(iframeID, modelURL, newRT, newSS, staticRun, parSliders, spPlot, xLabel, yLabel);
+   
  }
-// END of predefined model code.
-</script> 
- <script type="text/javascript">
 
-function size100() {
-// iframeSizeAtoP = 'sidewinderFrameAtoP';
-
- runModel();
-}
-
-</script >
+</script>
 
 <script type="text/javascript">
- size100();
+ runSim();
 </script>  
-  
+  <iframe id='simulatorAtoP'> </iframe>
 </body>
 
 </html>
