@@ -19,8 +19,7 @@
    const params = sessionStorage.getItem('SLIDERS');
    console.log('getInfo() - sessionStorage(SLIDERS):', params);
   // window.location.href = ('Debug/index.html?')
-   //window.location.href = ('/@api/deki/files/69599/miniSidewinder_index.html');
-  document.getElementById(iframeId).src = '/@api/deki/files/69599/miniSidewinder_index.html'; // Location of miniSidewinder
+  document.getElementById(iframeId).src = 'Debug/index.html'; // Location of miniSidewinder
  }
  
 
