@@ -1,7 +1,7 @@
 
 // Functions which grab user model to run and then call the simulator (minSidewinder). 
  
- function getInfo(iframeId, modelSBML, newRT, newSS, staticRun, parSliders, spPlot, xLabel, yLabel) {
+ async function getInfo(iframeId, modelSBML, newRT, newSS, staticRun, parSliders, spPlot, xLabel, yLabel) {
    if (typeof window !== 'undefined') {
  // Perform sessionStorage action
    const item = sessionStorage.getItem('key')
@@ -19,12 +19,13 @@
    const params = sessionStorage.getItem('SLIDERS');
    console.log('getInfo() - sessionStorage(SLIDERS):', params);
   // window.location.href = ('Debug/index.html?')
-   //window.location.href = ('/@api/deki/files/69599/miniSidewinder_index.html');
-  document.getElementById(iframeId).src = '/@api/deki/files/69599/miniSidewinder_index.html'; // Location of miniSidewinder
+   document.getElementById(iframeId).src = 'https://bartjuw.github.io/miniSidewinder/Debug/index.html'; // Location of miniSidewinder
+
+  return;
  }
  
 
-function runModel(frameId, modelURL, newRT, newSS, staticRun, parSliders, spPlot, xLabel, yLabel) {
+ async function runModel(frameId, modelURL, newRT, newSS, staticRun, parSliders, spPlot, xLabel, yLabel) {
   console.log('miniSidewinderSimSetup.runModel(): Values Received:');
   console.log(frameId, modelURL, newRT, newSS, staticRun, parSliders, spPlot, xLabel, yLabel);
 // Use this code if you have a predefined model to run located at some URL:
@@ -42,6 +43,8 @@ function runModel(frameId, modelURL, newRT, newSS, staticRun, parSliders, spPlot
 	 var errmsg = 'Model not loaded from: ' + modelURL + '. ' + error;
 	 alert(errmsg);
    }
+   
+   return;
   
  }
 
