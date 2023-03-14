@@ -2,28 +2,26 @@
 <html>
 
 <head>
-    <title>Minimum UI Demo </title>
+ 
 <script type="text/javascript" src="miniSidewinderSimSetup.js"></script>
-<script type="text/javascript">	
+<script type="text/javascript">		
 
 </head>
 <body>
-
-
 <script type="text/javascript">
  
 
-function runSim() {
+function runSimGoldbeter() {
   
-    const iframeID ="simulatorAtoP";  // unique Id of iframe used below.
+    const iframeID ="simulatorgoldbeter";  // unique Id of iframe used below.
  
 	// *** This is the data that needs to be populated: *** 
-	const modelURL = "libretexts/models/AtoP_Rev_Uncatalyzed.xml"; // Location of SBML model in XML format.
-	const newRT = '5';  // Length of run in time units
+	const modelURL = "models/BIOMD0098_Goldbeter1990.xml"; // Location of SBML model in XML format.
+	const newRT = '10';  // Length of run in time units
 	const newSS = '0.10'; // step size, for 0.1 integrator step size: 100 points (10/0.10)
 	const staticRun = 'true'; // 'true':Display after all calculations are done.
-	const parSliders = '_F_, Kf_r0, Kr_r0, c0'; // param sliders, exact id match
-	const spPlot = ''; // Species to plot, exact id match, '' for default vals
+	const parSliders = 'v0, v1, beta, Vm2, Vm3, n, K2, Vm2, m, Kr, Ka, kf, k'; // param sliders, exact id match
+	const spPlot = 'Y, Z'; // Species to plot, exact id match, '' for default vals
 	const yLabel = 'conc (uM)';
 	const xLabel = 'sec';
  // *** End of data to be populated. ***
@@ -36,11 +34,14 @@ function runSim() {
 
 </script>
 
-  <iframe id='simulatorAtoP'> </iframe>
+
+ </p>
+   
+ <iframe id='simulatorgoldbeter'> </iframe> 
+  <script type="text/javascript">
+  runSimGoldbeter();
+  </script>
   
- <script type="text/javascript">
- runSim();
-</script> 
 </body>
 
 </html>
