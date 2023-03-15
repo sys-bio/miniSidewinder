@@ -1,0 +1,92 @@
+<html>
+
+<head>
+    <title>Minimum UI Demo </title>
+	
+	<style>
+
+#sidewinderHVJ_RevKholodenko2000 {
+        border: 0px line;
+        width: 100%;
+        height: 100%;
+		overflow-y:scroll;
+		overflow-x:scroll;
+    }
+
+	</style
+</head>
+<body>
+<script type="text/javascript">
+ if (typeof window !== 'undefined') {
+ // Perform sessionStorage action
+ const item = sessionStorage.getItem('key')
+ }
+var iframeSize = 'sidewinderFrame70';
+</script>
+
+ <p>
+ <script type="text/javascript">
+ // This is the data that needs to be populated.
+var newModel = ""; // SBML model in XML format. Some ways of populating string listed below.
+var newRT = '';  // Length of run
+var newSS = ''; // integrator step size, thus 1000 points (10/0.010)
+var staticRun = ''; // Display after all calculations are done.
+var parSliders = ''; // param sliders, exact id match
+var spPlot = ''; // Species to plot, exact id match
+var yLabel = 'conc (uM)';
+var xLabel = 'sec';
+</script>
+
+ </p>
+ 
+ <script type="text/javascript">
+ function getInfo2(frame,model,rt, ss,static,pars,sp) {
+   sessionStorage.setItem("MODEL", model);
+   sessionStorage.setItem('RUNTIME', rt);
+   sessionStorage.setItem('STEPSIZE', ss);
+   sessionStorage.setItem('STATIC', static);
+   sessionStorage.setItem('SLIDERS', pars);
+   sessionStorage.setItem('PLOT_SPECIES', sp);
+   sessionStorage.setItem('X_LABEL', xLabel);
+   sessionStorage.setItem('Y_LABEL', yLabel);
+   window.location.href = ('Debug/index.html?')
+  // document.getElementById(frame).src = "Debug/index.html?"; // Location of miniSidewinder
+  // document.getElementById('sidewinderFrame').src = "Debug/index.html?"; // Location of miniSidewinder
+ }
+ </script> 
+
+<script type="text/javascript">
+function runModel2() {
+// Use this code if you have a predefined model to run located at some URL:
+newModel = "libretexts/models/HVJ_RevKholodenko2000___Ultrasensitivity_and_negative_feedback_bring_oscillations_in_MAPK_cascade.xml"; // SBML model in XML format. Some ways of populating string listed below.
+//fetch('http://localhost/models/simpleRXN.xml')
+//fetch('models/BIOMD0098_Goldbeter1990.xml')
+fetch(newModel)
+  .then(response => response.text())
+  .then((data) => {
+    console.log(data);
+	//newModel = data;
+	iframeSize = 'sidewinderHVJ_RevKholodenko2000'; 
+ 	
+ 	newRT = '400';  // Length of run
+ 	newSS = '0.10'; // integrator step size, thus 1000 points (10/0.010)
+ 	staticRun = 'true'; // Display after all calculations are done.
+ 	parSliders = 'K1_J0,V1_J0,Ki_j0,n_J0,KK2_J1,V2_J1,KK3_J2,k3_J2,KK4_J3,k4_J3,KK5_J4,V5_J4'; // param sliders, exact id match
+ 	spPlot = ''; // Species to plot, exact id match, '' for default vals
+ 	yLabel = 'conc (uM)';
+ 	xLabel = 'sec';
+	getInfo2(iframeSize,data,newRT,newSS,staticRun,parSliders,spPlot);
+  })
+  
+ }
+// END of predefined model code.
+</script>
+
+<script type="text/javascript">
+ runModel2();
+</script>  
+  
+</body>
+
+</html>
+
