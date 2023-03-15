@@ -12,7 +12,7 @@ uses
   VCL.TMSFNCCustomControl, VCL.TMSFNCScrollBar, ufModelInfo, ufLabelPopUp,
   Vcl.Menus, WEBLib.Menus, WEBLib.WebCtrls, ufChkGroupEditPlot;
 
-const SIDEWINDER_VERSION = 'miniSidewinder Version 0.8.1';
+const SIDEWINDER_VERSION = 'miniSidewinder Version 0.8.2';
       COPYRIGHT = 'Copyright 2023, Bartholomew Jardine and Herbert Sauro, University of Washington, USA';
       GRANT_INFO = 'This project is funded by NIH/NIGMS (R01-GM123032-04)';
       DEFAULT_RUNTIME = 10000;

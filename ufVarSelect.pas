@@ -77,9 +77,9 @@ begin
     if length(self.speciesList[i]) > maxLength then
       maxLength := length(self.speciesList[i]);
     end;
-  if maxLength < 8 then
-    maxLength := 8;
-  result := maxLength * 9;
+  if maxLength < 10 then
+    maxLength := 10;
+  result := maxLength * 10;
 end;
 
 procedure TVarSelectForm.setWidths();
