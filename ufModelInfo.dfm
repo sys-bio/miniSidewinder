@@ -1,21 +1,16 @@
 object fModelInfo: TfModelInfo
   Width = 458
   Height = 338
-  object lblModelName: TWebLabel
-    Left = 24
-    Top = 16
-    Width = 65
-    Height = 13
-    Caption = 'lblModelName'
-    HeightPercent = 100.000000000000000000
-    WidthPercent = 100.000000000000000000
-  end
+  Color = clCream
+  CSSLibrary = cssBootstrap
+  ElementFont = efCSS
   object lblInitVals: TWebLabel
     Left = 8
     Top = 56
     Width = 64
     Height = 13
     Caption = 'Initial values:'
+    Color = clCream
     HeightPercent = 100.000000000000000000
     WidthPercent = 100.000000000000000000
   end
@@ -25,6 +20,7 @@ object fModelInfo: TfModelInfo
     Width = 47
     Height = 13
     Caption = 'Rate laws'
+    Color = clCream
     HeightPercent = 100.000000000000000000
     WidthPercent = 100.000000000000000000
   end
@@ -47,5 +43,18 @@ object fModelInfo: TfModelInfo
     ItemHeight = 13
     WidthPercent = 100.000000000000000000
     ItemIndex = -1
+  end
+  object memoModelName: TWebMemo
+    Left = 16
+    Top = 8
+    Width = 417
+    Height = 42
+    BorderStyle = bsNone
+    HeightPercent = 100.000000000000000000
+    Lines.Strings = (
+      'memoModelName')
+    SelLength = 0
+    SelStart = 0
+    WidthPercent = 100.000000000000000000
   end
 end

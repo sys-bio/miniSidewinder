@@ -12,7 +12,7 @@ uses
   VCL.TMSFNCCustomControl, VCL.TMSFNCScrollBar, ufModelInfo, ufLabelPopUp,
   Vcl.Menus, WEBLib.Menus, WEBLib.WebCtrls, ufChkGroupEditPlot;
 
-const SIDEWINDER_VERSION = 'miniSidewinder Version 0.8.2';
+const SIDEWINDER_VERSION = 'miniSidewinder Version 0.8.3';
       COPYRIGHT = 'Copyright 2023, Bartholomew Jardine and Herbert Sauro, University of Washington, USA';
       GRANT_INFO = 'This project is funded by NIH/NIGMS (R01-GM123032-04)';
       DEFAULT_RUNTIME = 10000;
@@ -1880,7 +1880,7 @@ procedure TMainForm.displayModelInfo();
    procedure AfterCreate(AForm: TObject);
    begin
     (AForm as TfModelInfo).Top := trunc(self.Height*0.1); // put popup %10 from top
-    (AForm as TfModelInfo).lblModelName.Caption := self.currentModelInfo;
+    (AForm as TfModelInfo).setModelName(self.currentModelInfo);
     (AForm as TfModelInfo).setListBoxInitVals(self.strListInitVals);
     (AForm as TfModelInfo).setListBoxRates(self.strListRates);
    end;

@@ -4,20 +4,22 @@ interface
 
 uses
   System.SysUtils, System.Classes, JS, Web, WEBLib.Graphics, WEBLib.Controls,
-  WEBLib.Forms, WEBLib.Dialogs, Vcl.Controls, Vcl.StdCtrls, WEBLib.StdCtrls;
+  WEBLib.Forms, WEBLib.Dialogs, Vcl.Controls, Vcl.StdCtrls, WEBLib.StdCtrls,
+  System.StrUtils;
 
 type
   TfModelInfo = class(TWebForm)
     listBoxInitVals: TWebListBox;
-    lblModelName: TWebLabel;
     listBoxRates: TWebListBox;
     lblInitVals: TWebLabel;
     lblRates: TWebLabel;
+    memoModelName: TWebMemo;
   private
     { Private declarations }
   public
   procedure setlistBoxInitVals(newList: TStringList);
   procedure setlistBoxRates(newList: TStringList);
+  procedure setModelName(newName: string);
   end;
 
 var
@@ -42,6 +44,13 @@ implementation
    itemCount := newList.Count;
    self.listBoxRates.Height := trunc(self.listBoxRates.Font.Size * 1.8 * itemCount);
 
+ end;
+
+ procedure TfModelInfo.setModelName(newName: string);
+ var i, width: integer;
+     strName: string;
+ begin
+   self.memoModelName.Text := newName;
  end;
 
 end.
