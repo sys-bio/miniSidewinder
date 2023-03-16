@@ -530,7 +530,6 @@ begin
   if assigned(self.pnlSimSpeedMult) then self.trackBarSimSpeed.Enabled := false;
   self.enableStepSizeEdit;
   if not DEBUG then self.pnlExample.Free;
-
   self.mainController.addSBMLListener( @self.PingSBMLLoaded );
   self.mainController.addSimListener( @self.getVals ); // notify when new Sim results
   self.mainController.addStaticSimResultsListener( @self.getStaticSimResults ); // notify when static run done.
@@ -1413,29 +1412,32 @@ procedure TMainForm.resetPlots();  // Reset plots for new simulation.
     initSVals: TVarNameValList;
     displayLegend: boolean;
 begin // Easier to just delete/create than reset time, xaxis labels, etc.
-  for i := 0 to self.graphPanelList.Count -1 do
+  if assigned(self.graphPanelList) then
     begin
-    self.graphPanelList[i].setChartDelta(self.stepSize); //Added
-    if self.chkbxStaticSimRun.Checked then self.graphPanelList[i].setXMax(self.runTime);
-    displayLegend := self.graphPanelList[i].isLegendVisible;
-    self.graphPanelList[i].deleteChart;
-    self.graphPanelList[i].createChart;
-    self.graphPanelList[i].setupChart;
-    if not displayLegend then self.graphPanelList[i].toggleLegendVisibility;// default is true
+    for i := 0 to self.graphPanelList.Count -1 do
+      begin
+      self.graphPanelList[i].setChartDelta(self.stepSize); //Added
+      if self.chkbxStaticSimRun.Checked then self.graphPanelList[i].setXMax(self.runTime);
+      displayLegend := self.graphPanelList[i].isLegendVisible;
+      self.graphPanelList[i].deleteChart;
+      self.graphPanelList[i].createChart;
+      self.graphPanelList[i].setupChart;
+      if not displayLegend then self.graphPanelList[i].toggleLegendVisibility;// default is true
 
-    end;
-  initSVals := TVarNameValList.create;
-  for i := 0 to length(self.mainController.getModel.getS_Names) -1 do
-    begin
-    initSVals.add(TVarNameVal.create(self.mainController.getModel.getS_Names[i],
+      end;
+    initSVals := TVarNameValList.create;
+    for i := 0 to length(self.mainController.getModel.getS_Names) -1 do
+      begin
+      initSVals.add(TVarNameVal.create(self.mainController.getModel.getS_Names[i],
                                       self.mainController.getModel.getS_initVals[i]) );
+      end;
+    self.refreshPlotPanels;
+    self.getVals( 0, initSVals ); // Display correctly sized graph window on reset
+    self.btnEditGraph.Enabled := true;
+    self.btnEditGraph.ElementClassName := BTN_ENABLED;
+    self.btnEditSliders.Enabled := true;
+    self.btnEditSliders.ElementClassName := BTN_ENABLED;
     end;
-  self.refreshPlotPanels;
-  self.getVals( 0, initSVals ); // Display correctly sized graph window on reset
-  self.btnEditGraph.Enabled := true;
-  self.btnEditGraph.ElementClassName := BTN_ENABLED;
-  self.btnEditSliders.Enabled := true;
-  self.btnEditSliders.ElementClassName := BTN_ENABLED;
 end;
 
 procedure TMainForm.selectPlotSpecies(plotnumb: Integer);
