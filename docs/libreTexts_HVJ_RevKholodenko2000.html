@@ -71,8 +71,9 @@ fetch(newModel)
  	newRT = '5000';  // Length of run
  	newSS = '0.50'; // integrator step size, thus # points (newRT/newSS)
  	staticRun = 'true'; // Display after all calculations are done.
- 	parSliders = 'K1_J0,V1_J0,Ki_J0,n_J0,KK2_J1,V2_J1,KK3_J2,k3_J2,KK4_J3,k4_J3,KK5_J4,KK6_J5 '; // param sliders, exact id match
- 	spPlot = ''; // Species to plot, exact id match, '' for default vals
+ 	//parSliders = 'K1_J0,V1_J0,Ki_J0,n_J0,KK2_J1,V2_J1,KK3_J2,k3_J2,KK4_J3,k4_J3,KK5_J4,KK6_J5 '; // param sliders, exact id match
+ 	parSliders = '';
+	spPlot = ''; // Species to plot, exact id match, '' for default vals
  	yLabel = 'conc (uM)';
  	xLabel = 'sec';
 	getInfo2(iframeSize,data,newRT,newSS,staticRun,parSliders,spPlot);
