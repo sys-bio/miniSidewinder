@@ -66,6 +66,9 @@ var xLabel = 'msec';
   let value = sessionStorage.getItem(key);
   console.log('session key:', key, 'Item: ', value);
   }
+  const localModel = localStorage.get("MODEL_LOCAL_NAME");
+  console.log("local Model: ", localModel);
+  
   for (let i = 0; i < localStorage.length; i++){
   let lkey = localStorage.key(i);
   let lvalue = localStorage.getItem(lkey);
