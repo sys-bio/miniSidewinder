@@ -34,7 +34,7 @@ var staticRun = ''; // Display after all calculations are done.
 var parSliders = ''; // param sliders, exact id match
 var spPlot = ''; // Species to plot, exact id match
 var yLabel = 'conc (uM)';
-var xLabel = 'sec';
+var xLabel = 'msec';
 </script>
 
  </p>
@@ -64,7 +64,12 @@ var xLabel = 'sec';
   let key = sessionStorage.key(i);
   let value = sessionStorage.getItem(key);
   console.log('session key:', key, 'Item: ', value);
-}
+  }
+  for (let i = 0; i < localStorage.length; i++){
+  let lkey = localStorage.key(i);
+  let lvalue = localStorage.getItem(key);
+  console.log('local key:', lkey, 'Item: ', lvalue);
+  }
   
   runModel2();
  
