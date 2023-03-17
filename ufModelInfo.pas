@@ -50,7 +50,9 @@ implementation
  var i, width: integer;
      strName: string;
  begin
-   self.memoModelName.Text := newName;
+   if (newName = '') or (newName.Contains('None'))then
+     self.memoModelName.Text := 'No Model ID.'
+   else self.memoModelName.Text := newName;
  end;
 
 end.

@@ -49,10 +49,12 @@ object fModelInfo: TfModelInfo
     Top = 8
     Width = 417
     Height = 42
+    AutoSize = False
     BorderStyle = bsNone
     HeightPercent = 100.000000000000000000
     Lines.Strings = (
       'memoModelName')
+    ParentColor = True
     SelLength = 0
     SelStart = 0
     WidthPercent = 100.000000000000000000
