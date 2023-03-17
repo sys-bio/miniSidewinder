@@ -57,8 +57,15 @@ var xLabel = 'sec';
  
  <script type="text/javascript">
  function getStorageValues() {
-  const modelURL = sessionStorage.getItem('MODEL_URL');
+  const modelURL = sessionStorage.getItem("MODEL_URL");
   console.log('* Model url: ', modelURL);
+  
+  for (let i = 0; i < sessionStorage.length; i++){
+  let key = sessionStorage.key(i);
+  let value = sessionStorage.getItem(key);
+  console.log('session key:', key, 'Item: ', value);
+}
+  
   runModel2();
  
  
