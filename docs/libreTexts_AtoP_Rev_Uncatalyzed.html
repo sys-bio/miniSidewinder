@@ -30,7 +30,7 @@ window.addEventListener("message", function(event) {
     // something from an unknown domain, let's ignore it
     return;
   }
-
+ console.log("***** data :", event.data);
   alert( "received: " + event.data );
 
   // can message back using event.source.postMessage(...)
