@@ -39,10 +39,12 @@ window.addEventListener('message', function(event) {
   newRT = JSONdata.m_RT;
   newSS = JSONdata.m_SS;
   staticRun = JSONdata.m_static;
+  parSliders = JSONdata.m_pars;
+  spPlot = JSONdata.m_species;
   const newURL = JSONdata.m_URL;
   const iframeID = JSONdata.m_iframID;
   console.log('newURL: ', newURL);
-  runModel2();
+  runModel2(newURL, iframeID);
 });
 </script>
 
@@ -79,7 +81,7 @@ var xLabel = 'sec';
  </script> 
 
 <script type="text/javascript">
-function runModel2() {
+function runModel2(modelURL, newFrameID) {
 // Use this code if you have a predefined model to run located at some URL:
 newModel = "libretexts/models/AtoP_Rev_Uncatalyzed.xml"; // SBML model in XML format. Some ways of populating string listed below.
 //fetch('http://localhost/models/simpleRXN.xml')
@@ -89,16 +91,16 @@ fetch(newModel)
   .then((data) => {
     console.log(data);
 	//newModel = data;
-	iframeSize = 'simulatorAtoP'; 
+//	iframeSize = 'simulatorAtoP'; 
  	
- 	newRT = '5';  // Length of run
- 	newSS = '0.010'; // integrator step size, thus 1000 points (10/0.010)
- 	staticRun = 'true'; // Display after all calculations are done.
- 	parSliders = '_F_, Kf_r0, Kr_r0, c0'; // param sliders, exact id match
- 	spPlot = ''; // Species to plot, exact id match, '' for default vals
- 	yLabel = 'conc (uM)';
- 	xLabel = 'sec';
-	getInfo2(iframeSize,data,newRT,newSS,staticRun,parSliders,spPlot);
+ //	newRT = '5';  // Length of run
+ //	newSS = '0.010'; // integrator step size, thus 1000 points (10/0.010)
+ //	staticRun = 'true'; // Display after all calculations are done.
+ //	parSliders = '_F_, Kf_r0, Kr_r0, c0'; // param sliders, exact id match
+ //	spPlot = ''; // Species to plot, exact id match, '' for default vals
+// 	yLabel = 'conc (uM)';
+// 	xLabel = 'sec';
+	getInfo2(newFrameID,data,newRT,newSS,staticRun,parSliders,spPlot);
   })
   
  }
