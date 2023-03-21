@@ -26,14 +26,15 @@ var iframeSize = 'sidewinderFrame70';
 </script>
 
 <script type="text/javascript">
-//window.addEventListener("message", function(event) {
-window.addEventListener(message, function(event) {
+window.addEventListener('message', function(event) {
   if (event.origin != 'https://bio.libretexts.org') {
     // something from an unknown domain, let's ignore it
 	console.log("*****Unknown data :", event.data);
+	
     return;
   }
   console.log("**** libretexts data :",newMessage, event.data);
+  console.log("***** other data :",${event.data} );
  
   // can message back using event.source.postMessage(...)
   runModel2();
