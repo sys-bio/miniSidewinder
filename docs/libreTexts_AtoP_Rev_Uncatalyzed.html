@@ -34,7 +34,7 @@ window.addEventListener('message', function(event) {
     return;
   }
   console.log("**** libretexts data :", event.data);
-  
+  JSONdata = JSON.parse(event.data);
   // can message back using event.source.postMessage(...)
   runModel2();
 });
