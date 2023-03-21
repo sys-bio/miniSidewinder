@@ -30,7 +30,7 @@ var iframeSize = 'sidewinderFrame70';
 window.addEventListener(newMessage, function(event) {
   if (event.origin != 'https://bio.libretexts.org') {
     // something from an unknown domain, let's ignore it
-	console.log("*****Unknown data :" event.data);
+	console.log("*****Unknown data :", event.data);
     return;
   }
   console.log("**** libretexts data :",newMessage, event.data);
