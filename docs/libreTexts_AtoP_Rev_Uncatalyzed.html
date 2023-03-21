@@ -33,9 +33,15 @@ window.addEventListener('message', function(event) {
 	
     return;
   }
+  // can message back using event.source.postMessage(...)
   console.log("**** libretexts data :", event.data);
   JSONdata = JSON.parse(event.data);
-  // can message back using event.source.postMessage(...)
+  newRT = JSONdata.m_RT;
+  newSS = JSONdata.m_SS;
+  staticRun = JSONdata.m_static;
+  const newURL = JSONdata.m_URL;
+  const iframeID = JSONdata.m_iframID;
+  console.log('newURL: ', newURL);
   runModel2();
 });
 </script>
