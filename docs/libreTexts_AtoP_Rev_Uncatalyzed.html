@@ -20,17 +20,15 @@
  if (typeof window !== 'undefined') {
  // Perform sessionStorage action
  const item = sessionStorage.getItem('key')
- const item2 = localStorage.getItem('key');
  }
-var iframeSize = 'sidewinderFrame70';
+var iframeSize = '';
 </script>
 
 <script type="text/javascript">
 window.addEventListener('message', function(event) {
   if (event.origin != 'https://bio.libretexts.org') {
-    // something from an unknown domain, let's ignore it
+    // something from an unknown domain, ignore it
 	console.log("*****Unknown data :", event.data);
-	
     return;
   }
   // can message back using event.source.postMessage(...)
@@ -76,7 +74,6 @@ var xLabel = 'sec';
    sessionStorage.setItem('Y_LABEL', yLabel);
    window.location.href = ('Debug/index.html?')
   // document.getElementById(frame).src = "Debug/index.html?"; // Location of miniSidewinder
-  // document.getElementById('sidewinderFrame').src = "Debug/index.html?"; // Location of miniSidewinder
  }
  </script> 
 
@@ -91,13 +88,6 @@ fetch(newModel)
   .then((data) => {
     console.log(data);
 	//newModel = data;
-//	iframeSize = 'simulatorAtoP'; 
- 	
- //	newRT = '5';  // Length of run
- //	newSS = '0.010'; // integrator step size, thus 1000 points (10/0.010)
- //	staticRun = 'true'; // Display after all calculations are done.
- //	parSliders = '_F_, Kf_r0, Kr_r0, c0'; // param sliders, exact id match
- //	spPlot = ''; // Species to plot, exact id match, '' for default vals
 // 	yLabel = 'conc (uM)';
 // 	xLabel = 'sec';
 	getInfo2(newFrameID,data,newRT,newSS,staticRun,parSliders,spPlot);
