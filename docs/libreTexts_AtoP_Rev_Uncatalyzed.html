@@ -32,16 +32,25 @@ window.addEventListener('message', function(event) {
     return;
   }
   // can message back using event.source.postMessage(...)
-  console.log("**** libretexts data :", event.data);
-  JSONdata = JSON.parse(event.data);
-  newRT = JSONdata.m_RT;
-  newSS = JSONdata.m_SS;
-  staticRun = JSONdata.m_static;
-  parSliders = JSONdata.m_pars;
-  spPlot = JSONdata.m_species;
-  const newURL = JSONdata.m_URL;
-  const iframeID = JSONdata.m_iframeID;
-  console.log('newURL: ', newURL);
+  var newURL = '';
+  var iframeID = '';
+  try {
+    console.log("**** libretexts data :", event.data);
+    JSONdata = JSON.parse(event.data);
+    newRT = JSONdata.m_RT;
+    newSS = JSONdata.m_SS;
+    staticRun = JSONdata.m_static;
+    parSliders = JSONdata.m_pars;
+    spPlot = JSONdata.m_species;
+    newURL = JSONdata.m_URL;
+    iframeID = JSONdata.m_iframeID;
+    console.log('newURL: ', newURL);
+	}
+  catch(err) {
+     console.log('eventListener: message error: ', err);
+	 window.alert('Model information not received!);
+   
+   }
   runModel2(newURL, iframeID);
 });
 </script>
