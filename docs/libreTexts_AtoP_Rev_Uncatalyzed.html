@@ -64,6 +64,7 @@ var xLabel = 'sec';
  
  <script type="text/javascript">
  function getInfo2(frame,model,rt, ss,static,pars,sp) {
+   console.log(' *** getInfo2() loaded.');
    sessionStorage.setItem("MODEL", model);
    sessionStorage.setItem('RUNTIME', rt);
    sessionStorage.setItem('STEPSIZE', ss);
@@ -81,6 +82,7 @@ var xLabel = 'sec';
 function runModel2(modelURL, newFrameID) {
 // Use this code if you have a predefined model to run located at some URL:
 newModel = "libretexts/models/AtoP_Rev_Uncatalyzed.xml"; // SBML model in XML format. Some ways of populating string listed below.
+console.log('** runModel2() loaded');
 //fetch('http://localhost/models/simpleRXN.xml')
 //fetch('models/BIOMD0098_Goldbeter1990.xml')
 fetch(newModel)
@@ -99,6 +101,7 @@ fetch(newModel)
 
 <script type="text/javascript">
  //runModel2();
+ console.log(" * AtoP_Rev...html file loaded......");
 </script>  
   
 </body>
