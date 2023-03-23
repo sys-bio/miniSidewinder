@@ -42,8 +42,10 @@ function myDelay(n) {
   var newURL = '';
   var iframeID = '';
   try {
+    var newURL = '';
+    var iframeID = '';
     //console.log("**** loadInfo(): libretexts data :", newEventData);
-	await myDelay(1000);
+	//await myDelay(1000);
     JSONdata = JSON.parse(newEventData);
     newRT = JSONdata.m_RT;
     newSS = JSONdata.m_SS;
@@ -77,8 +79,7 @@ window.addEventListener('message',function (event) {
     return;
   }
  // console.log('EventListener called *** ');
-  var newURL = '';
-  var iframeID = '';
+ 
   try {
     loadInfo(event.data);
  	}
