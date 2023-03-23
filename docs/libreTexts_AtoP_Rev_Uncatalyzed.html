@@ -42,11 +42,9 @@ function myDelay(n) {
   var newURL = '';
   var iframeID = '';
   try {
-    console.log("**** loadInfo(): libretexts data :", newEventData);
-	await myDelay(2000);
+    //console.log("**** loadInfo(): libretexts data :", newEventData);
+	await myDelay(1000);
     JSONdata = JSON.parse(newEventData);
-	console.log('loadInfo(): After JSON.parse...');
-	//await myDelay(3000);
     newRT = JSONdata.m_RT;
     newSS = JSONdata.m_SS;
     staticRun = JSONdata.m_static;
@@ -76,17 +74,14 @@ window.addEventListener('message',function (event) {
 	console.log("*****Unknown data :", event.data);
     return;
   }
-  console.log('EventListener called *** ');
+ // console.log('EventListener called *** ');
   var newURL = '';
   var iframeID = '';
   try {
     loadInfo(event.data);
-  
-	}
+ 	}
   catch(err) {
      console.log('eventListener: message error: ', err);
-	// window.alert('Model information not received!');
-   
    }
   //runModel2(newURL, iframeID);
 } );
