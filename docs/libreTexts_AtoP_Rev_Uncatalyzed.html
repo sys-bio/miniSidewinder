@@ -42,7 +42,6 @@ function myDelay(n) {
   var newURL = '';
   var iframeID = '';
   try {
-    
     console.log("**** loadInfo(): libretexts data :", newEventData);
 	await myDelay(3000);
     JSONdata = JSON.parse(newEventData);
@@ -56,13 +55,14 @@ function myDelay(n) {
     newURL = JSONdata.m_URL;
     iframeID = JSONdata.m_iframeID;
     console.log('loadInfo(): newURL: ', newURL);
+	runModel2(newURL, iframeID);
 	}
   catch(err) {
      console.log('loadInfo: message error: ', err);
 	// window.alert('Model information not received!');
    
    }
-  runModel2(newURL, iframeID);
+  
   return;
 
 } 
