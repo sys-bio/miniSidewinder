@@ -37,7 +37,7 @@ function myDelay(n) {
 </script>
 
 <script type="text/javascript">
-window.addEventListener('message', function(event) {
+async function loadIframeSim(event) {
   if (event.origin != 'https://bio.libretexts.org') {
     // something from an unknown domain, ignore it
 	console.log("*****Unknown data :", event.data);
@@ -65,7 +65,11 @@ window.addEventListener('message', function(event) {
    
    }
   runModel2(newURL, iframeID);
-});
+}
+</script>
+
+<script type="text/javascript">
+window.addEventListener('message',loadIframeSim(event) );
 </script>
 
 
