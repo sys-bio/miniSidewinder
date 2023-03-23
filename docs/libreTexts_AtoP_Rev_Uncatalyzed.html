@@ -24,17 +24,6 @@
 var iframeSize = '';
 </script>
 
-<script type="text/javascript">
-function myDelay(n) {  
-  n = n || 2000;
-  console.log('... myDelay()');
-  return new Promise(done => {
-    setTimeout(() => {
-      done();
-    }, n);
-  });
-}
-</script>
 
 <script type="text/javascript">
  async function loadInfo(newEventData) {
@@ -42,10 +31,9 @@ function myDelay(n) {
   var newURL = '';
   var iframeID = '';
   try {
-    var newURL = '';
-    var iframeID = '';
+  //  var newURL = '';
+  //  var iframeID = '';
     //console.log("**** loadInfo(): libretexts data :", newEventData);
-	//await myDelay(1000);
     JSONdata = JSON.parse(newEventData);
     newRT = JSONdata.m_RT;
     newSS = JSONdata.m_SS;
@@ -62,7 +50,6 @@ function myDelay(n) {
   catch(err) {
      console.log('loadInfo: message error: ', err);
 	// window.alert('Model information not received!');
-   
    }
   
   return;
@@ -78,22 +65,19 @@ window.addEventListener('message',function (event) {
 	console.log("*****Unknown data :", event.data);
     return;
   }
- // console.log('EventListener called *** ');
- 
   try {
     loadInfo(event.data);
  	}
   catch(err) {
      console.log('eventListener: message error: ', err);
    }
-  //runModel2(newURL, iframeID);
 } );
 </script>
 
 
  <p>
  <script type="text/javascript">
- // This is the data that needs to be populated.
+ // This is the default data that needs to be populated.
 var newModel = ""; // SBML model in XML format. Some ways of populating string listed below.
 var newRT = '';  // Length of run
 var newSS = ''; // integrator step size, thus 1000 points (10/0.010)
@@ -133,9 +117,6 @@ fetch(newModel)
   .then(response => response.text())
   .then((data) => {
     console.log(data);
-	//newModel = data;
-// 	yLabel = 'conc (uM)';
-// 	xLabel = 'sec';
 	getInfo2(newFrameID,data,newRT,newSS,staticRun,parSliders,spPlot);
   })
   
