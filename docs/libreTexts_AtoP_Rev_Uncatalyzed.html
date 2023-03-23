@@ -42,10 +42,12 @@ function myDelay(n) {
   var newURL = '';
   var iframeID = '';
   try {
-    await myDelay(3000);
-    console.log("**** libretexts data :", newEventData);
+    
+    console.log("**** loadInfo(): libretexts data :", newEventData);
 	await myDelay(3000);
     JSONdata = JSON.parse(newEventData);
+	console.log('loadInfo(): After JSON.parse...');
+	await myDelay(3000);
     newRT = JSONdata.m_RT;
     newSS = JSONdata.m_SS;
     staticRun = JSONdata.m_static;
@@ -53,7 +55,7 @@ function myDelay(n) {
     spPlot = JSONdata.m_species;
     newURL = JSONdata.m_URL;
     iframeID = JSONdata.m_iframeID;
-    console.log('newURL: ', newURL);
+    console.log('loadInfo(): newURL: ', newURL);
 	}
   catch(err) {
      console.log('loadInfo: message error: ', err);
@@ -73,22 +75,12 @@ window.addEventListener('message',function (event) {
 	console.log("*****Unknown data :", event.data);
     return;
   }
-  // can message back using event.source.postMessage(...)
+  console.log('EventListener called *** ');
   var newURL = '';
   var iframeID = '';
   try {
     loadInfo(event.data);
   
-   // console.log("**** libretexts data :", event.data);
-   // JSONdata = JSON.parse(event.data);
-   // newRT = JSONdata.m_RT;
-   // newSS = JSONdata.m_SS;
-   // staticRun = JSONdata.m_static;
-   // parSliders = JSONdata.m_pars;
-   // spPlot = JSONdata.m_species;
-   // newURL = JSONdata.m_URL;
-   // iframeID = JSONdata.m_iframeID;
-   // console.log('newURL: ', newURL);
 	}
   catch(err) {
      console.log('eventListener: message error: ', err);
