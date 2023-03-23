@@ -25,6 +25,18 @@ var iframeSize = '';
 </script>
 
 <script type="text/javascript">
+function myDelay(n) {  
+  n = n || 2000;
+  console.log('... myDelay()');
+  return new Promise(done => {
+    setTimeout(() => {
+      done();
+    }, n);
+  });
+}
+</script>
+
+<script type="text/javascript">
 window.addEventListener('message', function(event) {
   if (event.origin != 'https://bio.libretexts.org') {
     // something from an unknown domain, ignore it
@@ -35,6 +47,7 @@ window.addEventListener('message', function(event) {
   var newURL = '';
   var iframeID = '';
   try {
+    await myDelay(2000);
     console.log("**** libretexts data :", event.data);
     JSONdata = JSON.parse(event.data);
     newRT = JSONdata.m_RT;
