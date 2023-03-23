@@ -30,6 +30,7 @@ var iframeSize = '';
    // can message back using event.source.postMessage(...)
   var newURL = '';
   var iframeID = '';
+  var modelCode = '';
   try {
   //  var newURL = '';
   //  var iframeID = '';
@@ -44,8 +45,9 @@ var iframeSize = '';
     iframeID = JSONdata.m_iframeID;
 	yLabel = JSONdata.m_yLabel;
 	xLabel = JSONdata.m_xLabel;
+	modelCode = JSONdata.m_code;
     console.log('loadInfo(): newURL: ', newURL);
-	runModel2(newURL, iframeID);
+	runModel2(newURL, iframeID, modelCode);
 	}
   catch(err) {
      console.log('loadInfo: message error: ', err);
@@ -107,19 +109,23 @@ var xLabel = 'sec';
  </script> 
 
 <script type="text/javascript">
-function runModel2(modelURL, newFrameID) {
+function runModel2(modelURL, newFrameID, newCode) {
 // Use this code if you have a predefined model to run located at some URL:
 newModel = "libretexts/models/AtoP_Rev_Uncatalyzed.xml"; // SBML model in XML format. Some ways of populating string listed below.
 console.log('** runModel2() loaded');
 //fetch('http://localhost/models/simpleRXN.xml')
 //fetch('models/BIOMD0098_Goldbeter1990.xml')
-fetch(newModel)
-  .then(response => response.text())
-  .then((data) => {
-    console.log(data);
-	getInfo2(newFrameID,data,newRT,newSS,staticRun,parSliders,spPlot);
-  })
-  
+if(newCode == '') {
+  fetch(newModel)
+    .then(response => response.text())
+    .then((data) => {
+      console.log(data);
+	  getInfo2(newFrameID,data,newRT,newSS,staticRun,parSliders,spPlot);
+    })
+  }
+  else { 
+    getInfo2(newFrameID,newCode,newRT,newSS,staticRun,parSliders,spPlot);
+  }
  }
 // END of predefined model code.
 </script>
