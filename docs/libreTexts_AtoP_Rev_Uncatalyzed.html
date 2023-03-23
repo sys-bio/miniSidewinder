@@ -37,44 +37,14 @@ function myDelay(n) {
 </script>
 
 <script type="text/javascript">
-async function loadIframeSim(event) {
-  if (event.origin != 'https://bio.libretexts.org') {
-    // something from an unknown domain, ignore it
-	console.log("*****Unknown data :", event.data);
-    return;
-  }
-  // can message back using event.source.postMessage(...)
-  var newURL = '';
-  var iframeID = '';
-  try {
-   // await myDelay(2000);
-    console.log("**** libretexts data :", event.data);
-    JSONdata = JSON.parse(event.data);
-    newRT = JSONdata.m_RT;
-    newSS = JSONdata.m_SS;
-    staticRun = JSONdata.m_static;
-    parSliders = JSONdata.m_pars;
-    spPlot = JSONdata.m_species;
-    newURL = JSONdata.m_URL;
-    iframeID = JSONdata.m_iframeID;
-    console.log('newURL: ', newURL);
-	}
-  catch(err) {
-     console.log('eventListener: message error: ', err);
-	 window.alert('Model information not received!');
-   
-   }
-  runModel2(newURL, iframeID);
-}
-</script>
-<script type="text/javascript">
  async function loadInfo(newEventData) {
    // can message back using event.source.postMessage(...)
   var newURL = '';
   var iframeID = '';
   try {
-    await myDelay(2000);
+    await myDelay(3000);
     console.log("**** libretexts data :", newEventData);
+	await myDelay(3000);
     JSONdata = JSON.parse(newEventData);
     newRT = JSONdata.m_RT;
     newSS = JSONdata.m_SS;
@@ -108,8 +78,8 @@ window.addEventListener('message',function (event) {
   var iframeID = '';
   try {
     loadInfo(event.data);
-   // await myDelay(2000);
-    console.log("**** libretexts data :", event.data);
+  
+   // console.log("**** libretexts data :", event.data);
    // JSONdata = JSON.parse(event.data);
    // newRT = JSONdata.m_RT;
    // newSS = JSONdata.m_SS;
