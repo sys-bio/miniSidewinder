@@ -43,10 +43,10 @@ function myDelay(n) {
   var iframeID = '';
   try {
     console.log("**** loadInfo(): libretexts data :", newEventData);
-	await myDelay(3000);
+	await myDelay(2000);
     JSONdata = JSON.parse(newEventData);
 	console.log('loadInfo(): After JSON.parse...');
-	await myDelay(3000);
+	//await myDelay(3000);
     newRT = JSONdata.m_RT;
     newSS = JSONdata.m_SS;
     staticRun = JSONdata.m_static;
@@ -70,6 +70,7 @@ function myDelay(n) {
 
 <script type="text/javascript">
 window.addEventListener('message',function (event) {
+  // Note: This gets called twice (Not sure why), first time JSON data not loaded. 
   if (event.origin != 'https://bio.libretexts.org') {
     // something from an unknown domain, ignore it
 	console.log("*****Unknown data :", event.data);
