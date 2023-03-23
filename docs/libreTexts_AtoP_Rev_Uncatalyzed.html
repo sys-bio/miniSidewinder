@@ -67,6 +67,34 @@ async function loadIframeSim(event) {
   runModel2(newURL, iframeID);
 }
 </script>
+<script type="text/javascript">
+ async function loadInfo(newEventData) {
+   // can message back using event.source.postMessage(...)
+  var newURL = '';
+  var iframeID = '';
+  try {
+   // await myDelay(2000);
+    console.log("**** libretexts data :", newEventData);
+    JSONdata = JSON.parse(newEventData);
+    newRT = JSONdata.m_RT;
+    newSS = JSONdata.m_SS;
+    staticRun = JSONdata.m_static;
+    parSliders = JSONdata.m_pars;
+    spPlot = JSONdata.m_species;
+    newURL = JSONdata.m_URL;
+    iframeID = JSONdata.m_iframeID;
+    console.log('newURL: ', newURL);
+	}
+  catch(err) {
+     console.log('loadInfo: message error: ', err);
+	// window.alert('Model information not received!');
+   
+   }
+  runModel2(newURL, iframeID);
+
+
+} 
+
 
 <script type="text/javascript">
 window.addEventListener('message',function (event) {
@@ -79,24 +107,25 @@ window.addEventListener('message',function (event) {
   var newURL = '';
   var iframeID = '';
   try {
+    loadInfo(event.data);
    // await myDelay(2000);
     console.log("**** libretexts data :", event.data);
-    JSONdata = JSON.parse(event.data);
-    newRT = JSONdata.m_RT;
-    newSS = JSONdata.m_SS;
-    staticRun = JSONdata.m_static;
-    parSliders = JSONdata.m_pars;
-    spPlot = JSONdata.m_species;
-    newURL = JSONdata.m_URL;
-    iframeID = JSONdata.m_iframeID;
-    console.log('newURL: ', newURL);
+   // JSONdata = JSON.parse(event.data);
+   // newRT = JSONdata.m_RT;
+   // newSS = JSONdata.m_SS;
+   // staticRun = JSONdata.m_static;
+   // parSliders = JSONdata.m_pars;
+   // spPlot = JSONdata.m_species;
+   // newURL = JSONdata.m_URL;
+   // iframeID = JSONdata.m_iframeID;
+   // console.log('newURL: ', newURL);
 	}
   catch(err) {
      console.log('eventListener: message error: ', err);
 	// window.alert('Model information not received!');
    
    }
-  runModel2(newURL, iframeID);
+  //runModel2(newURL, iframeID);
 } );
 </script>
 
