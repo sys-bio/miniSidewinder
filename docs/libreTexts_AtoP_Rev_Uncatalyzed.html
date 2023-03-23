@@ -73,7 +73,7 @@ async function loadIframeSim(event) {
   var newURL = '';
   var iframeID = '';
   try {
-   // await myDelay(2000);
+    await myDelay(2000);
     console.log("**** libretexts data :", newEventData);
     JSONdata = JSON.parse(newEventData);
     newRT = JSONdata.m_RT;
