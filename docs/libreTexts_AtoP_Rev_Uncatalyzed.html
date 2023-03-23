@@ -47,7 +47,7 @@ window.addEventListener('message', function(event) {
   var newURL = '';
   var iframeID = '';
   try {
-    await myDelay(2000);
+   // await myDelay(2000);
     console.log("**** libretexts data :", event.data);
     JSONdata = JSON.parse(event.data);
     newRT = JSONdata.m_RT;
