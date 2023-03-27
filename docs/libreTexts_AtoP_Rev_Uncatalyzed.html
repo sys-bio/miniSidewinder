@@ -120,7 +120,7 @@ if(newCode == '') {
   fetch(newModel)
     .then(response => response.text())
     .then((data) => {
-      console.log(data);
+      console.log('Loading from github: ', data);
 	  getInfo2(newFrameID,data,newRT,newSS,staticRun,parSliders,spPlot);
     })
   }
