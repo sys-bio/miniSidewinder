@@ -117,17 +117,17 @@ console.log('** runModel2() loaded');
 //fetch('http://localhost/models/simpleRXN.xml')
 //fetch('models/BIOMD0098_Goldbeter1990.xml')
 
-//if(newCode == '') {
-//  fetch(newModel)
- //   .then(response => response.text())
- //   .then((data) => {
- //     console.log(data);
-//	  getInfo2(newFrameID,data,newRT,newSS,staticRun,parSliders,spPlot);
- //   })
- // }
- // else { 
+if(newCode == '') {
+  fetch(newModel)
+    .then(response => response.text())
+    .then((data) => {
+      console.log(data);
+	  getInfo2(newFrameID,data,newRT,newSS,staticRun,parSliders,spPlot);
+    })
+  }
+  else { 
     getInfo2(newFrameID,newCode,newRT,newSS,staticRun,parSliders,spPlot);
- // }
+  }
  }
 // END of predefined model code.
 </script>
