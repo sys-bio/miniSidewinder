@@ -57,7 +57,7 @@ var xLabel = 'sec';
 	yLabel = JSONdata.m_yLabel;
 	xLabel = JSONdata.m_xLabel;
 	modelCode = JSONdata.m_code;
-    console.log('loadInfo(): newURL: ', newURL);
+    console.log('loadInfo(): Model code: ', modelCode);
 	runModel2(newURL, iframeID, modelCode);
 	}
   catch(err) {
@@ -116,17 +116,18 @@ newModel = "libretexts/models/AtoP_Rev_Uncatalyzed.xml"; // SBML model in XML fo
 console.log('** runModel2() loaded');
 //fetch('http://localhost/models/simpleRXN.xml')
 //fetch('models/BIOMD0098_Goldbeter1990.xml')
-if(newCode == '') {
-  fetch(newModel)
-    .then(response => response.text())
-    .then((data) => {
-      console.log(data);
-	  getInfo2(newFrameID,data,newRT,newSS,staticRun,parSliders,spPlot);
-    })
-  }
-  else { 
+
+//if(newCode == '') {
+//  fetch(newModel)
+ //   .then(response => response.text())
+ //   .then((data) => {
+ //     console.log(data);
+//	  getInfo2(newFrameID,data,newRT,newSS,staticRun,parSliders,spPlot);
+ //   })
+ // }
+ // else { 
     getInfo2(newFrameID,newCode,newRT,newSS,staticRun,parSliders,spPlot);
-  }
+ // }
  }
 // END of predefined model code.
 </script>
