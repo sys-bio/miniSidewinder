@@ -43,8 +43,6 @@ var xLabel = 'sec';
   var iframeID = '';
   var modelCode = '';
   try {
-  //  var newURL = '';
-  //  var iframeID = '';
     //console.log("**** loadInfo(): libretexts data :", newEventData);
     JSONdata = JSON.parse(newEventData);
     newRT = JSONdata.m_RT;
@@ -112,7 +110,8 @@ window.addEventListener('message',function (event) {
 <script type="text/javascript">
 function runModel2(modelURL, newFrameID, newCode) {
 // Use this code if you have a predefined model to run located at some URL:
-newModel = "libretexts/models/AtoP_Rev_Uncatalyzed.xml"; // SBML model in XML format. Some ways of populating string listed below.
+//newModel = "libretexts/models/AtoP_Rev_Uncatalyzed.xml"; // SBML model in XML format. Some ways of populating string listed below.
+ newModel = modelURL;
 console.log('** runModel2() loaded');
 //fetch('http://localhost/models/simpleRXN.xml')
 //fetch('models/BIOMD0098_Goldbeter1990.xml')
