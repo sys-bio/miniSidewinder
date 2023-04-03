@@ -39,7 +39,8 @@ var xLabel = 'sec';
     parSliders = JSONdata.m_pars;
     spPlot = JSONdata.m_species;
     newURL = JSONdata.m_URL;
-    iframeID = JSONdata.m_iframeID;
+    //iframeID = JSONdata.m_iframeID;
+	iframeID = '';
 	yLabel = JSONdata.m_yLabel;
 	xLabel = JSONdata.m_xLabel;
 	modelCode = JSONdata.m_code;
@@ -97,16 +98,14 @@ window.addEventListener('message',function (event) {
 
 <script type="text/javascript">
 function runModel2(modelURL, newFrameID, newCode) {
-// Use this code if you have a predefined model to run located at some URL:
-//newModel = "libretexts/models/AtoP_Rev_Uncatalyzed.xml"; // SBML model in XML format. Some ways of populating string listed below.
- newModel = modelURL;
+// Use this code if you have a predefined model to run located at some URL within libreTexts.org:
+// modelURL: URL of SBML model (XML format).
 console.log('** runModel2() loaded');
-//fetch('http://localhost/models/simpleRXN.xml')
-const bounceURL = 'https://api.libretexts.org/endpoint/bounce/';
-const newURL = bounceURL + modelURL;
-console.log('New URL: ', newURL);
-if(newCode == '') {
- // fetch(newModel)
+ //fetch('http://localhost/models/simpleRXN.xml')
+ const bounceURL = 'https://api.libretexts.org/endpoint/bounce/';
+ const newURL = bounceURL + modelURL;
+ console.log('New URL: ', newURL);
+ if(newCode == '') {
    fetch(newURL)
     .then(response => response.text())
     .then((data) => {
