@@ -102,9 +102,12 @@ function runModel2(modelURL, newFrameID, newCode) {
  newModel = modelURL;
 console.log('** runModel2() loaded');
 //fetch('http://localhost/models/simpleRXN.xml')
-
+const bounceURL = 'https://api.libretexts.org/endpoint/bounce/';
+const newURL = bounceURL + modelURL;
+console.log('New URL: ', newURL);
 if(newCode == '') {
-  fetch(newModel)
+ // fetch(newModel)
+   fetch(newURL)
     .then(response => response.text())
     .then((data) => {
       console.log('Loading from github: ', data);
