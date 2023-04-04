@@ -107,17 +107,14 @@ console.log('** runModel2() loaded');
  const bounceURL = 'https://api.libretexts.org/endpoint/bounce/';
  const newURL = bounceURL + modelURL;
  console.log('New URL: ', newURL);
- if(newCode == '') {
+ 
    fetch(newURL)
     .then(response => response.text())
     .then((data) => {
       console.log('Loading from github: ', data);
 	  getInfo2(data,newRT,newSS,staticRun,parSliders,spPlot);
     })
-  }
-  else { 
-    getInfo2(newCode,newRT,newSS,staticRun,parSliders,spPlot);
-  }
+  
  }
 // END of predefined model code.
 </script>
