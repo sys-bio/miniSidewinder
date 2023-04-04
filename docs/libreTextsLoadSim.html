@@ -28,8 +28,8 @@ var xLabel = 'sec';
  async function loadInfo(newEventData) {
    // can message back using event.source.postMessage(...)
   var newURL = '';
-  var iframeID = '';
-  var modelCode = '';
+  //var iframeID = '';
+  //var modelCode = '';
   try {
     //console.log("**** loadInfo(): libretexts data :", newEventData);
     JSONdata = JSON.parse(newEventData);
@@ -40,12 +40,13 @@ var xLabel = 'sec';
     spPlot = JSONdata.m_species;
     newURL = JSONdata.m_URL;
     //iframeID = JSONdata.m_iframeID;
-	iframeID = '';
+	//iframeID = '';
 	yLabel = JSONdata.m_yLabel;
 	xLabel = JSONdata.m_xLabel;
-	modelCode = JSONdata.m_code;
-    console.log('loadInfo(): Model code: ', modelCode);
-	runModel2(newURL, iframeID, modelCode);
+	//modelCode = JSONdata.m_code;
+    console.log('loadInfo(): Model code: ', newURL);
+	//runModel2(newURL, iframeID, modelCode);
+	runModel2(newURL);
 	}
   catch(err) {
      console.log('loadInfo: message error: ', err);
@@ -81,12 +82,12 @@ window.addEventListener('message',function (event) {
  </p>
  
  <script type="text/javascript">
- function getInfo2(frame,model,rt, ss,static,pars,sp) {
+ function getInfo2(model,rt, ss,staticBool,pars,sp) {
    console.log(' *** getInfo2() loaded.');
    sessionStorage.setItem("MODEL", model);
    sessionStorage.setItem('RUNTIME', rt);
    sessionStorage.setItem('STEPSIZE', ss);
-   sessionStorage.setItem('STATIC', static);
+   sessionStorage.setItem('STATIC', staticBool);
    sessionStorage.setItem('SLIDERS', pars);
    sessionStorage.setItem('PLOT_SPECIES', sp);
    sessionStorage.setItem('X_LABEL', xLabel);
@@ -97,7 +98,8 @@ window.addEventListener('message',function (event) {
  </script> 
 
 <script type="text/javascript">
-function runModel2(modelURL, newFrameID, newCode) {
+//function runModel2(modelURL, newFrameID, newCode) {
+function runModel2(modelURL) {
 // Use this code if you have a predefined model to run located at some URL within libreTexts.org:
 // modelURL: URL of SBML model (XML format).
 console.log('** runModel2() loaded');
@@ -110,11 +112,11 @@ console.log('** runModel2() loaded');
     .then(response => response.text())
     .then((data) => {
       console.log('Loading from github: ', data);
-	  getInfo2(newFrameID,data,newRT,newSS,staticRun,parSliders,spPlot);
+	  getInfo2(data,newRT,newSS,staticRun,parSliders,spPlot);
     })
   }
   else { 
-    getInfo2(newFrameID,newCode,newRT,newSS,staticRun,parSliders,spPlot);
+    getInfo2(newCode,newRT,newSS,staticRun,parSliders,spPlot);
   }
  }
 // END of predefined model code.
