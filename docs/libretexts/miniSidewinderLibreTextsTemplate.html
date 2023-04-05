@@ -1,28 +1,76 @@
+<html>
+<header>
+
+</header>
+<body>
+
+The template is here:
 <!--  Template for calling Simulator with model -->
 <!--  Place in webpage where appropriate        -->
-<script type="text/javascript" src="/@api/deki/files/69598/miniSidewinderSimSetup.js"></script>
-<script type="text/javascript">
- const iframeID ="simulator1";  // Id of iframe used below.
- 
-// *** This is the data that needs to be populated: *** 
- const modelURL = "/@api/deki/files/69600/BIOMD0098_Goldbeter1990.xml"; // Location of SBML model in XML format.
- const newRT = '10';  // Length of run in time units
- const newSS = '0.010'; // step size, for 0.1 integrator step size: 100 points (10/0.10)
- const staticRun = 'true'; // 'true':Display after all calculations are done.
- const parSliders = 'v0, v1, beta, Vm2, Vm3, n, K2, Vm2, m, Kr, Ka, kf, k'; // param sliders, exact id match
- const spPlot = 'Y, Z'; // Species to plot, exact id match
- const yLabel = 'conc (uM)';
- const xLabel = 'sec';
- // *** End of data to be populated. ***
-
-function runSim() {
-  if (iframeID == "simulator1") {
-    console.log('Values to be passed in:');
-    console.log(iframeID, modelURL, newRT, newSS, staticRun, parSliders, spPlot, xLabel, yLabel);
-    runModel(iframeID, modelURL, newRT, newSS, staticRun, parSliders, spPlot, xLabel, yLabel);
-  } 
+<p><script type="text/javascript">
+ function simulatorDelay(n) {  
+  n = n || 2000;
+  //console.log(' ++ simDelay()');
+  return new Promise(done => {
+    setTimeout(() => {
+      done();
+    }, n);
+  });
  }
-</script><iframe height="80%" id="simulator1" width="80%"></iframe> <!-- Adjust frame size as needed -->
-<script type="text/javascript"> runSim(); </script>
+ async function runModelName(newFrame) {
+// ******************************************
+// **** Simulation info to fill out: ********
+  const modelURL = 'https://bio.libretexts.org/@api/deki/files/12345/modelFileName.xml'; // Location of sbml model file on libreTexts
+  const newRT = '10';       // Length of run in model time units
+  const newSS = '0.10';     // integrator step size, total pts =newRt/newSS, 100 points: (10/0.10)
+  const staticRun = 'true'; // Display after all calculations are done.
+  const parSliders = 'k1, p_3, comp1';// Paramater sliders, exact id match, '' for first up to 12 params of model.
+  const spPlot = 'S1, deS2, Oxy2';    // Species to plot, exact id match, '' for first up to 8 species.
+  const yLabel = 'conc (uM)'; // Plot label, displayed at bottom as: yLabel vs. xLabel
+  const xLabel = 'sec';
+// *** END of Simulation info to fill out ***
+// ******************************************
 
-<!-- END of Simulator Template  -->
+// Simulator location (adjust as needed):
+   const simURL = "https://bartjuw.github.io/miniSidewinder/libreTextsLoadSim.html";
+// ******************************************
+// ******************************************
+   const btnName = 'btn' + newFrame;
+   document.getElementById(btnName).disabled = true;
+   let frames = window.frames;
+   var frameErr = true; 
+   for( let i =0; i<frames.length; i++) {
+    try {
+      if (frames[i].name == newFrame) {
+	    win = frames[i];
+        frameErr = false;
+	    const m_Params_json = { m_iframeID: newFrame, m_URL: modelURL, m_RT: newRT, m_SS: newSS, m_static: staticRun, m_species: spPlot, m_pars: parSliders, m_yLabel: yLabel, m_xLabel: xLabel };
+	    const mdata = JSON.stringify(m_Params_json);
+        try {
+	      document.getElementById(newFrame).src = simURL; // Sim page to put in iFrame.
+		  }
+		 catch(err) {
+		   let errMsg = 'newFrame: ' + newFrame + ', does not match iframe id! ' + err;
+           alert(errMsg);
+		 }
+	    await simulatorDelay(1000); // Give time to load json before sending info to simulator.
+	    win.postMessage(mdata, "*");// Send info to simulator.
+	  }
+	}
+	catch(err) {
+	 console.log('windowframes mismatch error: ', err);
+	}
+   }
+  if(frameErr){ // Check if name, id bad
+    let errMsg = 'iframe name: ' + newFrame + ', id mismatch! ';
+    alert(errMsg); }
+  return;
+ } 
+
+</script><input id="btnModelName" onclick="runModelName('ModelName');" type="button" value="Load ModelName" /></p>
+<p class="mt-align-center"><iframe align="middle" height="600px" id="ModelName" name="ModelName" width="80%"></iframe></p>
+
+<!-- **** END of Simulator Template *** -->
+
+</body>
+</html>

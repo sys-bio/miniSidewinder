@@ -52,7 +52,6 @@ var xLabel = 'sec';
      console.log('loadInfo: message error: ', err);
 	 //window.alert('Model information not received!');
    }
-  
   return;
 
 } 
@@ -60,9 +59,9 @@ var xLabel = 'sec';
 
 <script type="text/javascript">
 window.addEventListener('message',function (event) {
-  // Note: This gets called twice (Not sure why), first time JSON data not loaded. 
+  // Note: This gets called twice? (Not sure why), first time JSON data not loaded. 
   if (event.origin != 'https://bio.libretexts.org') {
-    // something from an unknown domain, ignore it
+    // something not from libretexts domain, ignore it
 	console.log("*****Unknown data :", event.data);
     return;
   }
@@ -74,12 +73,6 @@ window.addEventListener('message',function (event) {
    }
 } );
 </script>
-
-
- <p>
- 
-
- </p>
  
  <script type="text/javascript">
  function getInfo2(model,rt, ss,staticBool,pars,sp) {
@@ -92,8 +85,7 @@ window.addEventListener('message',function (event) {
    sessionStorage.setItem('PLOT_SPECIES', sp);
    sessionStorage.setItem('X_LABEL', xLabel);
    sessionStorage.setItem('Y_LABEL', yLabel);
-   window.location.href = ('Debug/index.html?')
-  // document.getElementById(frame).src = "Debug/index.html?"; // Location of miniSidewinder
+   window.location.href = ('Debug/index.html?'); // Location of miniSidewinder
  }
  </script> 
 
@@ -102,8 +94,7 @@ window.addEventListener('message',function (event) {
 function runModel2(modelURL) {
 // Use this code if you have a predefined model to run located at some URL within libreTexts.org:
 // modelURL: URL of SBML model (XML format).
-console.log('** runModel2() loaded');
- //fetch('http://localhost/models/simpleRXN.xml')
+ //console.log('** runModel2() loaded');
  const bounceURL = 'https://api.libretexts.org/endpoint/bounce/';
  const newURL = bounceURL + modelURL;
  console.log('New URL: ', newURL);
@@ -121,7 +112,7 @@ console.log('** runModel2() loaded');
 
 <script type="text/javascript">
  //runModel2();
- console.log(" * libreTextsLoadSim.html file loaded......");
+ //console.log(" * libreTextsLoadSim.html file loaded......");
 </script>  
   
 </body>
