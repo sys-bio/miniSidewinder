@@ -39,10 +39,10 @@ The template is here:
    document.getElementById(btnName).disabled = true;
    let frames = window.frames;
    var frameErr = true; 
-   for( let i =0; i<frames.length; i++) {
+   for( let i =0; i<window.length; i++) {
     try {
-      if (frames[i].name == newFrame) {
-	    win = frames[i];
+      if (window[i].frameElement.id == newFrame) {
+	    let win = window[i];
         frameErr = false;
 	    const m_Params_json = { m_iframeID: newFrame, m_URL: modelURL, m_RT: newRT, m_SS: newSS, m_static: staticRun, m_species: spPlot, m_pars: parSliders, m_yLabel: yLabel, m_xLabel: xLabel };
 	    const mdata = JSON.stringify(m_Params_json);
@@ -61,14 +61,14 @@ The template is here:
 	 console.log('windowframes mismatch error: ', err);
 	}
    }
-  if(frameErr){ // Check if name, id bad
+  if(frameErr){ // Check if id bad
     let errMsg = 'iframe name: ' + newFrame + ', id mismatch! ';
     alert(errMsg); }
   return;
  } 
 
 </script><input id="btnModelName" onclick="runModelName('ModelName');" type="button" value="Load ModelName" /></p>
-<p class="mt-align-center"><iframe align="middle" height="600px" id="ModelName" name="ModelName" width="80%"></iframe></p>
+<p class="mt-align-center"><iframe align="middle" height="600px" id="ModelName" width="80%"></iframe></p>
 
 <!-- **** END of Simulator Template *** -->
 
