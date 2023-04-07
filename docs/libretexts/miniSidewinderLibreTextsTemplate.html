@@ -8,16 +8,7 @@ The template is here:
 <!--  Template for calling Simulator with model -->
 <!--  Place in webpage where appropriate        -->
 <p><script type="text/javascript">
- function simulatorDelay(n) {  
-  n = n || 2000;
-  //console.log(' ++ simDelay()');
-  return new Promise(done => {
-    setTimeout(() => {
-      done();
-    }, n);
-  });
- }
- async function runModelName(newFrame) {
+ async function runModelName(newFrame) { // Replace 'runModelName' with 'runYourModelName'
 // ******************************************
 // **** Simulation info to fill out: ********
   const modelURL = 'https://bio.libretexts.org/@api/deki/files/12345/modelFileName.xml'; // Location of sbml model file on libreTexts
@@ -53,7 +44,16 @@ The template is here:
 		   let errMsg = 'newFrame: ' + newFrame + ', does not match iframe id! ' + err;
            alert(errMsg);
 		 }
-	    await simulatorDelay(1000); // Give time to load json before sending info to simulator.
+	    //await simulatorDelay(1000); // Give time to load json before sending info to simulator.
+		await (async function() { // Give time to load json before sending info to simulator. 
+			n = 1000;
+			console.log(' ++ delay()');
+			return new Promise(done => {
+			setTimeout(() => {
+				done();
+				}, n);
+			});
+		})();
 	    win.postMessage(mdata, "*");// Send info to simulator.
 	  }
 	}
@@ -66,9 +66,15 @@ The template is here:
     alert(errMsg); }
   return;
  } 
+<!-- *************************************************************************************************************** -->
+<!-- HTML code below: 'button' to launch simulator, 'section' to label it interactive, and 'iframe' to hold simulator page -->
+<!-- Replace all 'ModelName' labels with yourModelName (no spaces).  -->
 
-</script><input id="btnModelName" onclick="runModelName('ModelName');" type="button" value="Load ModelName" /></p>
+</script><input id="btnModelName" onclick="runModelName('ModelName');" type="button" value="Load Model Name" /></p>
+<section class="box-interactive">
+<h5 class="box-legend"><span class="lt-icon-default">Interactive Element</span></h5>
 <p class="mt-align-center"><iframe align="middle" height="600px" id="ModelName" width="80%"></iframe></p>
+</section>
 
 <!-- **** END of Simulator Template *** -->
 
