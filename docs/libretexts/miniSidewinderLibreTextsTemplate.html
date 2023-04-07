@@ -7,7 +7,8 @@
 The template is here:
 <!--  Template for calling Simulator with model -->
 <!--  Place in webpage where appropriate        -->
-<p><script type="text/javascript">
+
+<script type="text/javascript">
  async function runModelName(newFrame) { // Replace 'runModelName' with 'runYourModelName'
 // ******************************************
 // **** Simulation info to fill out: ********
@@ -65,11 +66,13 @@ The template is here:
     alert(errMsg); }
   return;
  } 
+ </script>
+ 
 <!-- *************************************************************************************************************** -->
 <!-- HTML code below: 'button' to launch simulator, 'section' to label it interactive, and 'iframe' to hold simulator page -->
 <!-- Replace all 'ModelName' labels with yourModelName (no spaces).  -->
 
-</script><input id="btnModelName" onclick="runModelName('ModelName');" type="button" value="Load Model Name" /></p>
+<p><input id="btnModelName" onclick="runModelName('ModelName');" type="button" value="Load Model Name" /></p>
 <section class="box-interactive">
 <h5 class="box-legend"><span class="lt-icon-default">Interactive Element</span></h5>
 <p class="mt-align-center"><iframe align="middle" height="600px" id="ModelName" width="80%"></iframe></p>
