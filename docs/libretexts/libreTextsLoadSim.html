@@ -36,8 +36,8 @@ var xLabel = 'sec';
     newRT = JSONdata.m_RT;
     newSS = JSONdata.m_SS;
     staticRun = JSONdata.m_static;
-    parSliders = JSONdata.m_pars.trim();// check for only whitespace
-    spPlot = JSONdata.m_species.trim();	
+    parSliders = JSONdata.m_pars;
+    spPlot = JSONdata.m_species;	
     newURL = JSONdata.m_URL;
     //iframeID = JSONdata.m_iframeID;
 	//iframeID = '';
@@ -81,8 +81,8 @@ window.addEventListener('message',function (event) {
    sessionStorage.setItem('RUNTIME', rt);
    sessionStorage.setItem('STEPSIZE', ss);
    sessionStorage.setItem('STATIC', staticBool);
-   sessionStorage.setItem('SLIDERS', pars);
-   sessionStorage.setItem('PLOT_SPECIES', sp);
+   sessionStorage.setItem('SLIDERS', pars.trim());// check for only whitespace
+   sessionStorage.setItem('PLOT_SPECIES', sp.trim());
    sessionStorage.setItem('X_LABEL', xLabel);
    sessionStorage.setItem('Y_LABEL', yLabel);
    window.location.href = ('../Debug/index.html?'); // Location of miniSidewinder
