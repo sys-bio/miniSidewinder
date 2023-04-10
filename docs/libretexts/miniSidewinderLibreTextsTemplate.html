@@ -16,7 +16,7 @@
   const xLabel = 'sec';
 // *** END of Simulation info to fill out ***
 // ******************************************
-
+//
 // Simulator location (adjust as needed):
    const simURL = "https://sys-bio.github.io/miniSidewinder/libretexts/libreTextsLoadSim.html";
 // ******************************************
@@ -33,17 +33,10 @@
 	  para.append('m_yLabel', yLabel);
 	  para.append('m_xLabel', xLabel);
 	  // Note: URL + Param search string char limit ~ 2k
-      try {
-	    document.getElementById(newFrame).src = simURL + '?' + para.toString(); // Sim page to put in iFrame.
-		}
-	  catch(err) {
-	    let errMsg = 'newFrame: ' + newFrame + ', does not match iframe id! ' + err;
-          alert(errMsg);
-	  }
+      try { document.getElementById(newFrame).src = simURL + '?' + para.toString(); } // Sim page to put in iFrame.
+	  catch(err) { let errMsg = 'newFrame: ' + newFrame + ', does not match iframe id! ' + err; alert(errMsg); }
 	}
-	catch(err) {
-	 console.log('Issue setting simulation parameters: ', err);
-	}
+	catch(err) { console.log('Issue setting simulation parameters: ', err); }
   return;
  } 
  </script>
@@ -51,7 +44,6 @@
 <!-- *************************************************************************************************************** -->
 <!-- HTML code below: 'button' to launch simulator, 'section' to label it interactive, and 'iframe' to hold simulator page -->
 <!-- Replace all 'ModelName' labels with yourModelName (no spaces).  -->
-
 <p><input id="btnModelName" onclick="runModelName('ModelName');" type="button" value="Load Model Name" /></p>
 <section class="box-interactive">
 <h5 class="box-legend"><span class="lt-icon-default">Interactive Element</span></h5>
