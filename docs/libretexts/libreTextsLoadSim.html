@@ -111,7 +111,29 @@ function runModel2(modelURL) {
 </script>
 
 <script type="text/javascript">
- //console.log(" * libreTextsLoadSim.html file loaded......");
+function loadSearchInfo(newStrSearch) {
+  newRT = newStrSearch.get('m_RT');
+  newSS = newStrSearch.get('m_SS');
+  staticRun = newStrSearch.get('m_static');
+  parSliders = newStrSearch.get('m_pars');
+  spPlot = newStrSearch.get('m_species');
+  newURL = newStrSearch.get('m_URL');
+  console.log('loadSearchInfo: Model url: ', newURL);
+  yLabel = newStrSearch.get('m_yLabel');
+  xLabel = newStrSearch.get('m_xLabel');
+  runModel2(newURL);
+
+}
+</script>
+
+<script type="text/javascript">
+ console.log(" * libreTextsLoadSim.html file loaded......");
+  const para = new URLSearchParams(window.location.search);
+  const new_url = para.get('m_URL');
+  if (new_url) {
+	console.log('Model url: ', new_url);
+	loadSearchInfo(para);
+  }
 </script>  
   
 </body>
