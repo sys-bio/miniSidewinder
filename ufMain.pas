@@ -12,7 +12,7 @@ uses
   VCL.TMSFNCCustomControl, VCL.TMSFNCScrollBar, ufModelInfo, ufLabelPopUp,
   Vcl.Menus, WEBLib.Menus, WEBLib.WebCtrls, ufChkGroupEditPlot;
 
-const SIDEWINDER_VERSION = 'miniSidewinder Version 0.8.3';
+const SIDEWINDER_VERSION = 'miniSidewinder Version 0.8.4';
       COPYRIGHT = 'Copyright 2023, Bartholomew Jardine and Herbert Sauro, University of Washington, USA';
       GRANT_INFO = 'This project is funded by NIH/NIGMS (R01-GM123032-04)';
       DEFAULT_RUNTIME = 10000;
@@ -673,10 +673,12 @@ end;
 procedure TMainForm.addAllParamSliders();
 var i, numParSliders: integer;
     sliderP: string;
+    bSliderInList: boolean; // Use to check if prepopulated list has par in actual model.
 begin
+  bSliderInList := false;
   numParSliders := 0;
   numParSliders := length(self.mainController.getModel.getP_Names);
-  if numParSliders > MAX_SLIDERS then numParSliders := MAX_SLIDERS;
+  //if numParSliders > MAX_SLIDERS then numParSliders := MAX_SLIDERS;
  // console.log('AddAllParamSliders: Length of parForSliders: ',length(self.parForSliders));
   for i := 0 to numParSliders -1 do
     begin
@@ -685,12 +687,17 @@ begin
     sliderP := self.mainController.getModel.getP_Names[i];
     if (self.checkIfInParForSlidersList(sliderP)) or (length(self.parForSliders) < 1) then
       begin
+      bSliderInList := true;
       SetLength(self.sliderParamAr, length(self.sliderParamAr) + 1);    // add a slider
       self.sliderParamAr[length(self.sliderParamAr)-1] := i; // assign param index to slider
-      self.addParamSlider(); // <-- Add dynamically created slider
+      if self.getNumberOfSliders < Max_SLIDERS then
+        self.addParamSlider(); // <-- Add dynamically created slider
       end;
     end;
   self.parForSliders := ''; // clear it out
+  if (not bSliderInList) and (self.getNumberOfSliders < 1 )
+    then self.addAllParamSliders; // No sliders added from prepopulated list so add all.
+
 end;
 
 function TMainForm.checkIfInParForSlidersList(paramToCheck: string): boolean;
