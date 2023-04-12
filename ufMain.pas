@@ -12,12 +12,13 @@ uses
   VCL.TMSFNCCustomControl, VCL.TMSFNCScrollBar, ufModelInfo, ufLabelPopUp,
   Vcl.Menus, WEBLib.Menus, WEBLib.WebCtrls, ufChkGroupEditPlot;
 
-const SIDEWINDER_VERSION = 'miniSidewinder Version 0.8.4';
+const SIDEWINDER_VERSION = 'miniSidewinder Version 0.8.5';
       COPYRIGHT = 'Copyright 2023, Bartholomew Jardine and Herbert Sauro, University of Washington, USA';
       GRANT_INFO = 'This project is funded by NIH/NIGMS (R01-GM123032-04)';
       DEFAULT_RUNTIME = 10000;
       EDITBOX_HT = 25;
       ZOOM_SCALE = 20;
+      MAX_PLOTSPECIES = 8;
       MAX_SLIDERS = 12;
       SLIDERS_PER_ROW = 4;
       MAX_STR_LENGTH = 50; // Max User inputed string length for Rxn/spec/param id
@@ -176,7 +177,7 @@ type
     runTime: double;
     currentGeneration: Integer; // Used by plots as current x axis point
     fPlotSpecies: TVarSelectForm;
-    plotSpecies: TList<TSpeciesList>; // species to graph for each plot
+    plotSpecies: TList<TSpeciesList>; // species list to graph for each plot
     graphPanelList: TList<TGraphPanel>; // Panels in which each plot resides
 
     fSliderParameter: TVarSelectForm;// Pop up form to choose parameter for slider.
@@ -1322,21 +1323,30 @@ begin  // Assume only options of max rows, max rows -1, max rows -2
 end;
 
 procedure TMainForm.addPlotAll(); // add plot with all species
-var i, numSpeciesToPlot: integer; maxYVal: double; plotSp: string;
+var i,spIdAdded, numSpeciesToPlot: integer; maxYVal: double; plotSp: string;
+    bSpPlotted: boolean; // Confirm at least one species is plotted.
 begin
+  spIdAdded := 0 ;   // Number of plot species currently added.
+  bSpPlotted := false;
   maxYVal := 0;
   numSpeciesToPlot := 0;
   if self.plotSpecies = nil then
     self.plotSpecies := TList<TSpeciesList>.create;
   self.plotSpecies.Add(TSpeciesList.create);
   numSpeciesToPlot := length(self.mainController.getModel.getS_Names);
-  if numSpeciesToPlot > 8 then numSpeciesToPlot := 8;
+
+  for i := 0 to numSpeciesToPlot -1 do // Check if species list contains model species.
+    begin
+    plotSp := self.mainController.getModel.getS_names[i];
+    if (self.checkIfInSpeciesPlotList(plotSp)) then bSpPlotted := true;
+    end;
+  if not bSpPlotted then self.spToPlot := '';
 
   for i := 0 to numSpeciesToPlot -1 do
     begin
-      plotSp := '';
-      plotSp := self.mainController.getModel.getS_names[i];
-      if ( plotSp.contains( NULL_NODE_TAG ) ) then plotSp := ''  // Null node
+    plotSp := '';
+    plotSp := self.mainController.getModel.getS_names[i];
+    if ( plotSp.contains( NULL_NODE_TAG ) ) then plotSp := ''  // Null node
       else
         begin
         if (self.checkIfInSpeciesPlotList(plotSp)) or (length(self.spToPlot) < 1) then
@@ -1349,11 +1359,14 @@ begin
           else
             if self.mainController.getModel.getSBMLspecies(plotSp).getInitialConcentration > maxYVal then
               maxYVal := self.mainController.getModel.getSBMLspecies(plotSp).getInitialConcentration;
+
+          if spIdAdded < MAX_PLOTSPECIES then
+            inc(spIdAdded)
+            else plotSp := ''; // Do not plot since already plotting MAX_PLOTSPECIES
           end
         else plotSp := ''; // do not plot
         end;
-      self.plotSpecies[self.numbPlots].Add(plotSp);
-
+    self.plotSpecies[self.numbPlots].Add(plotSp);
     end;
   for i := 0 to Length(self.mainController.getModel.getSBMLspeciesAr) -1 do
     begin
@@ -1368,6 +1381,7 @@ begin
   else maxYVal := maxYVal * 2.0;  // add 100% margin
   self.addPlot(maxYVal); // <-- Add dynamically created plot at this point
   self.refreshPlotAndSliderPanels;
+  
 end;
 
 procedure TMainForm.addPlot(yMax: double); // Add a plot
