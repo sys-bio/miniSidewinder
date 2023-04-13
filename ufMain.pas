@@ -71,7 +71,9 @@ type
     pnlEditSliders: TWebPanel;
     btnEditSliders: TWebButton;
     pnlAbout: TWebPanel;
-    btnAbout: TWebButton; // Only needed if # model params is greater than MAX_SLIDERS
+    btnAbout: TWebButton;
+    pnlPlotResults: TWebPanel;
+    btnSavePlotResults: TWebButton; // Only needed if # model params is greater than MAX_SLIDERS
 
     procedure WebFormCreate(Sender: TObject);
     procedure btnSimResetClick(Sender: TObject);
@@ -99,6 +101,7 @@ type
     procedure WebFormDestroy(Sender: TObject);
     procedure WebFormExit(Sender: TObject);
     procedure btnAboutClick(Sender: TObject);
+    procedure btnSavePlotResultsClick(Sender: TObject);
 
   private
     numbPlots: Integer; // Number of plots displayed
@@ -114,7 +117,7 @@ type
     yAxisLabel: string;
     spToPlot: string; // Passed in through session store, comma separated list;
     parForSliders: string; // Passed in "   ", comma separated list;
-
+    simData: TList<string>; // Holds data from one sim run.
     procedure initializePlots();
     procedure initializePlot( n: integer);
     procedure addParamSlider();
@@ -164,7 +167,8 @@ type
     procedure setTopPanelSpacing; // Set spacing of components
     procedure setLoadPnlSpacing;
     procedure setRunPausePnlSpacing;
-    procedure setSimResetPnlSpacing;
+    procedure saveStaticSimRunResults(newResults: TList<TTimeVarNameValList);
+    procedure writeSimData(fileName: string; data: TStrings);
 
     procedure setMinUI(isStaticRun: boolean); // Used when model is passed into app.
     procedure setMaxUI(); // Used when user choses model.
@@ -320,6 +324,18 @@ end;
 procedure TMainForm.btnModelInfoClick(Sender: TObject);
 begin
   self.displayModelInfo();
+end;
+
+procedure TMainForm.btnSavePlotResultsClick(Sender: TObject);
+begin
+  fileName := InputBox('Save last simulation to the Downloads directory',
+    'Enter File Name:', 'newSimResults.csv');
+  if fileName <> '' then
+    begin
+      self.writeSimData(fileName, newData);
+    end
+  else
+    notifyUser('Save cancelled');
 end;
 
 procedure TMainForm.btnRunPauseClick(Sender: TObject);
@@ -814,20 +830,6 @@ begin
     end;
 end;
 
-{procedure TMainForm.Changeplotspecies1Click(Sender: TObject);
-var i: integer;
-begin
-  console.log( ' Change plot species');
-
-  if Sender is TMenuItem then
-    begin
-    i := TMenuItem(Sender).tag -1; // want index.
-    // delete plot and then select species and add plot.
-    self.deletePlot(i);
-    self.selectPlotSpecies(i+1); // want position
-    end;
-end;
-      }
 function TMainForm.calcSliderLeft(index: integer): integer;
 var
   i: Integer;
@@ -1801,6 +1803,7 @@ begin
       self.graphPanelList[i].setStaticSimResults(newResults);
       end;
     end;
+  self.saveStaticSimRunResults(newResults);
 //  console.log('TMainForm.getStaticSimResults done plotting');
   self.btnSimReset.Enabled := true;
   self.btnSimReset.ElementClassName := BTN_ENABLED;
@@ -2107,6 +2110,35 @@ begin
   console.log('Max UI');
   //TODO ?
 end;
+
+procedure TMainForm.saveStaticSimRunResults(newResults: TList<TTimeVarNameValList);
+var i: integer;
+    strNLine: string;
+begin
+
+
+end;
+
+procedure TMainForm.writeSimData(fileName: string; data: TStrings);
+var simData: string;
+    i: integer;
+begin
+  simData := '';
+  for i := 0 to data.count -1 do
+    begin
+      simData := simData + data[i] + sLineBreak;
+    end;
+
+   try
+     Application.DownloadTextFile(simData, fileName);
+   except
+       on E: Exception do
+          notifyUser(E.message);
+   end;
+
+end;
+
+
 
 procedure TMainForm.clearBrowserSessionStorage;
  // Delete contents of sessionStorage, if browser refresh button is pushed then
