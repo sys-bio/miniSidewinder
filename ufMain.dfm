@@ -140,8 +140,8 @@ object MainForm: TMainForm
         Top = 10
         Width = 50
         Height = 30
-        Hint = 'Save csv file of one simulation.'
-        Caption = 'Save'
+        Hint = 'Save csv file of last simulation.'
+        Caption = '.csv'
         ElementClassName = 'btn btn-dark btn-sm'
         HeightPercent = 100.000000000000000000
         ShowHint = True

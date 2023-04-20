@@ -12,9 +12,9 @@ uses
   VCL.TMSFNCCustomControl, VCL.TMSFNCScrollBar, ufModelInfo, ufLabelPopUp,
   Vcl.Menus, WEBLib.Menus, WEBLib.WebCtrls, ufChkGroupEditPlot;
 
-const SIDEWINDER_VERSION = 'miniSidewinder Version 0.8.5';
-      COPYRIGHT = 'Copyright 2023, Bartholomew Jardine and Herbert Sauro, University of Washington, USA';
-      GRANT_INFO = 'This project is funded by NIH/NIGMS (R01-GM123032-04)';
+const SIDEWINDER_VERSION = 'MiniSidewinder Version 0.8.6';
+      COPYRIGHT = 'Copyright 2023, Bartholomew Jardine and Herbert M. Sauro, University of Washington, USA';
+      GRANT_INFO = 'This project was funded by NIH/NIGMS (R01-GM123032-04)';
       DEFAULT_RUNTIME = 10000;
       EDITBOX_HT = 25;
       ZOOM_SCALE = 20;
@@ -117,7 +117,8 @@ type
     yAxisLabel: string;
     spToPlot: string; // Passed in through session store, comma separated list;
     parForSliders: string; // Passed in "   ", comma separated list;
-    simData: TList<string>; // Holds data from one sim run.
+    lastStaticSimData: TList<TTimeVarNameValList>; // Holds data from last static sim run.
+    lastStaticSimParVals: TVarNameValList; // Holds param vals from last static sim run.
     procedure initializePlots();
     procedure initializePlot( n: integer);
     procedure addParamSlider();
@@ -167,7 +168,10 @@ type
     procedure setTopPanelSpacing; // Set spacing of components
     procedure setLoadPnlSpacing;
     procedure setRunPausePnlSpacing;
-    procedure saveStaticSimRunResults(newResults: TList<TTimeVarNameValList);
+    procedure setSimResetPnlSpacing;
+    procedure saveCurrentSimParamVals();
+    procedure saveStaticSimRunResults(newResults: TList<TTimeVarNameValList>;
+                              parValues: TVarNameValList; saveFileName: string);
     procedure writeSimData(fileName: string; data: TStrings);
 
     procedure setMinUI(isStaticRun: boolean); // Used when model is passed into app.
@@ -328,11 +332,12 @@ end;
 
 procedure TMainForm.btnSavePlotResultsClick(Sender: TObject);
 begin
-  fileName := InputBox('Save last simulation to the Downloads directory',
+  fileName := InputBox('Save last simulation data to the Downloads directory',
     'Enter File Name:', 'newSimResults.csv');
   if fileName <> '' then
     begin
-      self.writeSimData(fileName, newData);
+      self.saveStaticSimRunResults(self.lastStaticSimData, self.lastStaticSimParVals, fileName);
+      //self.writeSimData(fileName, newData);
     end
   else
     notifyUser('Save cancelled');
@@ -378,6 +383,7 @@ begin
   self.resetSliderPositions();
   self.enableStepSizeEdit;
   self.resetSim;
+  self.mainController.resetSimParamValues();
   self.resetPlots;
   except
     on E: Exception do
@@ -397,6 +403,7 @@ begin
       self.btnRunPause.ElementClassName := BTN_ENABLED;
       end;
     self.mainController.createSimulation();
+    //self.mainController.resetSimParamValues();
     self.simStarted := false;
     self.currentGeneration := 0;
     except
@@ -438,13 +445,12 @@ end;
 procedure TMainForm.WebFormCreate(Sender: TObject);
 var sRun: boolean;
 begin
-  sRun := false;
+  sRun := true;
   self.numbPlots := 0;
   self.slidersPerRow := SLIDERS_PER_ROW;
   self.runTime := DEFAULT_RUNTIME;
   self.setTopPanelSpacing;
   self.intSliderHeight := 35;
-
   self.pnlParamSliders.height := 5;
   self.stepSize := 0.1;
   self.edtStepSize.Text := floatToStr(self.stepSize * 1000);
@@ -466,6 +472,8 @@ begin
   self.btnEditGraph.ElementClassName := BTN_DISABLED;
   self.btnEditSliders.Enabled := false;
   self.btnEditSliders.ElementClassName := BTN_DISABLED;
+  self.btnSavePlotResults.Enabled := false;
+  self.btnSavePlotResults.ElementClassName := BTN_DISABLED;
   self.strFileInput := '';
   self.xAxisLabel := '';
   self.yAxisLabel := '';
@@ -1053,7 +1061,6 @@ begin
       begin
       self.runTime := 20;
       end;
-
     if (assigned(self.graphPanelList)) and (self.graphPanelList.Count >0) then
       begin
       for i := 0 to self.graphPanelList.Count -1 do
@@ -1064,6 +1071,8 @@ begin
     end
   else // false
     begin
+    self.btnSavePlotResults.Enabled := false;
+    self.btnSavePlotResults.ElementClassName := BTN_DISABLED;
     self.disableRunTimeEdit;
     self.runTime := DEFAULT_RUNTIME;
     if (assigned(self.graphPanelList)) and (self.graphPanelList.Count >0) then
@@ -1182,6 +1191,8 @@ end;
 
 procedure TMainForm.runStaticSim();
 begin
+  self.btnSavePlotResults.Enabled := true;
+  self.btnSavePlotResults.ElementClassName := BTN_ENABLED;
   self.btnEditGraph.Enabled := false;
   self.btnEditGraph.ElementClassName := BTN_DISABLED;
   self.btnEditSliders.Enabled := false;
@@ -1270,6 +1281,10 @@ procedure TMainForm.PingSBMLLoaded(newModel:TModel);
 var errList: string;
     i: integer;
 begin
+  if assigned(self.lastStaticSimData) then self.lastStaticSimData.free;
+  if assigned(self.lastStaticSimParVals) then self.lastStaticSimParVals.free;
+  self.btnSavePlotResults.Enabled := false;
+  self.btnSavePlotResults.ElementClassName := BTN_DISABLED;
   if newModel.getNumSBMLErrors >0 then
     begin
     errList := '';
@@ -1789,11 +1804,10 @@ begin
       end;
     end;
 end;
-
+      // Listener:
 procedure TMainForm.getStaticSimResults ( newResults: TList<TTimeVarNameValList> );
 var i: integer;
 begin
-//console.log('TMainForm.getStaticSimResults called');
    // Update plots:
   if self.graphPanelList.count > 0 then
     begin
@@ -1803,7 +1817,15 @@ begin
       self.graphPanelList[i].setStaticSimResults(newResults);
       end;
     end;
-  self.saveStaticSimRunResults(newResults);
+  //self.saveStaticSimRunResults(newResults);
+  if assigned(self.lastStaticSimData) then self.lastStaticSimData := newResults
+  else
+    begin
+    self.lastStaticSimData := TList<TTimeVarNameValList>.create;
+    self.lastStaticSimData := newResults;
+    end;
+
+  self.saveCurrentSimParamVals();
 //  console.log('TMainForm.getStaticSimResults done plotting');
   self.btnSimReset.Enabled := true;
   self.btnSimReset.ElementClassName := BTN_ENABLED;
@@ -2111,12 +2133,61 @@ begin
   //TODO ?
 end;
 
-procedure TMainForm.saveStaticSimRunResults(newResults: TList<TTimeVarNameValList);
-var i: integer;
-    strNLine: string;
+procedure TMainForm.saveCurrentSimParamVals();
 begin
+  //self.lastStaticSimParVals := self.mainController.getSimulation.getP_Vals; // Get current param vals
+  self.lastStaticSimParVals := self.mainController.getCurrentParamValues; // Get current param vals
+end;
 
-
+procedure TMainForm.saveStaticSimRunResults(newResults: TList<TTimeVarNameValList>;
+  parValues: TVarNameValList; saveFileName: string);
+var i, j: integer;
+    nameLine: string;
+    valLine: string;
+    simResults: TStringList;
+    curParamVals: TVarNameValList;
+begin
+  simResults := TStringList.Create;
+  //curParamVals := self.mainController.getSimulation.getP_Vals; // Get current param vals
+  curParamVals := parValues;
+  nameLine := '';
+  valLine := '';
+  for i := 0 to curParamVals.getNumPairs -1 do
+    begin
+    nameLine := nameLine + curParamVals.getNameVal(i).getId;
+    valLine := valLine + floattostr(curParamVals.getNameVal(i).getVal);
+    if i < curParamVals.getNumPairs then
+      begin
+      nameLine := nameLine + ', ';
+      valLine := valLine + ', ';
+      end;
+    end;
+    console.log(nameLine);
+    console.log(valLine);
+  simResults.Add(nameLine);
+  simResults.Add(valLine);
+  simResults.Add('  ');
+  nameLine := '';
+  valLine := '';
+  nameLine := 'Time';
+  for I := 0 to newResults[0].varNV_List.getNumPairs -1 do
+    begin
+    nameLine := nameLine + ', ' + newResults[0].varNV_list.getNameVal(i).getId;
+    end;
+  simResults.Add(nameLine);
+  console.log(nameLine);
+  for i := 0 to newResults.count -1 do
+    begin
+    valLine := '';
+    valLine := valLine + floattostr(newResults[i].time);
+    for j := 0 to newResults[i].varNV_List.getNumPairs -1 do
+      begin
+      valLine := valLine + ', ' + floattostr(newResults[i].varNV_List.getNameVal(j).getVal);
+      end;
+    console.log(valLine);
+    simResults.Add(valLine);
+    end;
+  self.writeSimData(saveFileName, simResults);
 end;
 
 procedure TMainForm.writeSimData(fileName: string; data: TStrings);

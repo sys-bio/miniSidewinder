@@ -25,6 +25,7 @@ type
     stepSize: Double; // (msec) (integration step)
     pixelStepAr: array of Integer; // pixel equiv of time (integration) step
     currTime: Double;
+    currParVals: TVarNameValList;
     saveSBMLFlag: Boolean;
     ODEready: Boolean; // TRUE: ODE solver is setup.
    // networkUpdate: Boolean; // Use to prevent circular update when network is changed.
@@ -66,7 +67,7 @@ type
     procedure loadSBML(sbmlStr: String);
     procedure saveSBML(fileName: String);
     procedure modelWritten(modelStr: String); // SBML string created and ready to use.
-    procedure changeParameterVal(pos: Integer; newVal: Double); // change model parameter value.
+    procedure changeModelParameterVal(pos: Integer; newVal: Double); // change model parameter value.
     procedure changeSimParameterVal( pos: Integer; newVal: Double );
     procedure stopTimer();
     procedure startTimer();
@@ -81,6 +82,7 @@ type
             // Get new values from simulation run.
     procedure getStaticSimulationResults( newSimResults: TList<TTimeVarNameValList> );
             // Get all of the results from a static simulation run.
+    function  getCurrentParamValues(): TVarNameValList; // p Vals currently used by simulator
     procedure resetSimParamValues(); // Reset simulator p values to orig model p values.
     procedure resetSimSpeciesValues(); // Reset simulator s values to orig model values.
     procedure addSimListener( newListener: TUpdateSimEvent );
@@ -113,7 +115,10 @@ var i: integer;
 begin
  // console.log('TControllerMain.SBMLLoaded. creating new simulation');
   self.modelLoaded := true;
+ // self.currParVals := TVarNameValList.create();
+ // self.currParVals.copy(self.sbmlmodel.getP_NameValAr);
   self.createSimulation;
+  self.resetSimParamValues; // Load model param values.
   if length(self.FSBMLUpdateAr) > 0 then
     begin
     for i := 0 to length(self.FSBMLUpdateAr) -1 do
@@ -151,6 +156,9 @@ begin
   if self.stepSize < 0.0 then self.stepSize := 0.1; // TODO fix this issue, why necessary?
  // console.log('StepSize when creating sim: ', floattostr(self.stepSize) );
   self.runSim := TSimulationJS.create(self.runTime, self.stepSize, self.SBMLmodel, self.solverUsed);
+  if assigned(self.currParVals) and (self.currParVals.getNumPairs > 0) then
+    self.runSim.updateP_Vals(self.currParVals);
+
  // set timerinterval?
  // self.runSim.OnSimResultsNotify := self.getStaticSimulationResults;
   self.runSim.OnUpdate := self.getVals; // register callback function.
@@ -162,6 +170,7 @@ begin
     begin
     self.sbmlModel.Free;
     self.modelLoaded := false;
+    self.currParVals.Free;
     end;
 end;
 
@@ -471,22 +480,32 @@ procedure TControllerMain.modelWritten(modelStr: String);
    Application.DownloadTextFile(modelStr, self.writeSBMLFileName);
  end;
 
-procedure TControllerMain.changeParameterVal(pos: Integer; newVal: Double);
+function TCOntrollerMain.getCurrentParamValues(): TVarNameValList;
+begin
+  Result := self.currParVals;
+end;
+
+procedure TControllerMain.changeModelParameterVal(pos: Integer; newVal: Double);
 begin
   self.sbmlmodel.changeParamVal(pos, newVal);
-  // self.runSim.updateP_Val( pos, newVal ); ?
 end;
 
 procedure TControllerMain.changeSimParameterVal(pos: Integer; newVal: Double );
-begin
+begin      // Update all as simulator gets reset each run and loses previous changes.
+  self.currParVals.setVal( pos, newVal );
   self.runSim.updateP_Val( pos, newVal );
 end;
 
-procedure TControllerMain.resetSimParamValues(); // grab model p values and pass to sim.
+procedure TControllerMain.resetSimParamValues(); // Reset p values to model vals.
 var i: integer;
 begin
-  for i := 0 to self.sbmlmodel.getP_NameValAr.getNumPairs -1 do
-    self.changeSimParameterVal( i, self.sbmlmodel.getP_Vals()[i] );
+//console.log('TControllerMain.resetSimParamValues');
+ // for i := 0 to self.sbmlmodel.getP_NameValAr.getNumPairs -1 do
+ //   self.changeSimParameterVal( i, self.sbmlmodel.getP_Vals()[i] );
+  self.currParVals.free;
+  self.currParVals := TVarNameValList.create;
+  self.currParVals.copy( self.sbmlmodel.getP_NameValAr );
+  self.runSim.updateP_Vals(self.currParVals);
 end;
 
 procedure TControllerMain.resetSimSpeciesValues();
