@@ -23,9 +23,8 @@ const SIDEWINDER_VERSION = 'MiniSidewinder Version 0.8.6';
       SLIDERS_PER_ROW = 4;
       MAX_STR_LENGTH = 50; // Max User inputed string length for Rxn/spec/param id
       NULL_NODE_TAG = '_Null'; // from uNetwork, just in case, probably not necessary
-      DEFAULT_NUMB_PLOTS = 1;
-      DEBUG = false; // true then show debug console output and any other debug related info
- // Component look, bootstrap strings:
+      DEFAULT_NUMB_PLOTS = 1; // Currently only works with 1 plot.
+      // Component look, bootstrap strings:
       BTN_DISABLED = 'btn btn-dark btn-sm disabled';
       BTN_ENABLED = 'btn btn-dark btn-sm';
       LOAD_BTN_DISABLED = 'btn btn-primary btn-sm disabled';
@@ -119,6 +118,7 @@ type
     parForSliders: string; // Passed in "   ", comma separated list;
     lastStaticSimData: TList<TTimeVarNameValList>; // Holds data from last static sim run.
     lastStaticSimParVals: TVarNameValList; // Holds param vals from last static sim run.
+    debug: boolean; // true then show debug console output and any other debug related
     procedure initializePlots();
     procedure initializePlot( n: integer);
     procedure addParamSlider();
@@ -165,6 +165,8 @@ type
     function  disableStepSizeEdit(): boolean;// true: success
     function  enableRunTimeEdit(): boolean;  // true: success
     function  disableRunTimeEdit(): boolean; // true: suncces
+    function  enableSimSpeedMult(): boolean;
+    function  disableSimSpeedMult(): boolean;
     procedure setTopPanelSpacing; // Set spacing of components
     procedure setLoadPnlSpacing;
     procedure setRunPausePnlSpacing;
@@ -445,7 +447,9 @@ end;
 procedure TMainForm.WebFormCreate(Sender: TObject);
 var sRun: boolean;
 begin
-  sRun := true;
+  self.debug := false;
+  sRun := true; // Default to static.
+  self.chkbxStaticSimRun.Checked := true;
   self.numbPlots := 0;
   self.slidersPerRow := SLIDERS_PER_ROW;
   self.runTime := DEFAULT_RUNTIME;
@@ -486,20 +490,31 @@ begin
     if(newRT > 0) {
       this.runTime = newRT;
     }
-    console.log('Runtime passed in: ',sessionStorage.getItem("RUNTIME"));
+    //console.log('Runtime passed in: ',sessionStorage.getItem("RUNTIME"));
     var newSS = parseFloat(sessionStorage.getItem("STEPSIZE"));
     if(newSS > 0) {
       this.stepSize = newSS;
     }
-   // console.log('Stepsize passed in: ',sessionStorage.getItem("STEPSIZE"));
+    if( this.debug ) {
+      console.log('Stepsize passed in: ',sessionStorage.getItem("STEPSIZE"));}
+
+    // Three values for staticRun:
+    // 'false': Only Plot updates during run
+    // 'true': Only plots at end of run.
+    // '' : allows both static and plot updates during run
     var staticRun = sessionStorage.getItem("STATIC");
     if( staticRun != null ) {
       if(staticRun.toUpperCase() == 'TRUE') {
-        console.log(' Static run');
+        //console.log(' Static run');
         sRun = true;
       }
+      if( (staticRun.toUpperCase() == 'FALSE') || (staticRun == '')  ) {
+        if( this.debug ) {console.log(' Plot during run');}
+        sRun = false;
+      }
+
     }
-   // console.log('Static run? passed in: ',sessionStorage.getItem("STATIC"));
+   if( this.debug ){ console.log('Static run? passed in: ',sessionStorage.getItem("STATIC"));}
     if(sessionStorage.getItem("SLIDERS") != null) {
       this.parForSliders = sessionStorage.getItem("SLIDERS");
       }
@@ -521,7 +536,7 @@ begin
    // Assume sbml model. XML format. May need to parse later for other formats.
   if assigned(self.strFileInput) and (self.strFileInput <> '') then
     begin
-    //console.log('File passed in: ', self.strFileInput);
+    if self.debug then console.log('File passed in: ', self.strFileInput);
     // Update runtime and stepsize:
     if length(self.strFileInput) > 20 then // assumed model larger than 20 chars
       begin
@@ -532,7 +547,7 @@ begin
       end
     else
       begin
-      console.log('No model loaded, model string less than 20 chars');
+      if self.debug then console.log('No model loaded, model string less than 20 chars');
       self.setMaxUI;
       end;
 
@@ -554,7 +569,7 @@ begin
   self.btnRunPause.ElementClassName := BTN_DISABLED;
   if assigned(self.pnlSimSpeedMult) then self.trackBarSimSpeed.Enabled := false;
   self.enableStepSizeEdit;
-  if not DEBUG then self.pnlExample.Free;
+  if not self.debug then self.pnlExample.Free;
   self.mainController.addSBMLListener( @self.PingSBMLLoaded );
   self.mainController.addSimListener( @self.getVals ); // notify when new Sim results
   self.mainController.addStaticSimResultsListener( @self.getStaticSimResults ); // notify when static run done.
@@ -2061,6 +2076,36 @@ begin
   else Result := false;
 end;
 
+function TMainForm.enableSimSpeedMult: Boolean;
+begin
+  if assigned(self.pnlSimSpeedMult) then
+    begin
+    self.pnlSimSpeedMult.Enabled := true;
+    self.lblSpeedMult.Enabled := true;
+    self.lblSpeedMultVal.Enabled := true;
+    self.lblSpeedMultMin.Enabled := true;
+    self.lblSpeedMultMax.Enabled := true;
+    self.trackBarSimSpeed.Enabled := true;
+    Result := true;
+    end
+  else Result := false;
+end;
+
+function TMainForm.disableSimSpeedMult: Boolean;
+begin
+  if assigned(self.pnlSimSpeedMult) then
+    begin
+    self.pnlSimSpeedMult.Enabled := false;
+    self.lblSpeedMult.Enabled := false;
+    self.lblSpeedMultVal.Enabled := false;
+    self.lblSpeedMultMin.Enabled := false;
+    self.lblSpeedMultMax.Enabled := false;
+    self.trackBarSimSpeed.Enabled := false;
+    Result := true;
+    end
+  else Result := false;
+end;
+
 procedure TMainForm.setTopPanelSpacing;
 //var btnWidth: integer;
 begin
@@ -2100,10 +2145,20 @@ end;
 
 procedure TMainForm.setMinUI(isStaticRun: boolean); // Used when model is passed into app.
 begin
-  console.log('Minimum UI');
-  self.pnlStaticSim.Visible := false;
-  //self.chkbxStaticSimRun.Visible := false;
-  //self.btnModelInfo.visible := false;
+ // console.log('Minimum UI');
+  if isStaticRun then
+    begin     // Only static simulations:
+    self.pnlStaticSim.Visible := false;
+    self.pnlStepSize.Visible := true;
+    self.pnlSimSpeedMult.Visible := false;
+    end
+  else
+    begin  // allow both static and realtime sims
+    self.pnlStaticSim.Visible := true;
+    self.pnlStepSize.Visible := true;
+    self.pnlSimSpeedMult.Visible := true;
+    end;
+
   if assigned(self.pnlModelInfo) then self.pnlModelInfo.Free;
   if assigned(self.pnlExample) then self.pnlExample.Free;
  // if assigned(self.pnlLoadModel) then self.pnlLoadModel.visible := false;
@@ -2113,15 +2168,18 @@ begin
     self.pnlLoadModel.Free;
     end;
   //self.btnLoadModel.visible := false;
-  self.pnlStepSize.Visible := false;
+  //
   if isStaticRun then
     begin
+    if assigned(self.pnlRunTime) then self.enableRunTimeEdit;
     if assigned(self.pnlSimSpeedMult) then
-      self.pnlSimSpeedMult.Free;
+      self.disableSimSpeedMult;// Actually do not want it visible.
     end
   else
     begin
-    if assigned(self.pnlRunTime) then self.pnlRunTime.Free;
+    if assigned(self.pnlRunTime) then self.disableRunTimeEdit;
+    if assigned(self.pnlSimSpeedMult) then
+      self.enableSimSpeedMult;
    // self.lblRunTime.visible := false;
    // self.editRunTime.visible := false;
     end;
@@ -2229,7 +2287,7 @@ end;
 
 procedure TMainForm.testUI(); // Used for testing
 begin
-  console.log('Test UI');
+  //console.log('Test UI');
   self.setMaxUI;
 end;
 
