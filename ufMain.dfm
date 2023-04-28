@@ -126,6 +126,29 @@ object MainForm: TMainForm
         OnClick = btnAboutClick
       end
     end
+    object pnlPlotResults: TWebPanel
+      Left = 0
+      Top = 180
+      Width = 59
+      Height = 45
+      Align = alTop
+      BorderStyle = bsNone
+      ChildOrder = 5
+      ShowCaption = False
+      object btnSavePlotResults: TWebButton
+        Left = 2
+        Top = 10
+        Width = 50
+        Height = 30
+        Hint = 'Save csv file of last simulation.'
+        Caption = '.csv'
+        ElementClassName = 'btn btn-dark btn-sm'
+        HeightPercent = 100.000000000000000000
+        ShowHint = True
+        WidthPercent = 100.000000000000000000
+        OnClick = btnSavePlotResultsClick
+      end
+    end
   end
   object pnlPlot: TWebPanel
     Left = 0

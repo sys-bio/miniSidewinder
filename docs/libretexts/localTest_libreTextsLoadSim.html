@@ -1,19 +1,7 @@
 <html>
-<!-- NOT in use anymore. 2023 april4 -->
+<!-- LOCAL Testing -->
 <head>
-    <title>Minimum UI Demo </title>
-	
-	<style>
 
-#simulatorAtoP {
-        border: 0px line;
-        width: 100%;
-        height: 100%;
-		overflow-y:scroll;
-		overflow-x:scroll;
-    }
-
-	</style
 </head>
 <body>
 <script type="text/javascript">
@@ -40,8 +28,8 @@ var xLabel = 'sec';
  async function loadInfo(newEventData) {
    // can message back using event.source.postMessage(...)
   var newURL = '';
-  var iframeID = '';
-  var modelCode = '';
+  //var iframeID = '';
+  //var modelCode = '';
   try {
     //console.log("**** loadInfo(): libretexts data :", newEventData);
     JSONdata = JSON.parse(newEventData);
@@ -49,20 +37,21 @@ var xLabel = 'sec';
     newSS = JSONdata.m_SS;
     staticRun = JSONdata.m_static;
     parSliders = JSONdata.m_pars;
-    spPlot = JSONdata.m_species;
+    spPlot = JSONdata.m_species;	
     newURL = JSONdata.m_URL;
-    iframeID = JSONdata.m_iframeID;
+    //iframeID = JSONdata.m_iframeID;
+	//iframeID = '';
 	yLabel = JSONdata.m_yLabel;
 	xLabel = JSONdata.m_xLabel;
-	modelCode = JSONdata.m_code;
-    console.log('loadInfo(): Model code: ', modelCode);
-	runModel2(newURL, iframeID, modelCode);
+	//modelCode = JSONdata.m_code;
+    console.log('loadInfo(): Model code: ', newURL);
+	//runModel2(newURL, iframeID, modelCode);
+	runModel2(newURL);
 	}
   catch(err) {
      console.log('loadInfo: message error: ', err);
-	// window.alert('Model information not received!');
+	 //window.alert('Model information not received!');
    }
-  
   return;
 
 } 
@@ -70,9 +59,9 @@ var xLabel = 'sec';
 
 <script type="text/javascript">
 window.addEventListener('message',function (event) {
-  // Note: This gets called twice (Not sure why), first time JSON data not loaded. 
+  // Note: This gets called twice? (Not sure why), first time JSON data not loaded. 
   if (event.origin != 'https://bio.libretexts.org') {
-    // something from an unknown domain, ignore it
+    // something not from libretexts domain, ignore it
 	console.log("*****Unknown data :", event.data);
     return;
   }
@@ -84,56 +73,68 @@ window.addEventListener('message',function (event) {
    }
 } );
 </script>
-
-
- <p>
- 
-
- </p>
  
  <script type="text/javascript">
- function getInfo2(frame,model,rt, ss,static,pars,sp) {
+ function getInfo2(model,rt, ss,staticBool,pars,sp) {
    console.log(' *** getInfo2() loaded.');
    sessionStorage.setItem("MODEL", model);
    sessionStorage.setItem('RUNTIME', rt);
    sessionStorage.setItem('STEPSIZE', ss);
-   sessionStorage.setItem('STATIC', static);
-   sessionStorage.setItem('SLIDERS', pars);
-   sessionStorage.setItem('PLOT_SPECIES', sp);
+   sessionStorage.setItem('STATIC', staticBool);
+   sessionStorage.setItem('SLIDERS', pars.trim());// check for only whitespace
+   sessionStorage.setItem('PLOT_SPECIES', sp.trim());
    sessionStorage.setItem('X_LABEL', xLabel);
    sessionStorage.setItem('Y_LABEL', yLabel);
-   window.location.href = ('Debug/index.html?')
-  // document.getElementById(frame).src = "Debug/index.html?"; // Location of miniSidewinder
+   window.location.href = ('../miniSidewinder/Debug/index.html?'); // Location of miniSidewinder
  }
  </script> 
 
 <script type="text/javascript">
-function runModel2(modelURL, newFrameID, newCode) {
-// Use this code if you have a predefined model to run located at some URL:
-//newModel = "libretexts/models/AtoP_Rev_Uncatalyzed.xml"; // SBML model in XML format. Some ways of populating string listed below.
- newModel = modelURL;
-console.log('** runModel2() loaded');
-//fetch('http://localhost/models/simpleRXN.xml')
-//fetch('models/BIOMD0098_Goldbeter1990.xml')
-
-if(newCode == '') {
-  fetch(newModel)
+//function runModel2(modelURL, newFrameID, newCode) {
+function runModel2(modelURL) {
+// Use this code if you have a predefined model to run located at some URL within libreTexts.org:
+// modelURL: URL of SBML model (XML format).
+ //console.log('** runModel2() loaded');
+ //const bounceURL = 'https://api.libretexts.org/endpoint/bounce/';
+ const bounceURL = ''; // Local testing
+ const newURL = bounceURL + modelURL;
+ console.log('New URL: ', newURL);
+ 
+   fetch(newURL)
     .then(response => response.text())
     .then((data) => {
-      console.log('Loading from github: ', data);
-	  getInfo2(newFrameID,data,newRT,newSS,staticRun,parSliders,spPlot);
+      //console.log('Loading from github: ', data);
+	  getInfo2(data,newRT,newSS,staticRun,parSliders,spPlot);
     })
-  }
-  else { 
-    getInfo2(newFrameID,newCode,newRT,newSS,staticRun,parSliders,spPlot);
-  }
+  
  }
 // END of predefined model code.
 </script>
 
 <script type="text/javascript">
- //runModel2();
- console.log(" * AtoP_Rev...html file loaded......");
+function loadSearchInfo(newStrSearch) {
+  newRT = newStrSearch.get('m_RT');
+  newSS = newStrSearch.get('m_SS');
+  staticRun = newStrSearch.get('m_static');
+  parSliders = newStrSearch.get('m_pars');
+  spPlot = newStrSearch.get('m_species');
+  newURL = newStrSearch.get('m_URL');
+  console.log('loadSearchInfo: Model url: ', newURL);
+  yLabel = newStrSearch.get('m_yLabel');
+  xLabel = newStrSearch.get('m_xLabel');
+  runModel2(newURL);
+
+}
+</script>
+
+<script type="text/javascript">
+ console.log(" * libreTextsLoadSim.html file loaded......");
+  const para = new URLSearchParams(window.location.search);
+  const new_url = para.get('m_URL');
+  if (new_url) {
+	console.log('Model url: ', new_url);
+	loadSearchInfo(para);
+  }
 </script>  
   
 </body>

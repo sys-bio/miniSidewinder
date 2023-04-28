@@ -54,7 +54,8 @@ type
     public
       varNV_List: TVarNameValList;
       time: double;
-      constructor create(newTime: double; newVarList: TVarNameValList);
+      constructor create() overload;
+      constructor create(newTime: double; newVarList: TVarNameValList) overload;
   end;
 
   // Utilities:
@@ -199,8 +200,12 @@ implementation
    Result := valAr;
  end;
 
-
- constructor TTimeVarNameValList.create(newTime: double; newVarList: TVarNameValList);
+ constructor TTimeVarNameValList.create() overload;
+ begin
+   self.time :=0;
+   self.varNV_List := TVarNameValList.create();
+ end;
+ constructor TTimeVarNameValList.create(newTime: double; newVarList: TVarNameValList) overload;
  begin
    self.time := newTime;
    self.varNV_List := TVarNameValList.create();

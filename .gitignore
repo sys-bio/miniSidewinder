@@ -43,3 +43,5 @@ TMSWeb/Debug/
 __recovery/__recovery.ini
 __recovery/ufMain.dfm
 __recovery/ufMain.pas
+__recovery/uSidewinderTypes.pas
+__recovery/uControllerMain.pas

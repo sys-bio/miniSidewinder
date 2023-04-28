@@ -12,9 +12,9 @@ uses
   VCL.TMSFNCCustomControl, VCL.TMSFNCScrollBar, ufModelInfo, ufLabelPopUp,
   Vcl.Menus, WEBLib.Menus, WEBLib.WebCtrls, ufChkGroupEditPlot;
 
-const SIDEWINDER_VERSION = 'miniSidewinder Version 0.8.5';
-      COPYRIGHT = 'Copyright 2023, Bartholomew Jardine and Herbert Sauro, University of Washington, USA';
-      GRANT_INFO = 'This project is funded by NIH/NIGMS (R01-GM123032-04)';
+const SIDEWINDER_VERSION = 'MiniSidewinder Version 0.8.6';
+      COPYRIGHT = 'Copyright 2023, Bartholomew Jardine and Herbert M. Sauro, University of Washington, USA';
+      GRANT_INFO = 'This project was funded by NIH/NIGMS (R01-GM123032-04)';
       DEFAULT_RUNTIME = 10000;
       EDITBOX_HT = 25;
       ZOOM_SCALE = 20;
@@ -23,9 +23,8 @@ const SIDEWINDER_VERSION = 'miniSidewinder Version 0.8.5';
       SLIDERS_PER_ROW = 4;
       MAX_STR_LENGTH = 50; // Max User inputed string length for Rxn/spec/param id
       NULL_NODE_TAG = '_Null'; // from uNetwork, just in case, probably not necessary
-      DEFAULT_NUMB_PLOTS = 1;
-      DEBUG = false; // true then show debug console output and any other debug related info
- // Component look, bootstrap strings:
+      DEFAULT_NUMB_PLOTS = 1; // Currently only works with 1 plot.
+      // Component look, bootstrap strings:
       BTN_DISABLED = 'btn btn-dark btn-sm disabled';
       BTN_ENABLED = 'btn btn-dark btn-sm';
       LOAD_BTN_DISABLED = 'btn btn-primary btn-sm disabled';
@@ -71,7 +70,9 @@ type
     pnlEditSliders: TWebPanel;
     btnEditSliders: TWebButton;
     pnlAbout: TWebPanel;
-    btnAbout: TWebButton; // Only needed if # model params is greater than MAX_SLIDERS
+    btnAbout: TWebButton;
+    pnlPlotResults: TWebPanel;
+    btnSavePlotResults: TWebButton; // Only needed if # model params is greater than MAX_SLIDERS
 
     procedure WebFormCreate(Sender: TObject);
     procedure btnSimResetClick(Sender: TObject);
@@ -99,6 +100,7 @@ type
     procedure WebFormDestroy(Sender: TObject);
     procedure WebFormExit(Sender: TObject);
     procedure btnAboutClick(Sender: TObject);
+    procedure btnSavePlotResultsClick(Sender: TObject);
 
   private
     numbPlots: Integer; // Number of plots displayed
@@ -114,7 +116,9 @@ type
     yAxisLabel: string;
     spToPlot: string; // Passed in through session store, comma separated list;
     parForSliders: string; // Passed in "   ", comma separated list;
-
+    lastStaticSimData: TList<TTimeVarNameValList>; // Holds data from last static sim run.
+    lastStaticSimParVals: TVarNameValList; // Holds param vals from last static sim run.
+    debug: boolean; // true then show debug console output and any other debug related
     procedure initializePlots();
     procedure initializePlot( n: integer);
     procedure addParamSlider();
@@ -161,10 +165,16 @@ type
     function  disableStepSizeEdit(): boolean;// true: success
     function  enableRunTimeEdit(): boolean;  // true: success
     function  disableRunTimeEdit(): boolean; // true: suncces
+    function  enableSimSpeedMult(): boolean;
+    function  disableSimSpeedMult(): boolean;
     procedure setTopPanelSpacing; // Set spacing of components
     procedure setLoadPnlSpacing;
     procedure setRunPausePnlSpacing;
     procedure setSimResetPnlSpacing;
+    procedure saveCurrentSimParamVals();
+    procedure saveStaticSimRunResults(newResults: TList<TTimeVarNameValList>;
+                              parValues: TVarNameValList; saveFileName: string);
+    procedure writeSimData(fileName: string; data: TStrings);
 
     procedure setMinUI(isStaticRun: boolean); // Used when model is passed into app.
     procedure setMaxUI(); // Used when user choses model.
@@ -322,6 +332,19 @@ begin
   self.displayModelInfo();
 end;
 
+procedure TMainForm.btnSavePlotResultsClick(Sender: TObject);
+begin
+  fileName := InputBox('Save last simulation data to the Downloads directory',
+    'Enter File Name:', 'newSimResults.csv');
+  if fileName <> '' then
+    begin
+      self.saveStaticSimRunResults(self.lastStaticSimData, self.lastStaticSimParVals, fileName);
+      //self.writeSimData(fileName, newData);
+    end
+  else
+    notifyUser('Save cancelled');
+end;
+
 procedure TMainForm.btnRunPauseClick(Sender: TObject);
 begin
   if self.MainController.IsModelLoaded then
@@ -362,6 +385,7 @@ begin
   self.resetSliderPositions();
   self.enableStepSizeEdit;
   self.resetSim;
+  self.mainController.resetSimParamValues();
   self.resetPlots;
   except
     on E: Exception do
@@ -381,6 +405,7 @@ begin
       self.btnRunPause.ElementClassName := BTN_ENABLED;
       end;
     self.mainController.createSimulation();
+    //self.mainController.resetSimParamValues();
     self.simStarted := false;
     self.currentGeneration := 0;
     except
@@ -422,13 +447,14 @@ end;
 procedure TMainForm.WebFormCreate(Sender: TObject);
 var sRun: boolean;
 begin
-  sRun := false;
+  self.debug := false;
+  sRun := true; // Default to static.
+  self.chkbxStaticSimRun.Checked := true;
   self.numbPlots := 0;
   self.slidersPerRow := SLIDERS_PER_ROW;
   self.runTime := DEFAULT_RUNTIME;
   self.setTopPanelSpacing;
   self.intSliderHeight := 35;
-
   self.pnlParamSliders.height := 5;
   self.stepSize := 0.1;
   self.edtStepSize.Text := floatToStr(self.stepSize * 1000);
@@ -450,6 +476,8 @@ begin
   self.btnEditGraph.ElementClassName := BTN_DISABLED;
   self.btnEditSliders.Enabled := false;
   self.btnEditSliders.ElementClassName := BTN_DISABLED;
+  self.btnSavePlotResults.Enabled := false;
+  self.btnSavePlotResults.ElementClassName := BTN_DISABLED;
   self.strFileInput := '';
   self.xAxisLabel := '';
   self.yAxisLabel := '';
@@ -462,20 +490,31 @@ begin
     if(newRT > 0) {
       this.runTime = newRT;
     }
-    console.log('Runtime passed in: ',sessionStorage.getItem("RUNTIME"));
+    //console.log('Runtime passed in: ',sessionStorage.getItem("RUNTIME"));
     var newSS = parseFloat(sessionStorage.getItem("STEPSIZE"));
     if(newSS > 0) {
       this.stepSize = newSS;
     }
-   // console.log('Stepsize passed in: ',sessionStorage.getItem("STEPSIZE"));
+    if( this.debug ) {
+      console.log('Stepsize passed in: ',sessionStorage.getItem("STEPSIZE"));}
+
+    // Three values for staticRun:
+    // 'false': Only Plot updates during run
+    // 'true': Only plots at end of run.
+    // '' : allows both static and plot updates during run
     var staticRun = sessionStorage.getItem("STATIC");
     if( staticRun != null ) {
       if(staticRun.toUpperCase() == 'TRUE') {
-        console.log(' Static run');
+        //console.log(' Static run');
         sRun = true;
       }
+      if( (staticRun.toUpperCase() == 'FALSE') || (staticRun == '')  ) {
+        if( this.debug ) {console.log(' Plot during run');}
+        sRun = false;
+      }
+
     }
-   // console.log('Static run? passed in: ',sessionStorage.getItem("STATIC"));
+   if( this.debug ){ console.log('Static run? passed in: ',sessionStorage.getItem("STATIC"));}
     if(sessionStorage.getItem("SLIDERS") != null) {
       this.parForSliders = sessionStorage.getItem("SLIDERS");
       }
@@ -497,7 +536,7 @@ begin
    // Assume sbml model. XML format. May need to parse later for other formats.
   if assigned(self.strFileInput) and (self.strFileInput <> '') then
     begin
-    //console.log('File passed in: ', self.strFileInput);
+    if self.debug then console.log('File passed in: ', self.strFileInput);
     // Update runtime and stepsize:
     if length(self.strFileInput) > 20 then // assumed model larger than 20 chars
       begin
@@ -508,7 +547,7 @@ begin
       end
     else
       begin
-      console.log('No model loaded, model string less than 20 chars');
+      if self.debug then console.log('No model loaded, model string less than 20 chars');
       self.setMaxUI;
       end;
 
@@ -530,7 +569,7 @@ begin
   self.btnRunPause.ElementClassName := BTN_DISABLED;
   if assigned(self.pnlSimSpeedMult) then self.trackBarSimSpeed.Enabled := false;
   self.enableStepSizeEdit;
-  if not DEBUG then self.pnlExample.Free;
+  if not self.debug then self.pnlExample.Free;
   self.mainController.addSBMLListener( @self.PingSBMLLoaded );
   self.mainController.addSimListener( @self.getVals ); // notify when new Sim results
   self.mainController.addStaticSimResultsListener( @self.getStaticSimResults ); // notify when static run done.
@@ -814,20 +853,6 @@ begin
     end;
 end;
 
-{procedure TMainForm.Changeplotspecies1Click(Sender: TObject);
-var i: integer;
-begin
-  console.log( ' Change plot species');
-
-  if Sender is TMenuItem then
-    begin
-    i := TMenuItem(Sender).tag -1; // want index.
-    // delete plot and then select species and add plot.
-    self.deletePlot(i);
-    self.selectPlotSpecies(i+1); // want position
-    end;
-end;
-      }
 function TMainForm.calcSliderLeft(index: integer): integer;
 var
   i: Integer;
@@ -1051,7 +1076,6 @@ begin
       begin
       self.runTime := 20;
       end;
-
     if (assigned(self.graphPanelList)) and (self.graphPanelList.Count >0) then
       begin
       for i := 0 to self.graphPanelList.Count -1 do
@@ -1062,6 +1086,8 @@ begin
     end
   else // false
     begin
+    self.btnSavePlotResults.Enabled := false;
+    self.btnSavePlotResults.ElementClassName := BTN_DISABLED;
     self.disableRunTimeEdit;
     self.runTime := DEFAULT_RUNTIME;
     if (assigned(self.graphPanelList)) and (self.graphPanelList.Count >0) then
@@ -1180,6 +1206,8 @@ end;
 
 procedure TMainForm.runStaticSim();
 begin
+  self.btnSavePlotResults.Enabled := true;
+  self.btnSavePlotResults.ElementClassName := BTN_ENABLED;
   self.btnEditGraph.Enabled := false;
   self.btnEditGraph.ElementClassName := BTN_DISABLED;
   self.btnEditSliders.Enabled := false;
@@ -1268,6 +1296,10 @@ procedure TMainForm.PingSBMLLoaded(newModel:TModel);
 var errList: string;
     i: integer;
 begin
+  if assigned(self.lastStaticSimData) then self.lastStaticSimData.free;
+  if assigned(self.lastStaticSimParVals) then self.lastStaticSimParVals.free;
+  self.btnSavePlotResults.Enabled := false;
+  self.btnSavePlotResults.ElementClassName := BTN_DISABLED;
   if newModel.getNumSBMLErrors >0 then
     begin
     errList := '';
@@ -1787,11 +1819,10 @@ begin
       end;
     end;
 end;
-
+      // Listener:
 procedure TMainForm.getStaticSimResults ( newResults: TList<TTimeVarNameValList> );
 var i: integer;
 begin
-//console.log('TMainForm.getStaticSimResults called');
    // Update plots:
   if self.graphPanelList.count > 0 then
     begin
@@ -1801,6 +1832,15 @@ begin
       self.graphPanelList[i].setStaticSimResults(newResults);
       end;
     end;
+  //self.saveStaticSimRunResults(newResults);
+  if assigned(self.lastStaticSimData) then self.lastStaticSimData := newResults
+  else
+    begin
+    self.lastStaticSimData := TList<TTimeVarNameValList>.create;
+    self.lastStaticSimData := newResults;
+    end;
+
+  self.saveCurrentSimParamVals();
 //  console.log('TMainForm.getStaticSimResults done plotting');
   self.btnSimReset.Enabled := true;
   self.btnSimReset.ElementClassName := BTN_ENABLED;
@@ -2036,6 +2076,36 @@ begin
   else Result := false;
 end;
 
+function TMainForm.enableSimSpeedMult: Boolean;
+begin
+  if assigned(self.pnlSimSpeedMult) then
+    begin
+    self.pnlSimSpeedMult.Enabled := true;
+    self.lblSpeedMult.Enabled := true;
+    self.lblSpeedMultVal.Enabled := true;
+    self.lblSpeedMultMin.Enabled := true;
+    self.lblSpeedMultMax.Enabled := true;
+    self.trackBarSimSpeed.Enabled := true;
+    Result := true;
+    end
+  else Result := false;
+end;
+
+function TMainForm.disableSimSpeedMult: Boolean;
+begin
+  if assigned(self.pnlSimSpeedMult) then
+    begin
+    self.pnlSimSpeedMult.Enabled := false;
+    self.lblSpeedMult.Enabled := false;
+    self.lblSpeedMultVal.Enabled := false;
+    self.lblSpeedMultMin.Enabled := false;
+    self.lblSpeedMultMax.Enabled := false;
+    self.trackBarSimSpeed.Enabled := false;
+    Result := true;
+    end
+  else Result := false;
+end;
+
 procedure TMainForm.setTopPanelSpacing;
 //var btnWidth: integer;
 begin
@@ -2075,10 +2145,20 @@ end;
 
 procedure TMainForm.setMinUI(isStaticRun: boolean); // Used when model is passed into app.
 begin
-  console.log('Minimum UI');
-  self.pnlStaticSim.Visible := false;
-  //self.chkbxStaticSimRun.Visible := false;
-  //self.btnModelInfo.visible := false;
+ // console.log('Minimum UI');
+  if isStaticRun then
+    begin     // Only static simulations:
+    self.pnlStaticSim.Visible := false;
+    self.pnlStepSize.Visible := true;
+    self.pnlSimSpeedMult.Visible := false;
+    end
+  else
+    begin  // allow both static and realtime sims
+    self.pnlStaticSim.Visible := true;
+    self.pnlStepSize.Visible := true;
+    self.pnlSimSpeedMult.Visible := true;
+    end;
+
   if assigned(self.pnlModelInfo) then self.pnlModelInfo.Free;
   if assigned(self.pnlExample) then self.pnlExample.Free;
  // if assigned(self.pnlLoadModel) then self.pnlLoadModel.visible := false;
@@ -2088,15 +2168,18 @@ begin
     self.pnlLoadModel.Free;
     end;
   //self.btnLoadModel.visible := false;
-  self.pnlStepSize.Visible := false;
+  //
   if isStaticRun then
     begin
+    if assigned(self.pnlRunTime) then self.enableRunTimeEdit;
     if assigned(self.pnlSimSpeedMult) then
-      self.pnlSimSpeedMult.Free;
+      self.disableSimSpeedMult;// Actually do not want it visible.
     end
   else
     begin
-    if assigned(self.pnlRunTime) then self.pnlRunTime.Free;
+    if assigned(self.pnlRunTime) then self.disableRunTimeEdit;
+    if assigned(self.pnlSimSpeedMult) then
+      self.enableSimSpeedMult;
    // self.lblRunTime.visible := false;
    // self.editRunTime.visible := false;
     end;
@@ -2107,6 +2190,84 @@ begin
   console.log('Max UI');
   //TODO ?
 end;
+
+procedure TMainForm.saveCurrentSimParamVals();
+begin
+  //self.lastStaticSimParVals := self.mainController.getSimulation.getP_Vals; // Get current param vals
+  self.lastStaticSimParVals := self.mainController.getCurrentParamValues; // Get current param vals
+end;
+
+procedure TMainForm.saveStaticSimRunResults(newResults: TList<TTimeVarNameValList>;
+  parValues: TVarNameValList; saveFileName: string);
+var i, j: integer;
+    nameLine: string;
+    valLine: string;
+    simResults: TStringList;
+    curParamVals: TVarNameValList;
+begin
+  simResults := TStringList.Create;
+  //curParamVals := self.mainController.getSimulation.getP_Vals; // Get current param vals
+  curParamVals := parValues;
+  nameLine := '';
+  valLine := '';
+  for i := 0 to curParamVals.getNumPairs -1 do
+    begin
+    nameLine := nameLine + curParamVals.getNameVal(i).getId;
+    valLine := valLine + floattostr(curParamVals.getNameVal(i).getVal);
+    if i < curParamVals.getNumPairs then
+      begin
+      nameLine := nameLine + ', ';
+      valLine := valLine + ', ';
+      end;
+    end;
+    console.log(nameLine);
+    console.log(valLine);
+  simResults.Add(nameLine);
+  simResults.Add(valLine);
+  simResults.Add('  ');
+  nameLine := '';
+  valLine := '';
+  nameLine := 'Time';
+  for I := 0 to newResults[0].varNV_List.getNumPairs -1 do
+    begin
+    nameLine := nameLine + ', ' + newResults[0].varNV_list.getNameVal(i).getId;
+    end;
+  simResults.Add(nameLine);
+  console.log(nameLine);
+  for i := 0 to newResults.count -1 do
+    begin
+    valLine := '';
+    valLine := valLine + floattostr(newResults[i].time);
+    for j := 0 to newResults[i].varNV_List.getNumPairs -1 do
+      begin
+      valLine := valLine + ', ' + floattostr(newResults[i].varNV_List.getNameVal(j).getVal);
+      end;
+    console.log(valLine);
+    simResults.Add(valLine);
+    end;
+  self.writeSimData(saveFileName, simResults);
+end;
+
+procedure TMainForm.writeSimData(fileName: string; data: TStrings);
+var simData: string;
+    i: integer;
+begin
+  simData := '';
+  for i := 0 to data.count -1 do
+    begin
+      simData := simData + data[i] + sLineBreak;
+    end;
+
+   try
+     Application.DownloadTextFile(simData, fileName);
+   except
+       on E: Exception do
+          notifyUser(E.message);
+   end;
+
+end;
+
+
 
 procedure TMainForm.clearBrowserSessionStorage;
  // Delete contents of sessionStorage, if browser refresh button is pushed then
@@ -2126,7 +2287,7 @@ end;
 
 procedure TMainForm.testUI(); // Used for testing
 begin
-  console.log('Test UI');
+  //console.log('Test UI');
   self.setMaxUI;
 end;
 

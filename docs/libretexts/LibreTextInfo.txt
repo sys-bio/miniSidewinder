@@ -10,10 +10,12 @@ Notes on using MiniSidewinder in LibreTexts (https://bio.libretexts.org/)
 In the future, LibreTexts will host a version of miniSidewinder and associated files.
 
 
-Current files (6) within ../docs/libreTexts/ :
+Current files (8) within ../docs/libreTexts/ :
 
 - libreTextsLoadSim.html: Intermediary file used to load SBML file from a URL and pass on simulation settings and model text to miniSidewinder.
-- libreTextsTemplateTestPage.html: Used to test template on local http server
+- libreTextsTemplateTestPage.html: Used to test template on local http server. loads model from libretexts.org
+- localTest_index.html: Used to test model template variables. Files all local.
+- localTest_libreTextsLoadSim.html: Local Intermediary file used to load SBML file from a URL and pass on simulation settings and model text to miniSidewinder for testing.
 - miniSidewinderLibreTextsPostMessageTemplate.html: Uses Window.postMessage() to send data. Template that may need to be used if sending the SBML model text directly from a webpage. Also may be necessary if total information sent to libreTextsLoadSim.html exceeds 2k chars.
 - miniSidewinderLibreTextsTemplate.html: Current template used by libreTexts authors to place a model simulation within a webpage.
 - UsingLibreTextsSimulatorTemplate.rtf: Instructions for libreTexts authors on placing a SBML model simulation within a webpage.

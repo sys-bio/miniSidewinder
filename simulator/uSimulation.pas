@@ -74,6 +74,7 @@ type
     procedure startSimulation();
     procedure startStaticSimulation();
     procedure updateSimulation();
+    procedure updateP_Vals(newP_ValList:TVarNameValList);
     procedure updateP_Val( index: integer; newVal: double );
     function  getP_Vals(): TVarNameValList;
     procedure setInitValues(); // set init vals of params. species at t=0
@@ -406,14 +407,25 @@ var i: integer;
        end;
  end;
 
-procedure TSimulationJS.updateP_Val( index: integer; newVal: double );
+procedure TSimulationJS.updateP_Vals(newP_ValList:TVarNameValList);
+var i: integer;
 begin
+//console.log('TSimulationJS.updateP_Vals:');
+  self.p_NameValAr.Free;
+  self.p_NameValAr := TVarNameValList.create;
+  self.p_NameValAr.copy(newP_ValList);
+  self.p := self.p_NameValAr.getValAr;  // get parameter values array for integrator
+end;
 
+procedure TSimulationJS.updateP_Val( index: integer; newVal: double );
+var i: integer;
+begin
   if (length(self.p) > index) and (index > -1) then
     begin
     self.p[index] := newVal;
     self.p_NameValAr.setVal( index, newVal );
     end;
+
 end;
 
 function TSimulationJS.getP_Vals(): TVarNameValList;
@@ -501,12 +513,9 @@ begin
     self.WebTimer1.enabled := false;
 end;
 
-procedure TSimulationJS.setInitValues();
+procedure TSimulationJS.setInitValues(); // Init assignment equations
 var i: integer;
 begin
-//  setLength(self.s_ValsInit, length(self.s_Vals));
-//  setLength(self.p_ValsInit, length(self.p));
-  //self.p_ValsInit[0] := 2;
 
   if self.p_InitAssignEqs <> '' then
     begin
