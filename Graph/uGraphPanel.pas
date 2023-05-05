@@ -6,7 +6,7 @@ uses SysUtils, Classes, Graphics, Controls, System.Types, System.Generics.Collec
      uWebScrollingChart, uWebGlobalData, ufYAxisMinMaxEdit,  uSidewinderTypes;
 
 const SERIESCOLORS: array[0..10] of integer = ( clRed, clBlue, clGreen,clBlack,
-                     clAqua, clGray,clPurple,clOlive, clLime,clSkyBlue, clYellow);
+                     clAqua, clGray,clPurple,clOlive, clLime,clSkyBlue, clWebGold);
       EDIT_TYPE_DELETEPLOT = 0;
       EDIT_TYPE_SPECIES = 1;
       DEFAULT_Y_MAX = 10;
