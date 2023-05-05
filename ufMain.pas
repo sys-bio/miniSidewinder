@@ -12,10 +12,11 @@ uses
   VCL.TMSFNCCustomControl, VCL.TMSFNCScrollBar, ufModelInfo, ufLabelPopUp,
   Vcl.Menus, WEBLib.Menus, WEBLib.WebCtrls, ufChkGroupEditPlot;
 
-const SIDEWINDER_VERSION = 'MiniSidewinder Version 0.8.6';
+const SIDEWINDER_VERSION = 'MiniSidewinder Version 0.8.7';
       COPYRIGHT = 'Copyright 2023, Bartholomew Jardine and Herbert M. Sauro, University of Washington, USA';
       GRANT_INFO = 'This project was funded by NIH/NIGMS (R01-GM123032-04)';
       DEFAULT_RUNTIME = 10000;
+      DEFAULT_STATICRUN = 50;
       EDITBOX_HT = 25;
       ZOOM_SCALE = 20;
       MAX_PLOTSPECIES = 8;
@@ -452,7 +453,9 @@ begin
   self.chkbxStaticSimRun.Checked := true;
   self.numbPlots := 0;
   self.slidersPerRow := SLIDERS_PER_ROW;
-  self.runTime := DEFAULT_RUNTIME;
+  if sRun then
+    self.runTime := DEFAULT_STATICRUN
+  else self.runTime := DEFAULT_RUNTIME;
   self.setTopPanelSpacing;
   self.intSliderHeight := 35;
   self.pnlParamSliders.height := 5;
@@ -1074,7 +1077,7 @@ begin
     self.enableRunTimeEdit;
     if self.runTime = DEFAULT_RUNTIME then
       begin
-      self.runTime := 20;
+      self.runTime := DEFAULT_STATICRUN;
       end;
     if (assigned(self.graphPanelList)) and (self.graphPanelList.Count >0) then
       begin
@@ -1328,6 +1331,8 @@ begin
   self.setListBoxInitValues;
   self.setListBoxRateLaws;
   self.setLabelModelInfo;
+  if self.chkbxStaticSimRun.Checked then self.enableRunTimeEdit;
+
   if assigned(self.btnModelInfo) then
     begin
     self.btnModelInfo.Enabled := true;

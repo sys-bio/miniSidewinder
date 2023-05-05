@@ -307,7 +307,8 @@ begin
         begin
          if self.chart.series[index].name = self.seriesStrList[j] then
            begin
-           if index < length(SERIESCOLORS)then self.chart.series[index].color := SERIESCOLORS[j]
+ //          if index < length(SERIESCOLORS)then self.chart.series[index].color := SERIESCOLORS[j]
+           if j < length(SERIESCOLORS)then self.chart.series[index].color := SERIESCOLORS[j]
            else self.chart.series[index].color := SERIESCOLORS[j mod length(SERIESCOLORS)];
            end;
         end;
