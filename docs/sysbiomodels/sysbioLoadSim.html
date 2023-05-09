@@ -120,9 +120,10 @@ function loadSearchInfo(newStrSearch) {
   spPlot = newStrSearch.get('m_species');
   newURL = newStrSearch.get('m_URL');
   console.log('loadSearchInfo: Model url: ', newURL);
+  iframeID = newStrSearch.m_iframeID;
   yLabel = newStrSearch.get('m_yLabel');
   xLabel = newStrSearch.get('m_xLabel');
-  runModel2(newURL);
+  runModel2(newURL, iframeID);
 
 }
 </script>
