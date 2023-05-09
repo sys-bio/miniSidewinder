@@ -31,7 +31,7 @@ var xLabel = 'sec';
   var iframeID = '';
   //var modelCode = '';
   try {
-    console.log("**** loadInfo(): ", newEventData);
+   //console.log("**** loadInfo(): ", newEventData);
     JSONdata = JSON.parse(newEventData);
     newRT = JSONdata.m_RT;
     newSS = JSONdata.m_SS;
@@ -75,8 +75,8 @@ window.addEventListener('message',function (event) {
  
  <script type="text/javascript">
  function getInfo2(model,rt, ss,staticBool,pars,sp, frameid) {
-   console.log(' *** getInfo2() loaded.');
-   console.log(' *** getInfo2() Frame id: ', frameid);
+  // console.log(' *** getInfo2() loaded.');
+  // console.log(' *** getInfo2() Frame id: ', frameid);
    sessionStorage.setItem("MODEL", model);
    sessionStorage.setItem('RUNTIME', rt);
    sessionStorage.setItem('STEPSIZE', ss);
@@ -85,8 +85,8 @@ window.addEventListener('message',function (event) {
    sessionStorage.setItem('PLOT_SPECIES', sp.trim());
    sessionStorage.setItem('X_LABEL', xLabel);
    sessionStorage.setItem('Y_LABEL', yLabel);
-   //window.location.href = ('../Debug/index.html?'); // Location of miniSidewinder
-   document.getElementById(frameid).src = "../Debug/index.html?"; // Location of miniSidewinder
+   window.location.href = ('../Debug/index.html?'); // Location of miniSidewinder
+   //document.getElementById(frameid).src = "../Debug/index.html?"; // Location of miniSidewinder
  }
  </script> 
 
@@ -129,11 +129,11 @@ function loadSearchInfo(newStrSearch) {
 </script>
 
 <script type="text/javascript">
- console.log(" * sysbioLoadSim.html file loaded......");
+// console.log(" * sysbioLoadSim.html file loaded......");
   const para = new URLSearchParams(window.location.search);
   const new_url = para.get('m_URL');
   if (new_url) {
-	console.log('Model url: ', new_url);
+	//console.log('Model url: ', new_url);
 	loadSearchInfo(para);
   }
 </script>  
