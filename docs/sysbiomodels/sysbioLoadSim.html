@@ -31,7 +31,7 @@ var xLabel = 'sec';
   var iframeID = '';
   //var modelCode = '';
   try {
-    //console.log("**** loadInfo(): libretexts data :", newEventData);
+    console.log("**** loadInfo(): ", newEventData);
     JSONdata = JSON.parse(newEventData);
     newRT = JSONdata.m_RT;
     newSS = JSONdata.m_SS;
@@ -76,6 +76,7 @@ window.addEventListener('message',function (event) {
  <script type="text/javascript">
  function getInfo2(model,rt, ss,staticBool,pars,sp, frameid) {
    console.log(' *** getInfo2() loaded.');
+   console.log(' *** getInfo2() Frame id: ', frameid);
    sessionStorage.setItem("MODEL", model);
    sessionStorage.setItem('RUNTIME', rt);
    sessionStorage.setItem('STEPSIZE', ss);
