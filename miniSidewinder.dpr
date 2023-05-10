@@ -35,7 +35,8 @@ uses
   ufModelInfo in 'ufModelInfo.pas' {fModelInfo: TWebForm} {*.html},
   uTestModel in 'uTestModel.pas',
   ufVarSelect in 'ufVarSelect.pas' {VarSelectForm: TWebForm},
-  ufChkGroupEditPlot in 'ufChkGroupEditPlot.pas' {fChkGroupEditPlot: TWebForm} {*.html};
+  ufChkGroupEditPlot in 'ufChkGroupEditPlot.pas' {fChkGroupEditPlot: TWebForm} {*.html},
+  ufAbout in 'ufAbout.pas' {fAbout: TWebForm} {*.html};
 
 {$R *.res}
 
@@ -46,5 +47,6 @@ begin
   Application.CreateForm(TFYAxisMinMaxEdit, FYAxisMinMaxEdit);
   Application.CreateForm(TfModelInfo, fModelInfo);
   Application.CreateForm(TfChkGroupEditPlot, fChkGroupEditPlot);
+  Application.CreateForm(TfAbout, fAbout);
   Application.Run;
 end.

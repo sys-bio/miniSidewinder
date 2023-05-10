@@ -45,3 +45,5 @@ __recovery/ufMain.dfm
 __recovery/ufMain.pas
 __recovery/uSidewinderTypes.pas
 __recovery/uControllerMain.pas
+__recovery/ufModelInfo.pas
+__recovery/ufModelInfo.dfm

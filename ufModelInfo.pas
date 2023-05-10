@@ -14,6 +14,7 @@ type
     lblInitVals: TWebLabel;
     lblRates: TWebLabel;
     memoModelName: TWebMemo;
+   // procedure btnModelCloseClick(Sender: TObject);
   private
     { Private declarations }
   public
@@ -28,7 +29,15 @@ var
 implementation
 
 {$R *.dfm}
- procedure TfModelInfo.setlistBoxInitVals(newList: TStringList);
+{procedure TfModelInfo.btnModelCloseClick(Sender: TObject);
+ var lForm: TWebForm;
+ begin
+  lForm := TWebForm((Sender as TWebButton).Parent);
+  lForm.Close;
+  lForm.Free;
+ end;
+     }
+procedure TfModelInfo.setlistBoxInitVals(newList: TStringList);
  var itemCount: integer;
  begin
    self.listBoxInitVals.Items := newList;
@@ -42,7 +51,7 @@ implementation
  begin
    self.listBoxRates.Items := newList;
    itemCount := newList.Count;
-   self.listBoxRates.Height := trunc(self.listBoxRates.Font.Size * 1.8 * itemCount);
+   self.listBoxRates.Height := trunc(self.listBoxRates.Font.Size * 2.5 * itemCount);
 
  end;
 

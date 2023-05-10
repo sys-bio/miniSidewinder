@@ -10,11 +10,11 @@ uses
   uModel, uSBMLClasses, uSBMLClasses.rule, upnlParamSlider,
   VCL.TMSFNCTypes, VCL.TMSFNCUtils, VCL.TMSFNCGraphics, VCL.TMSFNCGraphicsTypes,
   VCL.TMSFNCCustomControl, VCL.TMSFNCScrollBar, ufModelInfo, ufLabelPopUp,
-  Vcl.Menus, WEBLib.Menus, WEBLib.WebCtrls, ufChkGroupEditPlot;
+  Vcl.Menus, WEBLib.Menus, WEBLib.WebCtrls, ufChkGroupEditPlot, ufAbout;
 
-const SIDEWINDER_VERSION = 'MiniSidewinder Version 0.8.8';
+const SIDEWINDER_VERSION = 'MiniSidewinder Version 0.8.9';
       COPYRIGHT = 'Copyright 2023, Bartholomew Jardine and Herbert M. Sauro, University of Washington, USA';
-      GRANT_INFO = 'This project was funded by NIH/NIGMS (R01-GM123032-04)';
+      GRANT_INFO = 'This project was funded by NIH/NIGMS (R01-GM123032-04).';
       DEFAULT_RUNTIME = 10000;
       DEFAULT_STATICRUN = 50;
       EDITBOX_HT = 25;
@@ -160,6 +160,7 @@ type
     function  checkIfInSpeciesPlotList(spToCheck: string): boolean;// check if species is in self.spToPlot list
     procedure setListBoxInitValues();
     procedure displayModelInfo();
+    procedure displayAbout(strAbout: String);
     procedure setListBoxRateLaws();
     procedure setLabelModelInfo();
     function  enableStepSizeEdit(): boolean; // true: success
@@ -223,7 +224,8 @@ var infoStr: string;
 begin
 infoStr := SIDEWINDER_VERSION + sLineBreak;
 infoStr := infoStr + COPYRIGHT + sLineBreak + GRANT_INFO;
-  notifyUser(infoStr);
+ // notifyUser(infoStr);
+  self.displayAbout(infoStr);
 end;
 
 procedure TMainForm.btnEditGraphClick(Sender: TObject);
@@ -1959,12 +1961,25 @@ begin
   self.fModelInfo.caption := 'Model information:';
 end;
 
-{procedure TMainForm.editRunTimeChange(Sender: TObject);
-var newRunTime: double;
+procedure TMainForm.displayAbout(strAbout: string);
+var fAbout: TfAbout;
+
+  procedure AfterAboutCreate(AForm: TObject);
+   begin
+   (AForm as TfAbout).Top := trunc(self.Height*0.1); // put popup %10 from top
+   (AForm as TfAbout).memoAbout.Text := strAbout;
+
+   end;
+
 begin
-  self.editRunTimeExit(Sender);
+  fAbout := TfAbout.CreateNew(@AfterAboutCreate);
+  fAbout.Popup := true;
+  //fAbout.ShowClose := true;
+  fAbout.PopupOpacity := 0.3;
+  //fABout.Border := fbDialog;
+  //fAbout.caption := 'About:';
 end;
-}
+
 procedure TMainForm.editRunTimeExit(Sender: TObject);
 var newRunTime: double;
 begin
