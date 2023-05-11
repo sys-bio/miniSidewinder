@@ -11,11 +11,15 @@ object fAbout: TfAbout
     Height = 105
     AutoSize = False
     BorderStyle = bsNone
-    ElementClassName = 'text-dark'
-    ElementFont = efCSS
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -13
+    Font.Name = 'Tahoma'
+    Font.Style = []
     HeightPercent = 100.000000000000000000
     Lines.Strings = (
       'memoAbout')
+    ParentFont = False
     SelLength = 0
     SelStart = 0
     WidthPercent = 100.000000000000000000
