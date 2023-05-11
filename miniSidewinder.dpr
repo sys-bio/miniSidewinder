@@ -32,11 +32,12 @@ uses
   uSidewinderTypes in 'uSidewinderTypes.pas',
   ufYAxisMinMaxEdit in 'Graph\ufYAxisMinMaxEdit.pas' {FYAxisMinMaxEdit: TWebForm} {*.html},
   upnlParamSlider in 'upnlParamSlider.pas',
-  ufModelInfo in 'ufModelInfo.pas' {fModelInfo: TWebForm} {*.html},
   uTestModel in 'uTestModel.pas',
-  ufVarSelect in 'ufVarSelect.pas' {VarSelectForm: TWebForm},
-  ufChkGroupEditPlot in 'ufChkGroupEditPlot.pas' {fChkGroupEditPlot: TWebForm} {*.html},
-  ufAbout in 'ufAbout.pas' {fAbout: TWebForm} {*.html};
+  ufAbout in 'forms\ufAbout.pas' {fAbout: TWebForm} {*.html},
+  ufModelInfo in 'forms\ufModelInfo.pas' {fModelInfo: TWebForm} {*.html},
+  ufVarSelect in 'forms\ufVarSelect.pas' {VarSelectForm: TWebForm} {*.html},
+  ufChkGroupEditPlot in 'forms\ufChkGroupEditPlot.pas' {fChkGroupEditPlot: TWebForm} {*.html},
+  ufInputText in 'forms\ufInputText.pas' {fInputText: TWebForm} {*.html};
 
 {$R *.res}
 
@@ -45,8 +46,9 @@ begin
   Application.MainFormOnTaskbar := True;
   Application.CreateForm(TMainForm, MainForm);
   Application.CreateForm(TFYAxisMinMaxEdit, FYAxisMinMaxEdit);
+  Application.CreateForm(TfAbout, fAbout);
   Application.CreateForm(TfModelInfo, fModelInfo);
   Application.CreateForm(TfChkGroupEditPlot, fChkGroupEditPlot);
-  Application.CreateForm(TfAbout, fAbout);
+  Application.CreateForm(TfInputText, fInputText);
   Application.Run;
 end.

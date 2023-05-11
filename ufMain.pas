@@ -9,8 +9,8 @@ uses
   uControllerMain, ufVarSelect, uSidewinderTypes, uGraphPanel, uTestModel,
   uModel, uSBMLClasses, uSBMLClasses.rule, upnlParamSlider,
   VCL.TMSFNCTypes, VCL.TMSFNCUtils, VCL.TMSFNCGraphics, VCL.TMSFNCGraphicsTypes,
-  VCL.TMSFNCCustomControl, VCL.TMSFNCScrollBar, ufModelInfo, ufLabelPopUp,
-  Vcl.Menus, WEBLib.Menus, WEBLib.WebCtrls, ufChkGroupEditPlot, ufAbout;
+  VCL.TMSFNCCustomControl, VCL.TMSFNCScrollBar, Vcl.Menus, ufModelInfo, ufLabelPopUp,
+  WEBLib.Menus, WEBLib.WebCtrls, ufChkGroupEditPlot, ufAbout, ufInputText;
 
 const SIDEWINDER_VERSION = 'MiniSidewinder Version 0.8.9';
       COPYRIGHT = 'Copyright 2023, Bartholomew Jardine and Herbert M. Sauro, University of Washington, USA';
@@ -73,7 +73,7 @@ type
     pnlAbout: TWebPanel;
     btnAbout: TWebButton;
     pnlPlotResults: TWebPanel;
-    btnSavePlotResults: TWebButton; // Only needed if # model params is greater than MAX_SLIDERS
+    btnSavePlotResults: TWebButton;
 
     procedure WebFormCreate(Sender: TObject);
     procedure btnSimResetClick(Sender: TObject);
@@ -163,6 +163,7 @@ type
     procedure displayAbout(strAbout: String);
     procedure setListBoxRateLaws();
     procedure setLabelModelInfo();
+    procedure getFileNameFromUser(strDefaultName: string);
     function  enableStepSizeEdit(): boolean; // true: success
     function  disableStepSizeEdit(): boolean;// true: success
     function  enableRunTimeEdit(): boolean;  // true: success
@@ -337,15 +338,17 @@ end;
 
 procedure TMainForm.btnSavePlotResultsClick(Sender: TObject);
 begin
-  fileName := InputBox('Save last simulation data to the Downloads directory',
-    'Enter File Name:', 'newSimResults.csv');
-  if fileName <> '' then
+  //fileName := InputBox('Save last simulation data to the Downloads directory',
+  //  'Enter File Name:', 'newSimResults.csv');
+  fileName := 'newSimResults.csv';
+  self.getFileNameFromUser(fileName);
+  {if fileName <> '' then
     begin
       self.saveStaticSimRunResults(self.lastStaticSimData, self.lastStaticSimParVals, fileName);
       //self.writeSimData(fileName, newData);
     end
   else
-    notifyUser('Save cancelled');
+    notifyUser('Save cancelled'); }
 end;
 
 procedure TMainForm.btnRunPauseClick(Sender: TObject);
@@ -1976,8 +1979,42 @@ begin
   fAbout.Popup := true;
   //fAbout.ShowClose := true;
   fAbout.PopupOpacity := 0.3;
-  //fABout.Border := fbDialog;
-  //fAbout.caption := 'About:';
+end;
+
+procedure TMainForm.getFileNameFromUser(strDefaultName: string);
+var fgetFileName: TfInputText;
+
+  procedure AfterShowModal(AValue: TModalResult);
+  var newFileName: String; lForm: TWebForm;
+   begin
+   newFileName := '';
+   if Assigned(fgetFileName) then
+     newFileName := fgetFileName.editText.Text;
+   if newFileName <> '' then
+     begin
+     self.saveStaticSimRunResults(self.lastStaticSimData, self.lastStaticSimParVals, newFileName);
+     end
+   else
+     notifyUser('File Save cancelled');
+   end;
+
+  procedure AfterCreate(AForm: TObject);
+   begin
+   (AForm as TfInputText).Top := trunc(self.Height*0.1); // put popup %10 from top
+   (AForm as TfInputText).lblInput.Caption := 'Enter File Name:';
+   //(AForm as TfInputText).lblInput.Font.Size := 12;
+   (AForm as TfInputText).editText.Text := strDefaultName;
+   (AForm as TfInputText).editText.Font.Size := 10;
+   (AForm as TfInputText).lblInfo.Caption := 'Save last simulation data to the Downloads directory.';
+   (AForm as TfInputText).lblInfo.Font.Size := 12;
+
+   end;
+
+begin
+  fgetFileName := TfInputText.CreateNew(@AfterCreate);
+  fgetFileName.Popup := true;
+  fgetFileName.PopupOpacity := 0.3;
+  fgetFileName.ShowModal(@AfterShowModal);
 end;
 
 procedure TMainForm.editRunTimeExit(Sender: TObject);
