@@ -5,25 +5,30 @@ object fInputText: TfInputText
   CSSLibrary = cssBootstrap
   ElementFont = efCSS
   object lblInput: TWebLabel
-    Left = 24
-    Top = 47
-    Width = 53
-    Height = 13
+    Left = 15
+    Top = 42
+    Width = 70
+    Height = 18
     Caption = 'Enter text:'
     Color = clCream
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -15
+    Font.Name = 'Tahoma'
+    Font.Style = []
     HeightPercent = 100.000000000000000000
+    ParentFont = False
     WidthPercent = 100.000000000000000000
   end
   object lblInfo: TWebLabel
-    Left = 40
+    Left = 15
     Top = 8
-    Width = 4
-    Height = 16
+    Width = 5
+    Height = 18
     Color = clCream
-    ElementFont = efCSS
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
-    Font.Height = -13
+    Font.Height = -15
     Font.Name = 'Tahoma'
     Font.Style = []
     HeightStyle = ssAuto
@@ -45,7 +50,7 @@ object fInputText: TfInputText
     OnClick = btnOkClick
   end
   object editText: TWebEdit
-    Left = 120
+    Left = 130
     Top = 44
     Width = 241
     Height = 22

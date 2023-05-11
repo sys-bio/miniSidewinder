@@ -2002,12 +2002,9 @@ var fgetFileName: TfInputText;
    begin
    (AForm as TfInputText).Top := trunc(self.Height*0.1); // put popup %10 from top
    (AForm as TfInputText).lblInput.Caption := 'Enter File Name:';
-   //(AForm as TfInputText).lblInput.Font.Size := 12;
    (AForm as TfInputText).editText.Text := strDefaultName;
-   (AForm as TfInputText).editText.Font.Size := 10;
+   (AForm as TfInputText).editText.Font.Size := 12;
    (AForm as TfInputText).lblInfo.Caption := 'Save last simulation data to the Downloads directory.';
-   (AForm as TfInputText).lblInfo.Font.Size := 12;
-
    end;
 
 begin
