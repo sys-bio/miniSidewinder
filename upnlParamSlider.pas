@@ -35,6 +35,7 @@ TpnlParamSlider = class(TWebPanel)
     procedure clearSlider();
     // Called when adding or updating a param slider:
     procedure setUpParamSliderVals(pName: string; pVal: double);
+    procedure setUpSliderVals(name: string; val: double);
     procedure resetSliderPosition(pName: string; pVal: double);
     function  getSliderHighVal(): double;
     procedure setSliderHighVal( newVal: double );
@@ -145,7 +146,7 @@ var sliderTBarWidth : integer;
   end;
 
 
-procedure TpnlParamSlider.setUpParamSliderVals(pName: string; pVal: double);
+procedure TpnlParamSlider.setUpParamSliderVals(pName: string; pVal: double);// Get rid of, use setUpSliderVals()
 begin
   self.id := pName;
   self.initVal := pVal;
@@ -167,6 +168,30 @@ begin
     end;
 
 end;
+
+
+procedure TpnlParamSlider.setUpSliderVals(name: string; val: double);
+begin
+  self.id := name;
+  self.initVal := val;
+  self.sliderPTBLabel.caption := name + ': ' + self.formatValueToStr(val);
+  self.sliderPLow := 0;
+  self.sliderPLLabel.caption := self.formatValueToStr(self.sliderPLow);
+  self.sliderPTBar.Min := 0;
+  self.sliderPTBar.Position := trunc((1 / self.multiplier) * 100);
+  self.sliderPTBar.Max := 100;
+  if pVal > 0 then
+    begin
+      self.sliderPHLabel.caption := self.formatValueToStr(val * self.multiplier);
+      self.sliderPHigh := val * self.multiplier;
+    end
+  else
+    begin
+      self.sliderPHLabel.caption := self.formatValueToStr(100);
+      self.sliderPHigh := 100; // default if init param val <= 0.
+    end;
+
+end
 
 function TpnlParamSlider.formatValueToStr(newVal: double): string;
 var strValue: string;
