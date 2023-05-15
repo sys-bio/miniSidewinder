@@ -94,7 +94,9 @@ type
 
    function  getS_Names(): array of String;
    function  getS_Vals(): array of Double; // remove at some point, only getS_initVals needed ?
+   function  findIndexForSpeciesStr(species: string): Integer;
    function  getS_initVals(): array of double;
+   function  getSinit_NameValAr(): TVarNameValList;
    procedure resetS_Vals();   // reset with species initial vals. Move this to Simulation class.
    function  getP_NameValAr(): TVarNameValList;
    function  getP_Names(): array of String;
@@ -706,6 +708,17 @@ end;
 function TModel.getS_Vals(): array of Double;
 begin
   Result := self.s_Vals;
+end;
+
+function  TModel.findIndexForSpeciesStr(species: string): Integer;
+var i: integer;
+begin
+  Result := -1;
+  for i := 0 to length(self.s_Names) -1 do
+    begin
+    if self.s_Names[i] = species then Result := i;
+    end;
+
 end;
 
 function  TModel.getP_NameValAr(): TVarNameValList;

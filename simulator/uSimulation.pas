@@ -17,6 +17,7 @@ type
     dydt: TDoubleDynArray;
     s_Vals: array of Double; // species, Changes, one to one correlation: s_Vals[n] <=> s_Names[n]
     s_Names: array of String; // Use species ID as name
+    s_NameValAr: TVarNameValList;  // user can change
   //  s_ValsInit: array of Double; // vals at t = 0;
     s_InitAssignEqs: string; // Eqs to be eval at t = 0
   //  p_ValsInit: array of Double; // vals at t = 0
@@ -77,6 +78,9 @@ type
     procedure updateP_Vals(newP_ValList:TVarNameValList);
     procedure updateP_Val( index: integer; newVal: double );
     function  getP_Vals(): TVarNameValList;
+    procedure updateS_Vals(newS_ValList:TVarNameValList);
+    procedure updateS_Val( index: integer; newVal: double );
+    function  getS_Vals(): TVarNameValList;
     procedure setInitValues(); // set init vals of params. species at t=0
     procedure testLSODA();  // Solve test equations. All pascal code.
  end;
@@ -95,6 +99,9 @@ begin
   self.online := false;
   self.model := newModel;
   self.ny := length(self.model.getS_Vals);
+  self.s_NameValAr := TVarNameValList.create;
+  self.s_NameValAr.copy(self.model.getS_)
+
   for i := 0 to ny - 1 do
     begin
     self.s_Vals[i] := self.model.getS_Vals()[i];
@@ -432,6 +439,19 @@ function TSimulationJS.getP_Vals(): TVarNameValList;
 begin
   Result := self.p_NameValAr;
 end;
+
+procedure TSimulationJS.updateS_Vals(newS_ValList:TVarNameValList);
+procedure TSimulationJS.updateS_Val( index: integer; newVal: double );
+begin
+  if (length(self.s) > index) and (index > -1) then
+    begin
+    self.s[index] := newVal;
+    self.s_NameValAr.setVal( index, newVal );
+    end;
+
+end;
+
+function  TSimulationJS.getS_Vals(): TVarNameValList;
 
 procedure TSimulationJS.setODEsolver(solverToUse: ODESolver);
 begin

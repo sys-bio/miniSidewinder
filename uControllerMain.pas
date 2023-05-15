@@ -26,6 +26,7 @@ type
     pixelStepAr: array of Integer; // pixel equiv of time (integration) step
     currTime: Double;
     currParVals: TVarNameValList;
+    currSpeciesInitVals: TVarNameValList;
     saveSBMLFlag: Boolean;
     ODEready: Boolean; // TRUE: ODE solver is setup.
    // networkUpdate: Boolean; // Use to prevent circular update when network is changed.
@@ -36,8 +37,8 @@ type
   //  currNetworkCtrl : TController;
 
   public
-    paramUpdated: Boolean; // true if a parameter val has been updated.
-
+    paramUpdated: Boolean;   // true if a parameter val has been updated.
+    speciesUpdated: Boolean; // true if a species val has been updated.
     constructor Create({networkCtrl: TController});
     procedure createModel(); // Instatiate TModel and attach listener
     procedure createSimulation();
@@ -69,6 +70,7 @@ type
     procedure modelWritten(modelStr: String); // SBML string created and ready to use.
     procedure changeModelParameterVal(pos: Integer; newVal: Double); // change model parameter value.
     procedure changeSimParameterVal( pos: Integer; newVal: Double );
+    procedure changeSimSpeciesVal( pos: Integer; newVal: Double );
     procedure stopTimer();
     procedure startTimer();
     procedure resetCurrTime();
@@ -508,19 +510,25 @@ begin
   self.runSim.updateP_Vals(self.currParVals);
 end;
 
-procedure TControllerMain.resetSimSpeciesValues();
+procedure TControllerMain.changeSimSpeciesVal(pos: Integer; newVal: Double );
+begin      // Update all as simulator gets reset each run and loses previous changes.
+  self.currSpeciesInitVals.setVal( pos, newVal );
+  self.runSim.updateS_Val( pos, newVal );
+end;
+
+procedure TControllerMain.resetSimSpeciesValues(); // Reset s values to model vals.
 var curTime: double;
     i: integer;
-    curParamVals: array of double;
+    curSpeciesVals: array of double;
 begin
   curTime := self.getCurrTime;
-  setLength( curParamVals,self.runSim.getP_Vals.getNumPairs );
-  curParamVals := self.runSim.getP_Vals.getValAr;
+  setLength( curSpeciesVals,self.runSim.getS_Vals.getNumPairs );
+  curSpeciesVals := self.runSim.getS_Vals.getValAr;
   self.createSimulation();
   self.setCurrTime(curTime);
-  for i := 0 to length(curParamVals) -1 do
+  for i := 0 to length(curSpeciesVals) -1 do
     begin
-      self.changeSimParameterVal(i,curParamVals[i]);
+      self.changeSimSpeciesVal(i,curSpeciesVals[i]);
     end;
 
 end;

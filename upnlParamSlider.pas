@@ -180,7 +180,7 @@ begin
   self.sliderPTBar.Min := 0;
   self.sliderPTBar.Position := trunc((1 / self.multiplier) * 100);
   self.sliderPTBar.Max := 100;
-  if pVal > 0 then
+  if val > 0 then
     begin
       self.sliderPHLabel.caption := self.formatValueToStr(val * self.multiplier);
       self.sliderPHigh := val * self.multiplier;
@@ -191,7 +191,7 @@ begin
       self.sliderPHigh := 100; // default if init param val <= 0.
     end;
 
-end
+end;
 
 function TpnlParamSlider.formatValueToStr(newVal: double): string;
 var strValue: string;
