@@ -422,12 +422,13 @@ end;
 
 
 procedure TMainForm.btnSimResetClick(Sender: TObject);
-begin
+begin   // Reset sim to original model settings/values
   try
   self.resetSliderPositions();
   self.enableStepSizeEdit;
-  self.resetSim;
-  self.mainController.resetSimParamValues();
+  self.resetSim; // Uses current param and init vals, if they exist
+  self.mainController.resetSimParamValues;  // Reload orig model vals
+  self.mainController.resetSimSpeciesValues;
   self.resetPlots;
   except
     on E: Exception do
@@ -437,7 +438,7 @@ begin
 end;
 
 procedure TMainForm.resetSim();
-begin
+begin  // Uses current param vals and init vals, does not reload orig model vals
   try
     self.enableStepSizeEdit;
     if self.chkbxStaticSimRun.Checked then
@@ -447,7 +448,7 @@ begin
       self.btnRunPause.ElementClassName := BTN_ENABLED;
       end;
     self.mainController.createSimulation();
-    //self.mainController.resetSimParamValues();
+
     self.simStarted := false;
     self.currentGeneration := 0;
     except
@@ -841,7 +842,7 @@ begin
  // self.sliderEditPopupsList[i].Parent := self;
  // self.pnlSliderAr[i].PopupMenu := self.sliderEditPopupsList[i] ;
  // console.log(' popup parent: ', self.sliderEditPopupsList[i].Parent);
-  self.pnlSliderSpeciesAr[i].Color := clCream;
+  self.pnlSliderSpeciesAr[i].setBackgroundColor(clCream);
   self.pnlSliderSpeciesAr[i].configPSliderPanel(sliderPanelLeft, sliderPanelWidth, self.intSliderHeight, sliderTop);
   self.SetSliderSpeciesValue(i, self.sliderSpeciesAr[i]);
   self.pnlSliderSpeciesAr[i].configPSliderTBar;
@@ -890,7 +891,7 @@ var fSelectParams: TVarSelectForm;
       end;
     if slidersUpdated then
       begin
-      self.deleteAllSliders;
+      self.deleteAllParamSliders;
       for i := 0 to fSelectParams.SpPlotCG.Items.Count - 1 do
         begin
         sliderPar := '';
@@ -955,7 +956,7 @@ var fSelectSpecies: TVarSelectForm;
       end;
     if slidersUpdated then
       begin
-      self.deleteAllSliders;
+      self.deleteAllSpeciesSliders;
       for i := 0 to fSelectSpecies.SpPlotCG.Items.Count - 1 do
         begin
         //sliderSp := '';
@@ -1109,7 +1110,7 @@ begin
   rangeMult := SLIDER_RANGE_MULT; // default.
   sName :=  self.mainController.getModel.getS_Names[speciesForSlider{self.sliderSpeciesAr[sn]}];
   sVal := self.mainController.getModel.getS_Vals[speciesForSlider{self.sliderSpeciesAr[sn]}];
-  self.pnlSliderSpeciesAr[sn].setUpSliderVals(sName, sVal);
+  self.pnlSliderSpeciesAr[sn].setUpSliderVals(sName + ' init val', sVal);
 end;
 
 procedure TMainForm.resetSliderPositions();
@@ -1138,7 +1139,7 @@ begin
     begin
       sName :=  self.mainController.getModel.getS_Names[self.sliderSpeciesAr[i]];
       sVal := self.mainController.getModel.getS_Vals[self.sliderSpeciesAr[i]];
-      self.pnlSliderSpeciesAr[i].setUpSliderVals( sName, sVal );
+      self.pnlSliderSpeciesAr[i].setUpSliderVals( sName + ' init val', sVal );
     end;
 end;
 
@@ -1207,7 +1208,7 @@ begin
       self.MainController.changeSimSpeciesVal( s, newSVal );
       if isRunning and (not self.chkbxStaticSimRun.Checked) then self.MainController.startTimer;
 
-      self.pnlSliderSpeciesAr[i].setTrackBarLabel(self.MainController.getModel.getS_Names[self.sliderParamAr[i]] + ': '
+      self.pnlSliderSpeciesAr[i].setTrackBarLabel(self.MainController.getModel.getS_Names[self.sliderParamAr[i]] + ' init val: '
                                                          + FloatToStr(newSVal) );
       if self.chkbxStaticSimRun.Checked then
         begin

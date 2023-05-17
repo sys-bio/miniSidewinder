@@ -31,6 +31,7 @@ TpnlParamSlider = class(TWebPanel)
     procedure configPSliderPanel(sPLeft, sliderPanelWidth, sliderPanelHeight, sliderPanelTop: integer) overload;
     procedure configPSliderTBar({sliderPanelWidth : integer});
     procedure setTrackBarLabel( newStr: string );
+    procedure setBackgroundColor(newColor: TColor);
     function  formatValueToStr(newVal: double): string; // Adjust number, as needed, to fit space provided
     procedure clearSlider();
     // Called when adding or updating a slider:
@@ -214,6 +215,11 @@ begin
   self.sliderPTBLabel.Caption := '';
   self.sliderPHigh := 0;
   self.sliderPLow := 0;
+end;
+
+procedure TpnlParamSlider.setBackgroundColor(newColor: TColor);
+begin
+  self.Color := newColor;
 end;
 
 procedure TpnlParamSlider.resetSliderPosition(pName: string; pVal: double);
