@@ -100,12 +100,14 @@ begin
   self.model := newModel;
   self.ny := length(self.model.getS_Vals);
   self.s_NameValAr := TVarNameValList.create;
-  self.s_NameValAr.copy(self.model.getS_)
+  self.s_NameValAr.copy(self.model.getS_initNameValAr);
 
   for i := 0 to ny - 1 do
     begin
-    self.s_Vals[i] := self.model.getS_Vals()[i];
-    self.s_Names[i] := self.model.getS_Names[i];
+   // self.s_Vals[i] := self.model.getS_Vals()[i];
+    self.s_Vals[i] := self.s_NameValAr.getNameVal(i).getVal;
+   // self.s_Names[i] := self.model.getS_Names[i];
+    self.s_Names[i] := self.s_NameValAr.getNameVal(i).getId;
     end;
   self.np := length(self.model.getP_Vals);
   self.solverUsed:= solver;
@@ -441,17 +443,33 @@ begin
 end;
 
 procedure TSimulationJS.updateS_Vals(newS_ValList:TVarNameValList);
+var i: integer;
+begin
+  self.s_NameValAr.Free;
+  self.s_NameValAr := TVarNameValList.create;
+  self.s_NameValAr.copy(newS_ValList);
+  setLength(self.s_Vals, self.s_NameValAr.getNumPairs);
+  for i := 0 to self.s_NameValAr.getNumPairs -1 do
+    begin
+    self.s_Vals[i] := self.s_NameValAr.getNameVal(i).getVal;
+    end;
+
+end;
+
 procedure TSimulationJS.updateS_Val( index: integer; newVal: double );
 begin
-  if (length(self.s) > index) and (index > -1) then
+  if (length(self.s_Vals) > index) and (index > -1) then
     begin
-    self.s[index] := newVal;
+    self.s_Vals[index] := newVal;
     self.s_NameValAr.setVal( index, newVal );
     end;
 
 end;
 
 function  TSimulationJS.getS_Vals(): TVarNameValList;
+begin
+  Result := self.s_NameValAr;
+end;
 
 procedure TSimulationJS.setODEsolver(solverToUse: ODESolver);
 begin

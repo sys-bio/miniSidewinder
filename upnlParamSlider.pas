@@ -33,8 +33,8 @@ TpnlParamSlider = class(TWebPanel)
     procedure setTrackBarLabel( newStr: string );
     function  formatValueToStr(newVal: double): string; // Adjust number, as needed, to fit space provided
     procedure clearSlider();
-    // Called when adding or updating a param slider:
-    procedure setUpParamSliderVals(pName: string; pVal: double);
+    // Called when adding or updating a slider:
+  //  procedure setUpParamSliderVals(pName: string; pVal: double);
     procedure setUpSliderVals(name: string; val: double);
     procedure resetSliderPosition(pName: string; pVal: double);
     function  getSliderHighVal(): double;
@@ -146,7 +146,7 @@ var sliderTBarWidth : integer;
   end;
 
 
-procedure TpnlParamSlider.setUpParamSliderVals(pName: string; pVal: double);// Get rid of, use setUpSliderVals()
+{procedure TpnlParamSlider.setUpParamSliderVals(pName: string; pVal: double);// Get rid of, use setUpSliderVals()
 begin
   self.id := pName;
   self.initVal := pVal;
@@ -167,7 +167,7 @@ begin
       self.sliderPHigh := 100; // default if init param val <= 0.
     end;
 
-end;
+end;   }
 
 
 procedure TpnlParamSlider.setUpSliderVals(name: string; val: double);
@@ -185,10 +185,11 @@ begin
       self.sliderPHLabel.caption := self.formatValueToStr(val * self.multiplier);
       self.sliderPHigh := val * self.multiplier;
     end
-  else
+  else // 0 or less
     begin
-      self.sliderPHLabel.caption := self.formatValueToStr(100);
-      self.sliderPHigh := 100; // default if init param val <= 0.
+    self.sliderPTBar.Position := 0;
+    self.sliderPHLabel.caption := self.formatValueToStr(100);
+    self.sliderPHigh := 100; // default if init param val <= 0.
     end;
 
 end;

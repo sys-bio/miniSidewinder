@@ -101,7 +101,6 @@ begin
   self.resetCurrTime;
   self.stepSize := 0.1; // default, 100 msec
   self.runTime := 500; // sec
-//  self.networkUpdate := false;
   self.saveSBMLFlag := false;
 
 end;
@@ -117,10 +116,9 @@ var i: integer;
 begin
  // console.log('TControllerMain.SBMLLoaded. creating new simulation');
   self.modelLoaded := true;
- // self.currParVals := TVarNameValList.create();
- // self.currParVals.copy(self.sbmlmodel.getP_NameValAr);
   self.createSimulation;
-  self.resetSimParamValues; // Load model param values.
+  self.resetSimParamValues;  // Load model param values.
+  self.resetSimSpeciesValues;// Load model species init vals.
   if length(self.FSBMLUpdateAr) > 0 then
     begin
     for i := 0 to length(self.FSBMLUpdateAr) -1 do
@@ -142,13 +140,6 @@ begin
   self.clearModel;
   self.sbmlmodel := TModel.create();
   self.sbmlmodel.OnPing := self.SBMLLoaded;  // Register callback function
- { if self.networkUpdate then  // Create from Network
-    begin
-      self.sbmlmodel := self.currNetworkCtrl.createSBMLModel(self.sbmlmodel);
-      self.sbmlmodel.SBML_UpdateEvent; // Notify listeners
-      self.networkUpdate := false;
-    end;  }
-
 end;
 
 procedure TControllerMain.createSimulation();
@@ -160,6 +151,8 @@ begin
   self.runSim := TSimulationJS.create(self.runTime, self.stepSize, self.SBMLmodel, self.solverUsed);
   if assigned(self.currParVals) and (self.currParVals.getNumPairs > 0) then
     self.runSim.updateP_Vals(self.currParVals);
+  if assigned(self.currSpeciesInitVals) and (self.currSpeciesInitVals.getNumPairs > 0) then
+    self.runSim.updateS_Vals(self.currSpeciesInitVals);
 
  // set timerinterval?
  // self.runSim.OnSimResultsNotify := self.getStaticSimulationResults;
@@ -173,6 +166,7 @@ begin
     self.sbmlModel.Free;
     self.modelLoaded := false;
     self.currParVals.Free;
+    self.currSpeciesInitVals.Free;
     end;
 end;
 
@@ -519,18 +513,25 @@ end;
 procedure TControllerMain.resetSimSpeciesValues(); // Reset s values to model vals.
 var curTime: double;
     i: integer;
-    curSpeciesVals: array of double;
+
 begin
-  curTime := self.getCurrTime;
-  setLength( curSpeciesVals,self.runSim.getS_Vals.getNumPairs );
-  curSpeciesVals := self.runSim.getS_Vals.getValAr;
+  curTime := self.getCurrTime; // ?
+  self.currSpeciesInitVals.Free;
+  self.currSpeciesInitVals := TVarNameValList.create;
+  self.currSpeciesInitVals.copy(self.runSim.getS_Vals);
   self.createSimulation();
   self.setCurrTime(curTime);
+  for i := 0 to length(self.sbmlmodel.getS_initVals) -1 do
+    begin
+    self.changeSimSpeciesVal(i,self.sbmlModel.getS_initVals[i]);
+    end;
+
+  {
   for i := 0 to length(curSpeciesVals) -1 do
     begin
       self.changeSimSpeciesVal(i,curSpeciesVals[i]);
     end;
-
+   }
 end;
 
 procedure TControllerMain.writeSimData(fileName: string; data: TStrings);

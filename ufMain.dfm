@@ -428,7 +428,7 @@ object MainForm: TMainForm
       end
     end
   end
-  object pnlParamSliders: TWebPanel
+  object pnlSliders: TWebPanel
     Left = 0
     Top = 456
     Width = 865

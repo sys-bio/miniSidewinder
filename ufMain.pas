@@ -39,7 +39,7 @@ type
   TMainForm = class(TWebForm)
     pnlSimInfo: TWebPanel;
     pnlPlot: TWebPanel;
-    pnlParamSliders: TWebPanel;
+    pnlSliders: TWebPanel; // Holds all of the param and species sliders ....
     btnLoadModel: TWebButton;
     btnRunPause: TWebButton;
     btnSimReset: TWebButton;
@@ -134,7 +134,7 @@ type
     procedure addSpeciesSlider();
     procedure addAllSpeciesSliders(); // add sliders without user intervention.
     function  calcSliderWidth(): integer;
-    function  calcSliderLeft(index: integer): integer; // calc left side of slider relative to pnlParamSliders
+    function  calcSliderLeft(index: integer): integer; // calc left side of slider relative to pnlSliders
     function  calcSliderTop(index: integer): integer;
     procedure deleteSlider(sn: Integer); // sn: slider index
     procedure deleteParamSlider(sn: Integer); // sn: slider index
@@ -151,7 +151,7 @@ type
     function  getNumberOfParamSliders(): integer;
     function  getNumberOfSpeciesSliders(): integer;
     function  getNumberOfSliders(): integer;
-    function  calcParamSlidersPanelHeight(): integer;
+    function  calcSlidersPanelHeight(): integer;
     procedure EditSliderList(sn: Integer);
     procedure SetSliderParamValues(sn, paramForSlider: Integer);
     procedure SetSliderSpeciesValue(sn, speciesForSlider: Integer);
@@ -160,7 +160,8 @@ type
     procedure resetSpeciesSliderPositions(); // Reset species position to init model sp value.
     procedure selectParameter(sIndex: Integer); // Get parameter for slider
     procedure selectSpecies(sIndex: Integer); // Get species for slider
-    procedure newSliderList(); // Pick parameters for sliders
+    procedure newSliderParamList(); // Pick parameters for sliders
+    procedure newSliderSpeciesList(); // Pick species for sliders
     function  checkIfInParForSlidersList(paramToCheck: string): boolean; // see if in inputed list of params
     function  checkIfInSpeciesForSlidersList(speciesToCheck: string): boolean; // see if in inputed list of species
     procedure resetBtnOnLineSim(); // reset to default look and caption of 'Start simulation'
@@ -340,12 +341,12 @@ end;
 
 procedure TMainForm.btnEditSlidersClick(Sender: TObject);
 begin
-  self.newSliderList;
+  self.newSliderParamList;
 end;
 
 procedure TMainForm.btnEditSpSlidersClick(Sender: TObject);
 begin
- // TODO;
+  self.newSliderSpeciesList;
 end;
 
 procedure TMainForm.btnExampleClick(Sender: TObject);
@@ -498,7 +499,7 @@ begin
   else self.runTime := DEFAULT_RUNTIME;
   self.setTopPanelSpacing;
   self.intSliderHeight := 35;
-  self.pnlParamSliders.height := 5;
+  self.pnlSliders.height := 5;
   self.stepSize := 0.1;
   self.edtStepSize.Text := floatToStr(self.stepSize * 1000);
   self.disableRunTimeEdit;
@@ -735,7 +736,7 @@ begin
   sliderPanelLeft := self.calcSliderLeft(i);
   sliderPanelWidth := self.calcSliderWidth;
 
-  self.pnlSliderParamAr[i] := TpnlParamSlider.create(self.pnlParamSliders, i,{ @self.EditSliderList,}
+  self.pnlSliderParamAr[i] := TpnlParamSlider.create(self.pnlSliders, i,{ @self.EditSliderList,}
                                                 @self.paramSliderOnChange );
 
   self.sliderEditPopupsList.Add(TWebPopupMenu.Create(self)) ;
@@ -784,15 +785,15 @@ begin
 end;
 
 procedure TMainForm.addAllSpeciesSliders(); // add sliders without user intervention.
-var i, numSpSliders: integer;
+var i, numSp: integer;
     sliderS: string;
     bSliderInList: boolean; // Use to check if prepopulated list has par in actual model.
 begin
   bSliderInList := false;
-  numSpSliders := 0;
-  numSpSliders := length(self.mainController.getModel.getS_Names);
+  numSp := 0;
+  numSp := length(self.mainController.getModel.getS_Names);
  // console.log('AddAllApeciesSliders: Length of speciesForSliders: ',length(self.speciesForSliders));
-  for i := 0 to numSpSliders -1 do
+  for i := 0 to numSp -1 do
     begin
     sliderS := '';
     // CHeck if param on init slider list:
@@ -812,20 +813,22 @@ begin
 
 end;
 
-procedure TMainForm.addSpeciesSlider();
+procedure TMainForm.addSpeciesSlider();  // Species slider added after all of the param sliders
 // default TBar range: 0 to initVal*10
 var i, j, sliderTBarWidth, sliderPanelLeft, sliderPanelWidth: integer;
     sliderTop: Integer;
+    sliderIndex: Integer; // Index to current slider ( param slider + species Slider).
     newMenu: TMenuItem;
 begin
   i := self.getNumberOfSpeciesSliders; // array index for current slider to be added.
+  sliderIndex := self.getNumberOfParamSliders + i; // index for next position for all of sliders
   SetLength(self.pnlSliderSpeciesAr, i + 1);
-  sliderTop := self.calcSliderTop(i);
+  sliderTop := self.calcSliderTop(sliderIndex);
   // Left most position of the panel that holds the slider
-  sliderPanelLeft := self.calcSliderLeft(i);
+  sliderPanelLeft := self.calcSliderLeft(sliderIndex);
   sliderPanelWidth := self.calcSliderWidth;
 
-  self.pnlSliderSpeciesAr[i] := TpnlParamSlider.create(self.pnlParamSliders, i,{ @self.EditSliderList,}
+  self.pnlSliderSpeciesAr[i] := TpnlParamSlider.create(self.pnlSliders, sliderIndex,{ @self.EditSliderList,}
                                                 @self.speciesSliderOnChange );
 
  // self.sliderEditPopupsList.Add(TWebPopupMenu.Create(self)) ;
@@ -838,7 +841,7 @@ begin
  // self.sliderEditPopupsList[i].Parent := self;
  // self.pnlSliderAr[i].PopupMenu := self.sliderEditPopupsList[i] ;
  // console.log(' popup parent: ', self.sliderEditPopupsList[i].Parent);
-
+  self.pnlSliderSpeciesAr[i].Color := clCream;
   self.pnlSliderSpeciesAr[i].configPSliderPanel(sliderPanelLeft, sliderPanelWidth, self.intSliderHeight, sliderTop);
   self.SetSliderSpeciesValue(i, self.sliderSpeciesAr[i]);
   self.pnlSliderSpeciesAr[i].configPSliderTBar;
@@ -858,7 +861,21 @@ begin
     end;
 end;
 
-procedure TMainForm.newSliderList;
+ function TMainForm.checkIfInSpeciesForSlidersList(speciesToCheck: string): boolean; // see if in inputed list of species
+ var i: integer;
+    spList: array of string;
+ begin
+     Result := false;
+  spList := splitString(self.speciesForSliders, ',');
+  for i := 0 to length(spList) -1 do
+    begin
+    if speciesToCheck = spList[i].Trim then
+      Result := true;
+    end;
+ end;
+
+
+procedure TMainForm.newSliderParamList ();
 var fSelectParams: TVarSelectForm;
    // Pass back to caller after closing popup:
   procedure AfterShowModal(AValue: TModalResult);
@@ -879,7 +896,7 @@ var fSelectParams: TVarSelectForm;
         sliderPar := '';
         if fSelectParams.SpPlotCG.checked[i] then
           begin
-          if length(self.sliderParamAr) < MAX_SLIDERS then // Ignore any more that are checked.
+          if length(self.sliderParamAr) < MAX_PARAMETER_SLIDERS then // Ignore any more that are checked.
             begin
             sliderIndex := length(self.sliderParamAr);
             SetLength(self.sliderParamAr, length(self.sliderParamAr) + 1);
@@ -923,11 +940,77 @@ begin
   fSelectParams.ShowModal(@AfterShowModal);
 end;
 
+procedure TMainForm.newSliderSpeciesList(); // Pick species for sliders
+var fSelectSpecies: TVarSelectForm;
+   // Pass back to caller after closing popup:
+  procedure AfterShowModal(AValue: TModalResult);
+  var
+    i, sliderIndex: Integer; slidersUpdated: boolean;
+    //sliderSp: string;
+  begin
+    slidersUpdated := false;
+    for i := 0 to fSelectSpecies.SpPlotCG.Items.Count - 1 do // chk if user wants new list.
+      begin
+        if fSelectSpecies.SpPlotCG.checked[i] then slidersUpdated := true;
+      end;
+    if slidersUpdated then
+      begin
+      self.deleteAllSliders;
+      for i := 0 to fSelectSpecies.SpPlotCG.Items.Count - 1 do
+        begin
+        //sliderSp := '';
+        if fSelectSpecies.SpPlotCG.checked[i] then
+          begin
+          if length(self.sliderSpeciesAr) < MAX_SPECIES_SLIDERS then // Ignore any more that are checked.
+            begin
+            sliderIndex := length(self.sliderSpeciesAr);
+            SetLength(self.sliderSpeciesAr, length(self.sliderSpeciesAr) + 1);
+            self.sliderSpeciesAr[sliderIndex] := i; // assign param index to slider
+            self.addSpeciesSlider(); // <-- Add dynamically created slider
+            end;
+          end;
+        end;
+      end;
+
+  end;
+
+  // async, call for TVarSelectForm
+  procedure AfterCreate(AForm: TObject);
+  var i, lgth: integer;
+     strList: array of String;
+     curStr: string;
+  begin
+    lgth := 0;
+    for i := 0 to length(self.mainController.getModel.getS_Names) -1 do
+    begin
+      curStr := '';
+      curStr := self.mainController.getModel.getS_names[i];
+      lgth := Length(strList);
+      setLength(strList, lgth + 1);
+      strList[lgth] := curStr;
+    end;
+    (AForm as TVarSelectForm).Top := trunc(self.Height*0.1); // put popup %10 from top
+    (AForm as TVarSelectForm).speciesList := strList;
+    (AForm as TVarSelectForm).ParentFormHeight := self.Height;
+    (AForm as TVarSelectForm).fillSpeciesCG();
+  end;
+
+begin
+  fSelectSpecies := TVarSelectForm.CreateNew(@AfterCreate);
+  fSelectSpecies.Popup := true;
+  fSelectSpecies.ShowClose := false;
+  fSelectSpecies.PopupOpacity := 0.3;
+  fSelectSpecies.Border := fbDialogSizeable;
+  fSelectSpecies.Caption := 'Replace species sliders';
+  fSelectSpecies.ShowModal(@AfterShowModal);
+end;
+
+
 
 function TMainForm.calcSliderWidth(): integer;
 begin
-   if(round(self.pnlParamSliders.Width/self.slidersPerRow) > 120 ) then
-    Result := round( (self.pnlParamSliders.width)/self.slidersPerRow )   // four sliders across
+   if(round(self.pnlSliders.Width/self.slidersPerRow) > 120 ) then
+    Result := round( (self.pnlSliders.width)/self.slidersPerRow )   // four sliders across
   else Result := 120;
 end;
 
@@ -1026,7 +1109,7 @@ begin
   rangeMult := SLIDER_RANGE_MULT; // default.
   sName :=  self.mainController.getModel.getS_Names[speciesForSlider{self.sliderSpeciesAr[sn]}];
   sVal := self.mainController.getModel.getS_Vals[speciesForSlider{self.sliderSpeciesAr[sn]}];
-  self.pnlSliderParamAr[sn].setUpSliderVals(sName, sVal);
+  self.pnlSliderSpeciesAr[sn].setUpSliderVals(sName, sVal);
 end;
 
 procedure TMainForm.resetSliderPositions();
@@ -1043,7 +1126,7 @@ begin
     begin
       pName :=  self.mainController.getModel.getP_Names[self.sliderParamAr[i]];
       pVal := self.mainController.getModel.getP_Vals[self.sliderParamAr[i]];
-      self.pnlSliderParamAr[i].setUpParamSliderVals( pName, pVal );
+      self.pnlSliderParamAr[i].setUpSliderVals( pName, pVal );
     end;
 end;
 
@@ -1055,7 +1138,7 @@ begin
     begin
       sName :=  self.mainController.getModel.getS_Names[self.sliderSpeciesAr[i]];
       sVal := self.mainController.getModel.getS_Vals[self.sliderSpeciesAr[i]];
-      self.pnlSliderSpeciesAr[i].setUpParamSliderVals( sName, sVal );
+      self.pnlSliderSpeciesAr[i].setUpSliderVals( sName, sVal );
     end;
 end;
 
@@ -1100,7 +1183,7 @@ end;
 
 procedure TMainForm.SpeciesSliderOnChange(Sender: TObject);  // pass this in to upnlParamSlider.OnChange ?
 var
-  i, S: Integer;
+  index, i, S: Integer;
   newSVal: double;
   isRunning: boolean;
 begin
@@ -1108,7 +1191,8 @@ begin
     begin
       newSVal := 0;
       isRunning := false; // simulation not active.
-      i := TWebTrackBar(Sender).tag;
+      index := TWebTrackBar(Sender).tag;
+      i := index - self.getNumberOfParamSliders;
       self.MainController.speciesUpdated := true;
       s := self.sliderSpeciesAr[i];  // get species position to update values
 
@@ -1191,7 +1275,7 @@ var
   begin
     (AForm as TVarSelectForm).ParentFormHeight := self.Height;
     (AForm as TVarSelectForm).Top := trunc(self.Height*0.2); // put popup %20 from top
-    if length(self.mainController.getModel.getP_Names) > MAX_PARAMS_SLIDERS then
+    if length(self.mainController.getModel.getP_Names) > MAX_PARAMETER_SLIDERS then
       //(AForm as TVarSelectForm).speciesList := self.getParamsNotAssignedSliders
       (AForm as TVarSelectForm).speciesList :=
           self.getVarsNotAssignedSliders( self.sliderParamAr, self.mainController.getModel.getP_Names )
@@ -1243,7 +1327,7 @@ var
               self.clearSlider(sIndex);
               self.sliderSpeciesAr[getSpeciesSliderIndex(sIndex)] := -1; // Clear location in species Array
               self.sliderSpeciesAr[sIndex] := j {i}; // assign index from species array to slider
-              self.SetSliderSpeciesValues(sIndex, self.sliderSpeciesAr[sIndex]);
+              self.SetSliderSpeciesValue(sIndex, self.sliderSpeciesAr[sIndex]);
               self.pnlSliderSpeciesAr[sIndex].Visible := true;
               self.pnlSliderSpeciesAr[sIndex].Invalidate;
               end
@@ -1306,7 +1390,7 @@ begin
 end;
     }
 
-function  getVarsNotAssignedSliders( sliderIndexAr: array of integer; varNamesAr: array of String): TStringArray;
+function  TMainForm.getVarsNotAssignedSliders( sliderIndexAr: array of integer; varNamesAr: array of String): TStringArray;
 var i, j: integer;
     unused: boolean;
 begin
@@ -1316,7 +1400,7 @@ begin
     begin
     for j := 0 to length(sliderIndexAr) -1 do
       begin
-      if (sliderIndexAr[j] = i then unused := false;
+      if (sliderIndexAr[j] = i) then unused := false;
       end;
     if unused then
       begin
@@ -1402,7 +1486,7 @@ end;
 procedure TMainForm.refreshSliderPanels;
 var i, sliderWidth, sliderTop, sliderLeft: integer;
 begin
- // self.pnlParamSliders.Width := self.pnlPlot.Width + self.pnlSimInfo.Width + 5;
+ // self.pnlSliders.Width := self.pnlPlot.Width + self.pnlSimInfo.Width + 5;
   sliderWidth := self.calcSliderWidth;
   if assigned(self.pnlSliderParamAr) then
     begin
@@ -1437,6 +1521,10 @@ begin
       self.addAllParamSliders;
       end;
 
+    if self.getNumberOfSpeciesSliders < 1 then
+      begin
+      self.addAllSpeciesSliders;
+      end;
     end;
 
   // ******************
@@ -1484,6 +1572,8 @@ begin
   self.btnEditGraph.ElementClassName := BTN_DISABLED;
   self.btnEditSliders.Enabled := false;
   self.btnEditSliders.ElementClassName := BTN_DISABLED;
+  self.btnEditSpSliders.Enabled := false;
+  self.btnEditSpSliders.ElementClassName := BTN_DISABLED;
   self.mainController.SetRunTime(self.runTime);
   self.mainController.setStaticSimRun(self.chkbxStaticSimRun.Checked );
   self.mainController.SetStepSize(self.stepSize);  // just in case ?
@@ -1505,6 +1595,8 @@ begin
    self.btnEditGraph.ElementClassName := BTN_ENABLED;
    self.btnEditSliders.Enabled := true;
    self.btnEditSliders.ElementClassName := BTN_ENABLED;
+   self.btnEditSpSliders.Enabled := true;
+   self.btnEditSpSliders.ElementClassName := BTN_ENABLED;
    self.enableStepSizeEdit;
    self.MainController.SetTimerEnabled(false); // Turn off web timer (Stop simulation)
    self.btnRunPause.font.color := clgreen;
@@ -1530,15 +1622,12 @@ end;
 procedure TMainForm.setUpSimulationUI();
 var i: integer;
 begin
- // btnParamAddSlider.Enabled := true;
- // btnAddPlot.Enabled := true;
 
   self.currentGeneration := 0; // reset current x axis point (pixel)
 
   if self.mainController.getModel = nil then
   begin
     self.mainController.createModel;
-   // self.networkUpdated := false;
   end;
   self.mainController.createSimulation;
   if self.chkbxStaticSimRun.Checked {self.staticSimRunFlag} then
@@ -1594,7 +1683,7 @@ begin
       end
   end;
 
-  self.pnlParamSliders.height := self.calcParamSlidersPanelHeight;
+  self.pnlSliders.height := self.calcSlidersPanelHeight;
   self.btnRunPause.Enabled := true;
   self.btnRunPause.ElementClassName := BTN_ENABLED;
   self.setListBoxInitValues;
@@ -1610,18 +1699,19 @@ begin
  
 end;
 
-function  TMainForm.calcParamSlidersPanelHeight(): integer;
-var numParams, numRows: integer;
+function  TMainForm.calcSlidersPanelHeight(): integer;
+var numVars, numRows: integer;
 begin  // Assume only options of max rows, max rows -1, max rows -2
-  numRows := trunc( MAX_SLIDERS / SLIDERS_PER_ROW );
+  numRows := trunc( (MAX_PARAMETER_SLIDERS + MAX_SPECIES_SLIDERS) / SLIDERS_PER_ROW );
   if numRows < 3 then numRows := 3; // just in case, adjust below if max rows is 2 or less.
 
   if self.mainController.IsModelLoaded then
     begin
-    numParams := length(self.mainController.getModel.getP_Names);
-    if numParams >= MAX_SLIDERS then
+    numVars := length(self.mainController.getModel.getP_Names);
+    numVars := numVars + length(self.mainController.getModel.getS_Names);
+    if numVars >= MAX_PARAMETER_SLIDERS + MAX_SPECIES_SLIDERS then
       Result := trunc( numRows * self.intSliderHeight ) +2
-    else if MAX_SLIDERS div numParams = 1 then
+    else if (MAX_PARAMETER_SLIDERS + MAX_SPECIES_SLIDERS) div numVars = 1 then
            Result := trunc( (numRows -1) * self.intSliderHeight ) +2
          else Result := trunc( (numRows -2) * self.intSliderHeight ) +2;
     end
@@ -1935,7 +2025,7 @@ begin
   self.pnlSliderParamAr[sn].free;
   delete(self.pnlSliderParamAr, (sn), 1);
   delete(self.sliderParamAr,(sn), 1);
-  self.pnlParamSliders.Invalidate;
+  self.pnlSliders.Invalidate;
 end;
 
 procedure TMainForm.deleteParamSlider(sn: Integer); // sn: slider index
@@ -1944,7 +2034,7 @@ begin
   self.pnlSliderParamAr[sn].free;
   delete(self.pnlSliderParamAr, (sn), 1);
   delete(self.sliderParamAr,(sn), 1);
-  self.pnlParamSliders.Invalidate;
+  self.pnlSliders.Invalidate;
 end;
 
 procedure TMainForm.deleteSpeciesSlider(sn: Integer); // sn: slider index
@@ -1953,7 +2043,8 @@ begin
   self.pnlSliderSpeciesAr[sn].free;
   delete(self.pnlSliderSpeciesAr, (sn), 1);
   delete(self.sliderSpeciesAr,(sn), 1);
-  self.pnlSpeciesSliders.Invalidate;
+ // self.pnlSpeciesSliders.Invalidate;
+  self.pnlSliders.Invalidate;
 end;
 
 procedure TMainForm.deleteAllSliders();
@@ -1968,7 +2059,7 @@ var i: integer;
 begin
   for I := Length(self.pnlSliderParamAr) -1 downto 0 do
     self.deleteParamSlider(i);
-  self.pnlParamSliders.Invalidate;
+  self.pnlSliders.Invalidate;
 end;
 
 procedure TMainForm.deleteAllSpeciesSliders();
@@ -1976,7 +2067,8 @@ var i: integer;
 begin
   for I := Length(self.pnlSliderSpeciesAr) -1 downto 0 do
     self.deleteSpeciesSlider(i);
-  self.pnlSpeciesSliders.Invalidate;
+ // self.pnlSpeciesSliders.Invalidate;
+  self.pnlSliders.Invalidate;
 end;
 
 
@@ -2034,24 +2126,25 @@ procedure TMainForm.clearSlider(sn: Integer); // sn: slider index
 begin
   self.pnlSliderParamAr[sn].Visible := false;
   self.sliderParamAr[sn] := -1; // no param index
-  self.pnlParamSliders.Invalidate;
+  self.pnlSliders.Invalidate;
 end;
 
 procedure TMainForm.clearParamSlider(sn: Integer); // sn: slider index
 begin
   self.pnlSliderParamAr[sn].Visible := false;
   self.sliderParamAr[sn] := -1; // no param index
-  self.pnlParamSliders.Invalidate;
+  self.pnlSliders.Invalidate;
 end;
 
 procedure TMainForm.clearSpeciesSlider(sn: Integer); // sn: slider index
 begin
   self.pnlSliderSpeciesAr[sn].Visible := false;
   self.sliderSpeciesAr[sn] := -1; // no species index
-  self.pnlSpeciesSliders.Invalidate;
+ // self.pnlSpeciesSliders.Invalidate;
+  self.pnlSliders.Invalidate;
 end;
 
-function  TMainForm.getSliderIndex(sliderTag: integer): Integer; // REMOVE
+{function  TMainForm.getSliderIndex(sliderTag: integer): Integer; // REMOVE
 var i: integer;
 begin
   Result := -1;
@@ -2060,7 +2153,7 @@ begin
     if self.pnlSliderParamAr[i].Tag = sliderTag then
       Result := i;
   end;
-end;
+end;  }
 
 function  TMainForm.getParamSliderIndex(sliderTag: integer): Integer;
 var i: integer;
