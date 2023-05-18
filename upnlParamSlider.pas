@@ -31,10 +31,12 @@ TpnlParamSlider = class(TWebPanel)
     procedure configPSliderPanel(sPLeft, sliderPanelWidth, sliderPanelHeight, sliderPanelTop: integer) overload;
     procedure configPSliderTBar({sliderPanelWidth : integer});
     procedure setTrackBarLabel( newStr: string );
+    procedure setBackgroundColor(newColor: TColor);
     function  formatValueToStr(newVal: double): string; // Adjust number, as needed, to fit space provided
     procedure clearSlider();
-    // Called when adding or updating a param slider:
-    procedure setUpParamSliderVals(pName: string; pVal: double);
+    // Called when adding or updating a slider:
+  //  procedure setUpParamSliderVals(pName: string; pVal: double);
+    procedure setUpSliderVals(name: string; val: double);
     procedure resetSliderPosition(pName: string; pVal: double);
     function  getSliderHighVal(): double;
     procedure setSliderHighVal( newVal: double );
@@ -145,7 +147,7 @@ var sliderTBarWidth : integer;
   end;
 
 
-procedure TpnlParamSlider.setUpParamSliderVals(pName: string; pVal: double);
+{procedure TpnlParamSlider.setUpParamSliderVals(pName: string; pVal: double);// Get rid of, use setUpSliderVals()
 begin
   self.id := pName;
   self.initVal := pVal;
@@ -164,6 +166,31 @@ begin
     begin
       self.sliderPHLabel.caption := self.formatValueToStr(100);
       self.sliderPHigh := 100; // default if init param val <= 0.
+    end;
+
+end;   }
+
+
+procedure TpnlParamSlider.setUpSliderVals(name: string; val: double);
+begin
+  self.id := name;
+  self.initVal := val;
+  self.sliderPTBLabel.caption := name + ': ' + self.formatValueToStr(val);
+  self.sliderPLow := 0;
+  self.sliderPLLabel.caption := self.formatValueToStr(self.sliderPLow);
+  self.sliderPTBar.Min := 0;
+  self.sliderPTBar.Position := trunc((1 / self.multiplier) * 100);
+  self.sliderPTBar.Max := 100;
+  if val > 0 then
+    begin
+      self.sliderPHLabel.caption := self.formatValueToStr(val * self.multiplier);
+      self.sliderPHigh := val * self.multiplier;
+    end
+  else // 0 or less
+    begin
+    self.sliderPTBar.Position := 0;
+    self.sliderPHLabel.caption := self.formatValueToStr(100);
+    self.sliderPHigh := 100; // default if init param val <= 0.
     end;
 
 end;
@@ -188,6 +215,11 @@ begin
   self.sliderPTBLabel.Caption := '';
   self.sliderPHigh := 0;
   self.sliderPLow := 0;
+end;
+
+procedure TpnlParamSlider.setBackgroundColor(newColor: TColor);
+begin
+  self.Color := newColor;
 end;
 
 procedure TpnlParamSlider.resetSliderPosition(pName: string; pVal: double);
