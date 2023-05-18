@@ -162,6 +162,7 @@ type
     procedure selectSpecies(sIndex: Integer); // Get species for slider
     procedure newSliderParamList(); // Pick parameters for sliders
     procedure newSliderSpeciesList(); // Pick species for sliders
+    procedure resetSliderSpeciesTags(numOfParSliders: integer); // When num of par sliders changes, need to change sp position tags
     function  checkIfInParForSlidersList(paramToCheck: string): boolean; // see if in inputed list of params
     function  checkIfInSpeciesForSlidersList(speciesToCheck: string): boolean; // see if in inputed list of species
     procedure resetBtnOnLineSim(); // reset to default look and caption of 'Start simulation'
@@ -227,7 +228,7 @@ type
     sliderSpeciesAr: array of Integer;// holds species array index (s_vals) of species to use for each slider
     pnlSliderSpeciesAr: array of TPnlParamSlider; // Holds species sliders, Change class to TPnlSlider
 
-    sliderEditPopupsList: TList<TWebPopupMenu>;
+   // sliderEditPopupsList: TList<TWebPopupMenu>; // Not in use
     strFileInput: string;  // File name that may be passed to form.
 
     // Displays slider param name and current value
@@ -505,7 +506,7 @@ begin
   self.edtStepSize.Text := floatToStr(self.stepSize * 1000);
   self.disableRunTimeEdit;
   self.simStarted := false;
-  self.sliderEditPopupsList := TList<TWebPopupMenu>.create;
+ // self.sliderEditPopupsList := TList<TWebPopupMenu>.create; // Not in use
   self.mainController := TControllerMain.Create();
   self.mainController.setOnline(false);
   self.mainController.setODEsolver;
@@ -521,6 +522,8 @@ begin
   self.btnEditGraph.ElementClassName := BTN_DISABLED;
   self.btnEditSliders.Enabled := false;
   self.btnEditSliders.ElementClassName := BTN_DISABLED;
+  self.btnEditSpSliders.Enabled := false;
+  self.btnEditSpSliders.ElementClassName := BTN_DISABLED;
   self.btnSavePlotResults.Enabled := false;
   self.btnSavePlotResults.ElementClassName := BTN_DISABLED;
   self.strFileInput := '';
@@ -740,15 +743,15 @@ begin
   self.pnlSliderParamAr[i] := TpnlParamSlider.create(self.pnlSliders, i,{ @self.EditSliderList,}
                                                 @self.paramSliderOnChange );
 
-  self.sliderEditPopupsList.Add(TWebPopupMenu.Create(self)) ;
+ // self.sliderEditPopupsList.Add(TWebPopupMenu.Create(self)) ;  // Do not use mouse click popup
 
-  newMenu := TMenuItem.Create(self.sliderEditPopupsList[i]);
-  newMenu.tag := i + 1; // tag slider position
-  newMenu.Caption := 'Change parameter';
-  newMenu.OnClick := self.ChangeParameter1Click;
-  self.sliderEditPopupsList[i].Items.add(newMenu);
-  self.sliderEditPopupsList[i].Parent := self;
-  self.pnlSliderParamAr[i].PopupMenu := self.sliderEditPopupsList[i] ;
+ // newMenu := TMenuItem.Create(self.sliderEditPopupsList[i]);
+ // newMenu.tag := i + 1; // tag slider position
+ // newMenu.Caption := 'Change parameter';
+//  newMenu.OnClick := self.ChangeParameter1Click;
+//  self.sliderEditPopupsList[i].Items.add(newMenu);
+//  self.sliderEditPopupsList[i].Parent := self;
+//  self.pnlSliderParamAr[i].PopupMenu := self.sliderEditPopupsList[i] ;
  // console.log(' popup parent: ', self.sliderEditPopupsList[i].Parent);
 
   self.pnlSliderParamAr[i].configPSliderPanel(sliderPanelLeft, sliderPanelWidth, self.intSliderHeight, sliderTop);
@@ -773,10 +776,13 @@ begin
     if (self.checkIfInParForSlidersList(sliderP)) or (length(self.parForSliders) < 1) then
       begin
       bSliderInList := true;
-      SetLength(self.sliderParamAr, length(self.sliderParamAr) + 1);    // add a slider
-      self.sliderParamAr[length(self.sliderParamAr)-1] := i; // assign param index to slider
       if self.getNumberOfParamSliders < Max_PARAMETER_SLIDERS then
+        begin
+        SetLength(self.sliderParamAr, length(self.sliderParamAr) + 1);    // add a slider
+        self.sliderParamAr[length(self.sliderParamAr)-1] := i; // assign param index to slider
+      //if self.getNumberOfParamSliders < Max_PARAMETER_SLIDERS then
         self.addParamSlider(); // <-- Add dynamically created slider
+        end;
       end;
     end;
   self.parForSliders := ''; // clear it out
@@ -802,10 +808,13 @@ begin
     if (self.checkIfInSpeciesForSlidersList(sliderS)) or (length(self.SpeciesForSliders) < 1) then
       begin
       bSliderInList := true;
-      SetLength(self.sliderSpeciesAr, length(self.sliderSpeciesAr) + 1);    // add a slider
-      self.sliderSpeciesAr[length(self.sliderSpeciesAr)-1] := i; // assign param index to slider
       if self.getNumberOfSpeciesSliders < MAX_SPECIES_SLIDERS then
+        begin
+        SetLength(self.sliderSpeciesAr, length(self.sliderSpeciesAr) + 1);    // add a slider
+        self.sliderSpeciesAr[length(self.sliderSpeciesAr)-1] := i; // assign param index to slider
+      //if self.getNumberOfSpeciesSliders < MAX_SPECIES_SLIDERS then
         self.addSpeciesSlider(); // <-- Add dynamically created slider
+        end;
       end;
     end;
   self.speciesForSliders := ''; // clear it out
@@ -822,7 +831,7 @@ var i, j, sliderTBarWidth, sliderPanelLeft, sliderPanelWidth: integer;
     newMenu: TMenuItem;
 begin
   i := self.getNumberOfSpeciesSliders; // array index for current slider to be added.
-  sliderIndex := self.getNumberOfParamSliders + i; // index for next position for all of sliders
+  sliderIndex := self.getNumberOfParamSliders + i; // index for next position for all of sliders,
   SetLength(self.pnlSliderSpeciesAr, i + 1);
   sliderTop := self.calcSliderTop(sliderIndex);
   // Left most position of the panel that holds the slider
@@ -832,7 +841,7 @@ begin
   self.pnlSliderSpeciesAr[i] := TpnlParamSlider.create(self.pnlSliders, sliderIndex,{ @self.EditSliderList,}
                                                 @self.speciesSliderOnChange );
 
- // self.sliderEditPopupsList.Add(TWebPopupMenu.Create(self)) ;
+ // self.sliderEditPopupsList.Add(TWebPopupMenu.Create(self)) ; // do not use mouse-click popup.
 
  // newMenu := TMenuItem.Create(self.sliderEditPopupsList[i]);
  // newMenu.tag := i + 1; // tag slider position
@@ -907,7 +916,8 @@ var fSelectParams: TVarSelectForm;
           end;
         end;
       end;
-
+    self.resetSliderSpeciesTags(self.getNumberOfParamSliders);
+    self.refreshSliderPanels;
   end;
 
   // async, call for TVarSelectForm
@@ -1006,6 +1016,15 @@ begin
   fSelectSpecies.ShowModal(@AfterShowModal);
 end;
 
+
+procedure TMainForm.resetSliderSpeciesTags(numOfParSliders: integer);
+var i: integer; // When num of par sliders changes, need to change sp position tags.
+begin           // Assumes species sliders come after param sliders.
+for i := 0 to self.getNumberOfSpeciesSliders -1 do
+  begin
+  self.pnlSliderSpeciesAr[i].Tag := numOfParSliders + i ;
+  end;
+end;
 
 
 function TMainForm.calcSliderWidth(): integer;
@@ -1196,7 +1215,6 @@ begin
       i := index - self.getNumberOfParamSliders;
       self.MainController.speciesUpdated := true;
       s := self.sliderSpeciesAr[i];  // get species position to update values
-
       newSVal := self.pnlSliderSpeciesAr[i].getSliderPosition * 0.01 *
         (self.pnlSliderSpeciesAr[i].getSliderHighVal - self.pnlSliderSpeciesAr[i].getSliderLowVal);
 
@@ -1208,7 +1226,7 @@ begin
       self.MainController.changeSimSpeciesVal( s, newSVal );
       if isRunning and (not self.chkbxStaticSimRun.Checked) then self.MainController.startTimer;
 
-      self.pnlSliderSpeciesAr[i].setTrackBarLabel(self.MainController.getModel.getS_Names[self.sliderParamAr[i]] + ' init val: '
+      self.pnlSliderSpeciesAr[i].setTrackBarLabel(self.MainController.getModel.getS_Names[self.sliderSpeciesAr[i]] + ' init val: '
                                                          + FloatToStr(newSVal) );
       if self.chkbxStaticSimRun.Checked then
         begin
@@ -1497,6 +1515,17 @@ begin
       sliderLeft := self.calcSliderLeft(i);
       self.pnlSliderParamAr[i].configPSliderPanel(sliderLeft, sliderWidth, self.intSliderHeight, sliderTop);
       self.pnlSliderParamAr[i].configPSliderTBar;
+      end;
+    end;
+
+   if assigned(self.pnlSliderSpeciesAr) then
+    begin
+    for i := 0 to Length(self.pnlSliderSpeciesAr) - 1 do
+      begin
+      sliderTop := self.calcSliderTop(i + Length(self.pnlSliderParamAr) );
+      sliderLeft := self.calcSliderLeft(i + Length(self.pnlSliderParamAr));
+      self.pnlSliderSpeciesAr[i].configPSliderPanel(sliderLeft, sliderWidth, self.intSliderHeight, sliderTop);
+      self.pnlSliderSpeciesAr[i].configPSliderTBar;
       end;
     end;
 end;
@@ -1855,6 +1884,8 @@ begin // Easier to just delete/create than reset time, xaxis labels, etc.
     self.btnEditGraph.ElementClassName := BTN_ENABLED;
     self.btnEditSliders.Enabled := true;
     self.btnEditSliders.ElementClassName := BTN_ENABLED;
+    self.btnEditSpSliders.Enabled := false;
+    self.btnEditSpSliders.ElementClassName := BTN_ENABLED;
     end;
 end;
 

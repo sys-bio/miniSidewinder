@@ -174,7 +174,7 @@ object MainForm: TMainForm
         Top = 10
         Width = 63
         Height = 30
-        Hint = 'Change species slider'
+        Hint = 'Choose different species sliders'
         Caption = 'S Slider'
         ElementClassName = 'btn-dark btn-sm'
         HeightPercent = 100.000000000000000000
