@@ -19,7 +19,6 @@ object MainForm: TMainForm
       Align = alTop
       BorderColor = clBtnFace
       ChildOrder = 3
-      ExplicitWidth = 59
       DesignSize = (
         70
         45)
@@ -46,7 +45,6 @@ object MainForm: TMainForm
       Align = alTop
       BorderColor = clBtnFace
       ChildOrder = 3
-      ExplicitWidth = 59
       object btnEditGraph: TWebButton
         Left = 2
         Top = 10
@@ -69,9 +67,6 @@ object MainForm: TMainForm
       Align = alTop
       BorderColor = clBtnFace
       ChildOrder = 3
-      ExplicitLeft = -3
-      ExplicitTop = 201
-      ExplicitWidth = 59
       DesignSize = (
         70
         45)
@@ -88,7 +83,6 @@ object MainForm: TMainForm
         ShowHint = True
         WidthPercent = 100.000000000000000000
         OnClick = btnExampleClick
-        ExplicitLeft = 2
       end
     end
     object pnlEditSliders: TWebPanel
@@ -99,7 +93,6 @@ object MainForm: TMainForm
       Align = alTop
       BorderColor = clBtnFace
       ChildOrder = 3
-      ExplicitWidth = 59
       object btnEditSliders: TWebButton
         Left = 2
         Top = 10
@@ -121,7 +114,6 @@ object MainForm: TMainForm
       Align = alBottom
       BorderColor = clBtnFace
       ChildOrder = 4
-      ExplicitWidth = 59
       object btnAbout: TWebButton
         Left = 1
         Top = 8
@@ -143,9 +135,6 @@ object MainForm: TMainForm
       BorderStyle = bsNone
       ChildOrder = 5
       ShowCaption = False
-      ExplicitLeft = -3
-      ExplicitTop = 268
-      ExplicitWidth = 59
       object btnSavePlotResults: TWebButton
         Left = 2
         Top = 10
@@ -168,7 +157,6 @@ object MainForm: TMainForm
       Align = alTop
       BorderStyle = bsNone
       ChildOrder = 6
-      ExplicitWidth = 59
       object btnEditSpSliders: TWebButton
         Left = 2
         Top = 10
@@ -191,7 +179,6 @@ object MainForm: TMainForm
     Height = 406
     Align = alClient
     ChildOrder = 1
-    ExplicitWidth = 800
   end
   object pnlTop: TWebPanel
     Left = 0

@@ -37,8 +37,7 @@ uses
   ufModelInfo in 'forms\ufModelInfo.pas' {fModelInfo: TWebForm} {*.html},
   ufVarSelect in 'forms\ufVarSelect.pas' {VarSelectForm: TWebForm} {*.html},
   ufChkGroupEditPlot in 'forms\ufChkGroupEditPlot.pas' {fChkGroupEditPlot: TWebForm} {*.html},
-  ufInputText in 'forms\ufInputText.pas' {fInputText: TWebForm} {*.html},
-  uSlider in 'slider\uSlider.pas';
+  ufInputText in 'forms\ufInputText.pas' {fInputText: TWebForm} {*.html};
 
 {$R *.res}
 

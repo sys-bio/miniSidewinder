@@ -12,7 +12,7 @@ uses
   VCL.TMSFNCCustomControl, VCL.TMSFNCScrollBar, Vcl.Menus, ufModelInfo, ufLabelPopUp,
   WEBLib.Menus, WEBLib.WebCtrls, ufChkGroupEditPlot, ufAbout, ufInputText;
 
-const SIDEWINDER_VERSION = 'MiniSidewinder Version 0.9.0';
+const SIDEWINDER_VERSION = 'MiniSidewinder Version 0.9.1';
       COPYRIGHT = 'Copyright 2023, Bartholomew Jardine and Herbert M. Sauro, University of Washington, USA';
       GRANT_INFO = 'This project was funded by NIH/NIGMS (R01-GM123032-04).';
       DEFAULT_RUNTIME = 10000;
@@ -20,9 +20,9 @@ const SIDEWINDER_VERSION = 'MiniSidewinder Version 0.9.0';
       EDITBOX_HT = 25;
       ZOOM_SCALE = 20;
       MAX_PLOTSPECIES = 8;
-      MAX_SLIDERS = 12; // Not needed ?
+      MAX_SLIDERS = 12;
       MAX_PARAMETER_SLIDERS = 8;
-      MAX_SPECIES_SLIDERS = 4;
+    //  MAX_SPECIES_SLIDERS = 4;
       SLIDERS_PER_ROW = 4;
       MAX_STR_LENGTH = 50; // Max User inputed string length for Rxn/spec/param id
       NULL_NODE_TAG = '_Null'; // from uNetwork, just in case, probably not necessary
@@ -122,8 +122,8 @@ type
     xAxisLabel: string;
     yAxisLabel: string;
     spToPlot: string; // Passed in through session store, comma separated list;
-    parForSliders: string; // Passed in "   ", comma separated list;
-    speciesForSliders: string; // Passed in "   ", comma separated list;
+    varForSliders: string; // Passed in "   ", comma separated list of var ids;
+   //speciesForSliders: string; // Passed in "   ", comma separated list;
     lastStaticSimData: TList<TTimeVarNameValList>; // Holds data from last static sim run.
     lastStaticSimParVals: TVarNameValList; // Holds param vals from last static sim run.
     debug: boolean; // true then show debug console output and any other debug related
@@ -163,8 +163,8 @@ type
     procedure newSliderParamList(); // Pick parameters for sliders
     procedure newSliderSpeciesList(); // Pick species for sliders
     procedure resetSliderSpeciesTags(numOfParSliders: integer); // When num of par sliders changes, need to change sp position tags
-    function  checkIfInParForSlidersList(paramToCheck: string): boolean; // see if in inputed list of params
-    function  checkIfInSpeciesForSlidersList(speciesToCheck: string): boolean; // see if in inputed list of species
+    function  checkIfInVarForSlidersList(varToCheck: string): boolean; // see if in inputed list of va ids
+    //function  checkIfInSpeciesForSlidersList(speciesToCheck: string): boolean; // see if in inputed list of species
     procedure resetBtnOnLineSim(); // reset to default look and caption of 'Start simulation'
     procedure runSim();
     procedure runStaticSim();
@@ -530,8 +530,8 @@ begin
   self.xAxisLabel := '';
   self.yAxisLabel := '';
   self.spToPlot := '';
-  self.parForSliders := '';
-  self.speciesForSliders := '';
+  self.varForSliders := '';     // List of par sliders specified at runtime
+ // self.speciesForSliders := ''; // List of species sliders specified at runtime
 
   asm // javascript:
     var newModel = sessionStorage.getItem("MODEL");
@@ -565,7 +565,7 @@ begin
     }
    if( this.debug ){ console.log('Static run? passed in: ',sessionStorage.getItem("STATIC"));}
     if(sessionStorage.getItem("SLIDERS") != null) {
-      this.parForSliders = sessionStorage.getItem("SLIDERS");
+      this.varForSliders = sessionStorage.getItem("SLIDERS");
       }
     if(sessionStorage.getItem("PLOT_SPECIES") != null) {
       this.spToPlot = sessionStorage.getItem("PLOT_SPECIES");
@@ -767,27 +767,26 @@ begin
   bSliderInList := false;
   numParSliders := 0;
   numParSliders := length(self.mainController.getModel.getP_Names);
- // console.log('AddAllParamSliders: Length of parForSliders: ',length(self.parForSliders));
+ // console.log('AddAllParamSliders: Length of varForSliders: ',length(self.varForSliders));
   for i := 0 to numParSliders -1 do
     begin
     sliderP := '';
     // CHeck if param on init slider list:
     sliderP := self.mainController.getModel.getP_Names[i];
-    if (self.checkIfInParForSlidersList(sliderP)) or (length(self.parForSliders) < 1) then
+    if (self.checkIfInVarForSlidersList(sliderP)) or (length(self.varForSliders) < 1) then
       begin
       bSliderInList := true;
       if self.getNumberOfParamSliders < Max_PARAMETER_SLIDERS then
         begin
         SetLength(self.sliderParamAr, length(self.sliderParamAr) + 1);    // add a slider
         self.sliderParamAr[length(self.sliderParamAr)-1] := i; // assign param index to slider
-      //if self.getNumberOfParamSliders < Max_PARAMETER_SLIDERS then
         self.addParamSlider(); // <-- Add dynamically created slider
         end;
       end;
     end;
-  self.parForSliders := ''; // clear it out
-  if (not bSliderInList) and (self.getNumberOfParamSliders < 1 )
-    then self.addAllParamSliders; // No sliders added from prepopulated list so add all.
+//  self.varForSliders := ''; // clear it out
+  if (not bSliderInList) and  (length(self.varForSliders) < 1)
+    then self.addAllParamSliders; // No param sliders added and prepopulated list is empty.
 
 end;
 
@@ -805,21 +804,22 @@ begin
     sliderS := '';
     // CHeck if param on init slider list:
     sliderS := self.mainController.getModel.getS_Names[i];
-    if (self.checkIfInSpeciesForSlidersList(sliderS)) or (length(self.SpeciesForSliders) < 1) then
+    if (self.checkIfInVarForSlidersList(sliderS)) or (length(self.varForSliders) < 1)  then
+  //  if (self.checkIfInVarForSlidersList(sliderS)) or (self.getNumberOfParamSliders < 1) then
       begin
       bSliderInList := true;
-      if self.getNumberOfSpeciesSliders < MAX_SPECIES_SLIDERS then
+      if self.getNumberOfSpeciesSliders < (MAX_SLIDERS - self.getNumberOfParamSliders) then
         begin
         SetLength(self.sliderSpeciesAr, length(self.sliderSpeciesAr) + 1);    // add a slider
         self.sliderSpeciesAr[length(self.sliderSpeciesAr)-1] := i; // assign param index to slider
-      //if self.getNumberOfSpeciesSliders < MAX_SPECIES_SLIDERS then
         self.addSpeciesSlider(); // <-- Add dynamically created slider
         end;
       end;
     end;
-  self.speciesForSliders := ''; // clear it out
-  if (not bSliderInList) and (self.getNumberOfSpeciesSliders < 1 )
-    then self.addAllSpeciesSliders; // No sliders added from prepopulated list so add all.
+
+  if (not bSliderInList) and  (length(self.varForSliders) < 1)
+    then self.addAllSpeciesSliders; // No sliders added and prepopulated list is empty.
+  self.varForSliders := ''; // clear it out, assumes all par sliders have been set up
 
 end;
 
@@ -858,31 +858,18 @@ begin
 end;
 
 
-function TMainForm.checkIfInParForSlidersList(paramToCheck: string): boolean;
+function TMainForm.checkIfInVarForSlidersList(varToCheck: string): boolean;
 var i: integer;
     parList: array of string;
 begin
   Result := false;
-  parList := splitString(self.parForSliders, ',');
+  parList := splitString(self.varForSliders, ',');
   for i := 0 to length(parList) -1 do
     begin
-    if paramToCheck = parList[i].Trim then
+    if varToCheck = parList[i].Trim then
       Result := true;
     end;
 end;
-
- function TMainForm.checkIfInSpeciesForSlidersList(speciesToCheck: string): boolean; // see if in inputed list of species
- var i: integer;
-    spList: array of string;
- begin
-     Result := false;
-  spList := splitString(self.speciesForSliders, ',');
-  for i := 0 to length(spList) -1 do
-    begin
-    if speciesToCheck = spList[i].Trim then
-      Result := true;
-    end;
- end;
 
 
 procedure TMainForm.newSliderParamList ();
@@ -972,7 +959,7 @@ var fSelectSpecies: TVarSelectForm;
         //sliderSp := '';
         if fSelectSpecies.SpPlotCG.checked[i] then
           begin
-          if length(self.sliderSpeciesAr) < MAX_SPECIES_SLIDERS then // Ignore any more that are checked.
+          if length(self.sliderSpeciesAr) < (MAX_SLIDERS - self.getNumberOfParamSliders) then // Ignore any more that are checked.
             begin
             sliderIndex := length(self.sliderSpeciesAr);
             SetLength(self.sliderSpeciesAr, length(self.sliderSpeciesAr) + 1);
@@ -1367,7 +1354,7 @@ var
   begin
     (AForm as TVarSelectForm).ParentFormHeight := self.Height;
     (AForm as TVarSelectForm).Top := trunc(self.Height*0.2); // put popup %20 from top
-    if length(self.mainController.getModel.getS_Names) > MAX_SPECIES_SLIDERS then
+    if length(self.mainController.getModel.getS_Names) > (MAX_SLIDERS - self.getNumberOfParamSliders) then
       (AForm as TVarSelectForm).speciesList :=
           self.getVarsNotAssignedSliders( self.sliderSpeciesAr, self.mainController.getModel.getS_Names )
     else (AForm as TVarSelectForm).speciesList := self.mainController.getModel.getS_Names;
@@ -1732,16 +1719,16 @@ end;
 function  TMainForm.calcSlidersPanelHeight(): integer;
 var numVars, numRows: integer;
 begin  // Assume only options of max rows, max rows -1, max rows -2
-  numRows := trunc( (MAX_PARAMETER_SLIDERS + MAX_SPECIES_SLIDERS) / SLIDERS_PER_ROW );
+  numRows := trunc( (self.getNumberOfParamSliders + self.getNumberOfSpeciesSliders)/ SLIDERS_PER_ROW );
   if numRows < 3 then numRows := 3; // just in case, adjust below if max rows is 2 or less.
 
   if self.mainController.IsModelLoaded then
     begin
     numVars := length(self.mainController.getModel.getP_Names);
     numVars := numVars + length(self.mainController.getModel.getS_Names);
-    if numVars >= MAX_PARAMETER_SLIDERS + MAX_SPECIES_SLIDERS then
-      Result := trunc( numRows * self.intSliderHeight ) +2
-    else if (MAX_PARAMETER_SLIDERS + MAX_SPECIES_SLIDERS) div numVars = 1 then
+    if numVars >= MAX_SLIDERS -3 then
+      Result := trunc( numRows * self.intSliderHeight ) +2   // 3 rows (9+ sliders)  if 4 sliders per row
+      else if MAX_SLIDERS - numVars < 8 then  // 2 rows (5+ sliders)
            Result := trunc( (numRows -1) * self.intSliderHeight ) +2
          else Result := trunc( (numRows -2) * self.intSliderHeight ) +2;
     end
