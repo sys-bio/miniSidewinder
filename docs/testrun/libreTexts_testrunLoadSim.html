@@ -1,0 +1,142 @@
+<html>
+
+<head>
+
+</head>
+<body>
+<script type="text/javascript">
+ if (typeof window !== 'undefined') {
+ // Perform sessionStorage action
+ const item = sessionStorage.getItem('key')
+ }
+var iframeSize = '';
+</script>
+
+<script type="text/javascript">
+ // This is the default data that needs to be populated.
+var newModel = ""; // SBML model in XML format. Some ways of populating string listed below.
+var newRT = '';  // Length of run
+var newSS = ''; // integrator step size, thus 1000 points (10/0.010)
+var staticRun = 'true'; // Display after all calculations are done.
+var parSliders = ''; // param sliders, exact id match
+var spPlot = ''; // Species to plot, exact id match
+var yLabel = 'conc (uM)';
+var xLabel = 'sec';
+</script>
+
+<script type="text/javascript">
+ async function loadInfo(newEventData) {
+   // can message back using event.source.postMessage(...)
+  var newURL = '';
+  //var iframeID = '';
+  //var modelCode = '';
+  try {
+    //console.log("**** loadInfo(): libretexts data :", newEventData);
+    JSONdata = JSON.parse(newEventData);
+    newRT = JSONdata.m_RT;
+    newSS = JSONdata.m_SS;
+    staticRun = JSONdata.m_static;
+    parSliders = JSONdata.m_pars;
+    spPlot = JSONdata.m_species;	
+    newURL = JSONdata.m_URL;
+    //iframeID = JSONdata.m_iframeID;
+	//iframeID = '';
+	yLabel = JSONdata.m_yLabel;
+	xLabel = JSONdata.m_xLabel;
+	//modelCode = JSONdata.m_code;
+    console.log('loadInfo(): Model code: ', newURL);
+	//runModel2(newURL, iframeID, modelCode);
+	runModel2(newURL);
+	}
+  catch(err) {
+     console.log('loadInfo: message error: ', err);
+	 //window.alert('Model information not received!');
+   }
+  return;
+
+} 
+</script>
+
+<script type="text/javascript">
+window.addEventListener('message',function (event) {
+  // Note: This gets called twice? (Not sure why), first time JSON data not loaded. 
+  if (event.origin != 'https://bio.libretexts.org') {
+    // something not from libretexts domain, ignore it
+	console.log("*****Unknown data :", event.data);
+    return;
+  }
+  try {
+    loadInfo(event.data);
+ 	}
+  catch(err) {
+     console.log('eventListener: message error: ', err);
+   }
+} );
+</script>
+ 
+ <script type="text/javascript">
+ function getInfo2(model,rt, ss,staticBool,pars,sp) {
+   console.log(' *** getInfo2() loaded.');
+   sessionStorage.setItem("MODEL", model);
+   sessionStorage.setItem('RUNTIME', rt);
+   sessionStorage.setItem('STEPSIZE', ss);
+   sessionStorage.setItem('STATIC', staticBool);
+   sessionStorage.setItem('SLIDERS', pars.trim());// check for only whitespace
+   sessionStorage.setItem('PLOT_SPECIES', sp.trim());
+   sessionStorage.setItem('X_LABEL', xLabel);
+   sessionStorage.setItem('Y_LABEL', yLabel);
+   window.location.href = ('../Debug/index.html?'); // Location of miniSidewinder
+ }
+ </script> 
+
+<script type="text/javascript">
+//function runModel2(modelURL, newFrameID, newCode) {
+function runModel2(modelURL) {
+// Use this code if you have a predefined model to run located at some URL within libreTexts.org:
+// modelURL: URL of SBML model (XML format).
+ //console.log('** runModel2() loaded');
+ const bounceURL = 'https://api.libretexts.org/endpoint/bounce/';
+ const newURL = bounceURL + modelURL;
+ console.log('New URL: ', newURL);
+ 
+   fetch(newURL)
+    .then(response => response.text())
+    .then((data) => {
+      //console.log('Loading from github: ', data);
+	  getInfo2(data,newRT,newSS,staticRun,parSliders,spPlot);
+    })
+  
+ }
+// END of predefined model code.
+</script>
+
+<script type="text/javascript">
+function loadSearchInfo(newStrSearch) {
+  newRT = newStrSearch.get('m_RT');
+  newSS = newStrSearch.get('m_SS');
+  staticRun = newStrSearch.get('m_static');
+  parSliders = newStrSearch.get('m_pars');
+  spPlot = newStrSearch.get('m_species');
+  newURL = newStrSearch.get('m_URL');
+  console.log('loadSearchInfo: Model url: ', newURL);
+  yLabel = newStrSearch.get('m_yLabel');
+  xLabel = newStrSearch.get('m_xLabel');
+  runModel2(newURL);
+
+}
+</script>
+
+<script type="text/javascript">
+ console.log(" * libreTextsLoadSim.html file loaded......");
+  const para = new URLSearchParams(window.location.search);
+  const new_url = para.get('m_URL');
+  if (new_url) {
+	console.log('Model url: ', new_url);
+	loadSearchInfo(para);
+  }
+</script>  
+  
+</body>
+
+</html>
+
