@@ -6,26 +6,26 @@ object MainForm: TMainForm
   OnExit = WebFormExit
   OnResize = WebFormResize
   object pnlSimInfo: TWebPanel
-    Left = 806
+    Left = 795
     Top = 50
-    Width = 59
+    Width = 70
     Height = 406
     Align = alRight
     object pnlModelInfo: TWebPanel
       Left = 0
       Top = 0
-      Width = 59
+      Width = 70
       Height = 45
       Align = alTop
       BorderColor = clBtnFace
       ChildOrder = 3
       DesignSize = (
-        59
+        70
         45)
       object btnModelInfo: TWebButton
-        Left = 4
+        Left = 2
         Top = 10
-        Width = 50
+        Width = 63
         Height = 30
         Hint = 'Model information, if available.'
         Anchors = [akRight]
@@ -40,7 +40,7 @@ object MainForm: TMainForm
     object pnlEditGraph: TWebPanel
       Left = 0
       Top = 45
-      Width = 59
+      Width = 70
       Height = 45
       Align = alTop
       BorderColor = clBtnFace
@@ -48,7 +48,7 @@ object MainForm: TMainForm
       object btnEditGraph: TWebButton
         Left = 2
         Top = 10
-        Width = 50
+        Width = 63
         Height = 30
         Hint = 'Change species, update Y axis'
         Caption = 'Plot'
@@ -61,19 +61,19 @@ object MainForm: TMainForm
     end
     object pnlExample: TWebPanel
       Left = 0
-      Top = 135
-      Width = 59
+      Top = 180
+      Width = 70
       Height = 45
       Align = alTop
       BorderColor = clBtnFace
       ChildOrder = 3
       DesignSize = (
-        59
+        70
         45)
       object btnExample: TWebButton
-        Left = 10
+        Left = 4
         Top = 10
-        Width = 45
+        Width = 63
         Height = 30
         Hint = 'Load example model.'
         Anchors = [akRight]
@@ -88,7 +88,7 @@ object MainForm: TMainForm
     object pnlEditSliders: TWebPanel
       Left = 0
       Top = 90
-      Width = 59
+      Width = 70
       Height = 45
       Align = alTop
       BorderColor = clBtnFace
@@ -96,10 +96,10 @@ object MainForm: TMainForm
       object btnEditSliders: TWebButton
         Left = 2
         Top = 10
-        Width = 50
+        Width = 63
         Height = 30
         Hint = 'Chose different parameter sliders'
-        Caption = 'Slider'
+        Caption = 'P Slider'
         HeightPercent = 100.000000000000000000
         ShowHint = True
         WidthPercent = 100.000000000000000000
@@ -109,7 +109,7 @@ object MainForm: TMainForm
     object pnlAbout: TWebPanel
       Left = 0
       Top = 361
-      Width = 59
+      Width = 70
       Height = 45
       Align = alBottom
       BorderColor = clBtnFace
@@ -117,7 +117,7 @@ object MainForm: TMainForm
       object btnAbout: TWebButton
         Left = 1
         Top = 8
-        Width = 54
+        Width = 63
         Height = 30
         Caption = 'About'
         ElementClassName = 'btn btn-dark btn-sm'
@@ -128,8 +128,8 @@ object MainForm: TMainForm
     end
     object pnlPlotResults: TWebPanel
       Left = 0
-      Top = 180
-      Width = 59
+      Top = 225
+      Width = 70
       Height = 45
       Align = alTop
       BorderStyle = bsNone
@@ -138,7 +138,7 @@ object MainForm: TMainForm
       object btnSavePlotResults: TWebButton
         Left = 2
         Top = 10
-        Width = 50
+        Width = 63
         Height = 30
         Hint = 'Save csv file of last simulation.'
         Caption = '.csv'
@@ -149,11 +149,33 @@ object MainForm: TMainForm
         OnClick = btnSavePlotResultsClick
       end
     end
+    object pnlEditSpSliders: TWebPanel
+      Left = 0
+      Top = 135
+      Width = 70
+      Height = 45
+      Align = alTop
+      BorderStyle = bsNone
+      ChildOrder = 6
+      object btnEditSpSliders: TWebButton
+        Left = 2
+        Top = 10
+        Width = 63
+        Height = 30
+        Hint = 'Choose different species sliders'
+        Caption = 'S Slider'
+        ElementClassName = 'btn-dark btn-sm'
+        HeightPercent = 100.000000000000000000
+        ShowHint = True
+        WidthPercent = 100.000000000000000000
+        OnClick = btnEditSpSlidersClick
+      end
+    end
   end
   object pnlPlot: TWebPanel
     Left = 0
     Top = 50
-    Width = 806
+    Width = 795
     Height = 406
     Align = alClient
     ChildOrder = 1
@@ -177,8 +199,8 @@ object MainForm: TMainForm
       object lblSpeedMult: TWebLabel
         Left = 10
         Top = 5
-        Width = 98
-        Height = 13
+        Width = 112
+        Height = 15
         Hint = 'Speed up/down simulation'
         Caption = 'Sim Speed Multiplier:'
         HeightPercent = 100.000000000000000000
@@ -188,7 +210,7 @@ object MainForm: TMainForm
         Left = 112
         Top = 5
         Width = 12
-        Height = 13
+        Height = 15
         Caption = '1x'
         HeightPercent = 100.000000000000000000
         WidthPercent = 100.000000000000000000
@@ -196,8 +218,8 @@ object MainForm: TMainForm
       object lblSpeedMultMin: TWebLabel
         Left = 10
         Top = 23
-        Width = 22
-        Height = 13
+        Width = 21
+        Height = 15
         Caption = '0.1x'
         HeightPercent = 100.000000000000000000
         WidthPercent = 100.000000000000000000
@@ -206,7 +228,7 @@ object MainForm: TMainForm
         Left = 115
         Top = 23
         Width = 12
-        Height = 13
+        Height = 15
         Caption = '3x'
         HeightPercent = 100.000000000000000000
         WidthPercent = 100.000000000000000000
@@ -239,8 +261,8 @@ object MainForm: TMainForm
       object lblRunTime: TWebLabel
         Left = 5
         Top = 5
-        Width = 48
-        Height = 13
+        Width = 53
+        Height = 15
         Caption = 'Run Time:'
         HeightPercent = 100.000000000000000000
         WidthPercent = 100.000000000000000000
@@ -386,16 +408,14 @@ object MainForm: TMainForm
         Anchors = [akLeft]
         Caption = 'Static Run'
         ChildOrder = 7
-        Color = clNone
         HeightPercent = 100.000000000000000000
         ShowHint = True
-        State = cbUnchecked
         WidthPercent = 100.000000000000000000
         OnClick = chkbxStaticSimRunClick
       end
     end
   end
-  object pnlParamSliders: TWebPanel
+  object pnlSliders: TWebPanel
     Left = 0
     Top = 456
     Width = 865
@@ -412,6 +432,11 @@ object MainForm: TMainForm
   object graphEditPopup: TWebPopupMenu
     Appearance.HamburgerMenu.Caption = 'Menu'
     Appearance.SubmenuIndicator = '&#9658;'
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -12
+    Font.Name = 'Segoe UI'
+    Font.Style = []
     Left = 752
     Top = 494
     object editPlot1: TMenuItem
