@@ -16,14 +16,17 @@ The template is here:
   const newRT = '4000';  // Length of run
   const newSS = '0.20'; // integrator step size, thus 500 points (5/0.010)
   const staticRun = 'true'; // Display after all calculations are done.
-  const parSliders = ''; // param sliders, exact id match
-  const spPlot = ''; // Species to plot, exact id match, '' for default vals
+  const varSliders = ''; // param and species sliders, exact id match, 12 max. Default: '': 8 param 4 species sliders
+ // const parSliders = 'K1_J0,n_J0,KK2_J1,MKKK, MKKK_P, MKK, MKK_PP, MAPK, V2_J1,KK3_J2,k3_J2'; //6 parm 5 sp
+ // const parSliders = 'K1_J0,n_J0,KK2_J1,MKKK'; // 3 param, 1 sp
+  const spPlot = ''; // Species to plot, exact id match, '' for default vals (first 8 species).
   const yLabel = 'conc (uM)';
   const xLabel = 'sec';
 // *** END of Simulation info to fill out ***
 // ******************************************
 // Simulator location:
-   const simURL = "https://sys-bio.github.io/miniSidewinder/libretexts/libreTextsLoadSim.html";
+   const simURL = "https://sys-bio.github.io/miniSidewinder/testrun/libreTexts_testrunLoadSim.html"; // testing location
+   //const simURL = "https://sys-bio.github.io/miniSidewinder/libretexts/libreTextsLoadSim.html";
 // ******************************************
    try {
       para = new URLSearchParams();
@@ -32,7 +35,7 @@ The template is here:
 	  para.append('m_SS', newSS);
 	  para.append('m_static', staticRun);
 	  para.append('m_species', spPlot);
-	  para.append('m_pars', parSliders);
+	  para.append('m_pars', varSliders);
 	  para.append('m_yLabel', yLabel);
 	  para.append('m_xLabel', xLabel);
 	  // Note: URL + Param search string char limit ~ 2k
@@ -57,7 +60,7 @@ The template is here:
 
 <!-- END of Simulator Template  -->
 
-<p class="mt-align-center"><iframe align="middle" height="600px" id='sidewinAP' width="80%"></iframe></p>
+<!-- <p class="mt-align-center"><iframe align="middle" height="600px" id='sidewinAP' width="80%"></iframe></p> -->
 
 </body>
 </html>
