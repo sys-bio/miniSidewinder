@@ -29,7 +29,8 @@ TpnlParamSlider = class(TWebPanel)
     constructor create(newParent: TWebPanel; index: integer; trackBarChange: TNotifyEvent);
     procedure configPSliderPanel(sPLeft, sliderPanelWidth, sliderPanelHeight: integer) overload;
     procedure configPSliderPanel(sPLeft, sliderPanelWidth, sliderPanelHeight, sliderPanelTop: integer) overload;
-    procedure configPSliderTBar({sliderPanelWidth : integer});
+   // procedure configPSliderTBar(newClassName: string );
+    procedure configPSliderTBar();
     procedure setTrackBarLabel( newStr: string );
     procedure setBackgroundColor(newColor: TColor);
     function  formatValueToStr(newVal: double): string; // Adjust number, as needed, to fit space provided
@@ -108,8 +109,7 @@ begin
   self.Invalidate;
 end;
   // Define the sliders inside the panel that holds the sliders
-procedure TpnlParamSlider.configPSliderTBar({sliderPanelWidth : integer }{ newSBarAr: array of TWebTrackBar;}
-       );
+procedure TpnlParamSlider.configPSliderTBar();
 var sliderTBarWidth : integer;
   begin
     // Width of the slider inside the panel
@@ -123,7 +123,7 @@ var sliderTBarWidth : integer;
    // self.sliderPTBar.Height:= 0; //10;
    // self.sliderPTBar.HeightPercent := 10;
    // self.sliderPTBar.HeightStyle := ssPercent;
-    self.sliderPTBar.ElementClassName := 'slider' ;//'form-range';
+    self.sliderPTBar.ElementClassName := 'slider';
     self.sliderPTBar.ElementFont := efProperty;
     self.sliderPTBar.ElementPosition := epAbsolute;
     // Value (high) positioned on the right-side of slider
@@ -145,6 +145,7 @@ var sliderTBarWidth : integer;
     self.sliderPTBLabel.Left:= 23;
     self.sliderPTBLabel.Top:= 1;
   end;
+
 
 
 {procedure TpnlParamSlider.setUpParamSliderVals(pName: string; pVal: double);// Get rid of, use setUpSliderVals()

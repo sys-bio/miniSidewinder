@@ -756,7 +756,7 @@ begin
 
   self.pnlSliderParamAr[i].configPSliderPanel(sliderPanelLeft, sliderPanelWidth, self.intSliderHeight, sliderTop);
   self.SetSliderParamValues(i, self.sliderParamAr[i]);
-  self.pnlSliderParamAr[i].configPSliderTBar;
+  self.pnlSliderParamAr[i].configPSliderTBar();
 end;
 
 procedure TMainForm.addAllParamSliders();
