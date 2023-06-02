@@ -1681,6 +1681,7 @@ begin
   if newModel.getNumSBMLErrors >0 then
     begin
     errList := '';
+    errList := 'Error reading SBML model: ';
     for i := 0 to newModel.getNumSBMLErrors -1 do
       begin
       errList := errList + newModel.getSBMLErrorStrs()[i] + #13#10 ; // new line char

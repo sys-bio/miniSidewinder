@@ -1,7 +1,7 @@
 unit uSidewinderTypes;
 
 interface
-uses System.Generics.Collections, Vcl.Dialogs;
+uses System.Generics.Collections, Vcl.Dialogs, ufAbout;
 
 const
   SLIDERPHEIGHT = 50; // Param Sliders WebPanel height
@@ -212,9 +212,27 @@ implementation
    self.varNV_List.copy(newVarList);
  end;
 
- procedure notifyUser( msg: string);
- begin
-   ShowMessage(msg);
- end;
+// procedure notifyUser( msg: string);
+// begin
+//   ShowMessage(msg);
+// end;
+
+ procedure notifyUser(msg: string);
+var fAbout: TfAbout;
+
+  procedure AfterAboutCreate(AForm: TObject);
+   begin
+   //(AForm as TfAbout).Top := trunc(self.Height*0.1); // put popup %10 from top
+   (AForm as TfAbout).Top := 30; // from top of form
+   (AForm as TfAbout).memoAbout.Text := msg;
+
+   end;
+
+begin
+  fAbout := TfAbout.CreateNew(@AfterAboutCreate);
+  fAbout.Popup := true;
+  //fAbout.ShowClose := true;
+  fAbout.PopupOpacity := 0.3;
+end;
 
 end.
