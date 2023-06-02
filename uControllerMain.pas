@@ -116,12 +116,14 @@ var i: integer;
 begin
  // console.log('TControllerMain.SBMLLoaded. creating new simulation');
   self.modelLoaded := true;
-  if self.sbmlmodel.getNumSBMLErrors = 0 then
+  if (self.sbmlmodel.getNumSBMLErrors = 0) and (self.sbmlmodel.getNumModelEvents = 0)
+      and (self.sbmlmodel.getNumPiecewiseFuncs = 0) then   // Currently no support for these
     begin
     self.createSimulation;
     self.resetSimParamValues;  // Load model param values.
     self.resetSimSpeciesValues;// Load model species init vals.
     end;
+
   if length(self.FSBMLUpdateAr) > 0 then
     begin
     for i := 0 to length(self.FSBMLUpdateAr) -1 do

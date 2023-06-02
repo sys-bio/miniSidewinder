@@ -166,6 +166,8 @@ type
     function  checkIfInVarForSlidersList(varToCheck: string): boolean; // see if in inputed list of va ids
     //function  checkIfInSpeciesForSlidersList(speciesToCheck: string): boolean; // see if in inputed list of species
     procedure resetBtnOnLineSim(); // reset to default look and caption of 'Start simulation'
+    procedure clearOutModel(); // Clear out previous model/sim, disable appropriate buttons
+    function  checkIfModelValid(newModel:TModel): string; // chk If SBML errors or unsupported functions ( events, piecewise, etc)
     procedure runSim();
     procedure runStaticSim();
     procedure stopSim();
@@ -197,6 +199,12 @@ type
     function  disableRunTimeEdit(): boolean; // true: suncces
     function  enableSimSpeedMult(): boolean;
     function  disableSimSpeedMult(): boolean;
+    function  disableSliderEditBtns(): boolean; // true: success, disable param and species btns
+    function  enableSliderEditBtns(): boolean; // true: success
+    function  disablePlotEditBtn(): boolean; // true: success
+    function  enablePlotEditBtn(): boolean; // true: success
+    function  disableInfoBtn(): boolean;     // true: success
+    function  enableInfoBtn(): boolean;
     procedure setTopPanelSpacing; // Set spacing of components
     procedure setLoadPnlSpacing;
     procedure setRunPausePnlSpacing;
@@ -474,6 +482,12 @@ begin
     SBMLmodelMemo.visible := true;
     end;  }
 
+  self.clearOutModel; // get rid of previous model, if exists
+  self.MainController.loadSBML(AText);
+end;
+
+procedure TMainForm.clearOutModel();
+begin
   self.currentModelInfo := 'None.';
   self.deleteAllPlots;
   self.deleteAllSliders;
@@ -481,11 +495,8 @@ begin
   self.simStarted := false;
   self.mainController.clearModel;
   self.mainController.clearSim;
- //self.btnResetSimSpecies.enabled := false;
- // self.btnParamReset.enabled := false;
   self.btnSimReset.enabled := false;
   self.btnSimReset.ElementClassName := BTN_DISABLED;
-  self.MainController.loadSBML(AText);
 end;
 
 procedure TMainForm.WebFormCreate(Sender: TObject);
@@ -513,17 +524,9 @@ begin
  // self.saveSimResults := false;
   self.currentGeneration := 0;
   self.currentModelInfo := 'None.';
-  if assigned(self.btnModelInfo) then
-    begin
-    self.btnModelInfo.Enabled := false;
-    self.btnModelInfo.ElementClassName := BTN_DISABLED;
-    end;
-  self.btnEditGraph.Enabled := false;
-  self.btnEditGraph.ElementClassName := BTN_DISABLED;
-  self.btnEditSliders.Enabled := false;
-  self.btnEditSliders.ElementClassName := BTN_DISABLED;
-  self.btnEditSpSliders.Enabled := false;
-  self.btnEditSpSliders.ElementClassName := BTN_DISABLED;
+  self.disableInfoBtn;
+  self.disablePlotEditBtn;
+  self.disableSliderEditBtns;
   self.btnSavePlotResults.Enabled := false;
   self.btnSavePlotResults.ElementClassName := BTN_DISABLED;
   self.strFileInput := '';
@@ -1549,12 +1552,9 @@ begin
     begin
       self.mainController.setOnline(true);
       self.mainController.SetRunTime(self.runTime);
-	   // self.btnResetSimSpecies.Enabled := false;
-     // self.btnParamReset.Enabled := false;
       self.btnSimReset.Enabled := false;
       self.btnSimReset.ElementClassName := BTN_DISABLED;
-      self.btnEditGraph.Enabled := false;
-      self.btnEditGraph.ElementClassName := BTN_DISABLED;
+      self.disablePlotEditBtn;
       self.disableStepSizeEdit;
       if assigned(self.pnlSimSpeedMult) then self.trackBarSimSpeed.Enabled := true;
       self.btnRunPause.font.color := clred;
@@ -1585,12 +1585,8 @@ procedure TMainForm.runStaticSim();
 begin
   self.btnSavePlotResults.Enabled := true;
   self.btnSavePlotResults.ElementClassName := BTN_ENABLED;
-  self.btnEditGraph.Enabled := false;
-  self.btnEditGraph.ElementClassName := BTN_DISABLED;
-  self.btnEditSliders.Enabled := false;
-  self.btnEditSliders.ElementClassName := BTN_DISABLED;
-  self.btnEditSpSliders.Enabled := false;
-  self.btnEditSpSliders.ElementClassName := BTN_DISABLED;
+  self.disablePlotEditBtn;
+  self.disableSliderEditBtns;
   self.mainController.SetRunTime(self.runTime);
   self.mainController.setStaticSimRun(self.chkbxStaticSimRun.Checked );
   self.mainController.SetStepSize(self.stepSize);  // just in case ?
@@ -1604,16 +1600,10 @@ end;
 procedure TMainForm.stopSim();
 begin
    MainController.setOnline(false);
-  // self.btnResetSimSpecies.Enabled := true;
-  // self.btnParamReset.Enabled := true;
    self.btnSimReset.Enabled := true;
    self.btnSimReset.ElementClassName := BTN_ENABLED;
-   self.btnEditGraph.Enabled := true;
-   self.btnEditGraph.ElementClassName := BTN_ENABLED;
-   self.btnEditSliders.Enabled := true;
-   self.btnEditSliders.ElementClassName := BTN_ENABLED;
-   self.btnEditSpSliders.Enabled := true;
-   self.btnEditSpSliders.ElementClassName := BTN_ENABLED;
+   self.enablePlotEditBtn;
+   self.enableSliderEditBtns;
    self.enableStepSizeEdit;
    self.MainController.SetTimerEnabled(false); // Turn off web timer (Stop simulation)
    self.btnRunPause.font.color := clgreen;
@@ -1674,13 +1664,42 @@ procedure TMainForm.PingSBMLLoaded(newModel:TModel);
 var errList: string;
     i: integer;
 begin
+  errList := '';
   if assigned(self.lastStaticSimData) then self.lastStaticSimData.free;
   if assigned(self.lastStaticSimParVals) then self.lastStaticSimParVals.free;
   self.btnSavePlotResults.Enabled := false;
   self.btnSavePlotResults.ElementClassName := BTN_DISABLED;
+
+  if self.checkIfModelValid(newModel) <> '' then
+    begin
+    self.clearOutModel;
+    self.disableSliderEditBtns;
+    self.disablePlotEditBtn;
+    self.disableInfoBtn;
+    end
+  else  // Good model:
+    begin
+    self.pnlSliders.height := self.calcSlidersPanelHeight;
+    self.btnRunPause.Enabled := true;
+    self.btnRunPause.ElementClassName := BTN_ENABLED;
+    self.setListBoxInitValues;
+    self.setListBoxRateLaws;
+    self.setLabelModelInfo;
+    if self.chkbxStaticSimRun.Checked then self.enableRunTimeEdit;
+
+    self.enableInfoBtn;
+    end;
+ 
+end;
+
+function  TMainForm.checkIfModelValid(newModel:TModel): string; // model OK: returns '' else error string
+var errList: string;
+    i: integer;
+begin
+  Result := '';
+  errList := '';
   if newModel.getNumSBMLErrors >0 then
     begin
-    errList := '';
     errList := 'Error reading SBML model: ';
     for i := 0 to newModel.getNumSBMLErrors -1 do
       begin
@@ -1693,29 +1712,19 @@ begin
   begin
     if newModel.getNumModelEvents > 0 then
       begin
-      notifyUser(' SBML Events not supported at this time. Load a different SBML Model');
+      errList := ' SBML Events not supported at this time. Load a different SBML Model';
+      notifyUser(errList);
       end
     else if newModel.getNumPiecewiseFuncs >0 then
       begin
-      notifyUser(' SBML piecewise() function not supported at this time. Load a different SBML Model');
+      errList := ' SBML piecewise() function not supported at this time. Load a different SBML Model';
+      notifyUser(errList);
       end
   end;
 
-  self.pnlSliders.height := self.calcSlidersPanelHeight;
-  self.btnRunPause.Enabled := true;
-  self.btnRunPause.ElementClassName := BTN_ENABLED;
-  self.setListBoxInitValues;
-  self.setListBoxRateLaws;
-  self.setLabelModelInfo;
-  if self.chkbxStaticSimRun.Checked then self.enableRunTimeEdit;
-
-  if assigned(self.btnModelInfo) then
-    begin
-    self.btnModelInfo.Enabled := true;
-    self.btnModelInfo.ElementClassName := BTN_ENABLED;
-    end;
- 
+  Result := errList;
 end;
+
 
 function  TMainForm.calcSlidersPanelHeight(): integer;
 var numVars, numRows: integer;
@@ -1868,12 +1877,8 @@ begin // Easier to just delete/create than reset time, xaxis labels, etc.
       end;
     self.refreshPlotPanels;
     self.getVals( 0, initSVals ); // Display correctly sized graph window on reset
-    self.btnEditGraph.Enabled := true;
-    self.btnEditGraph.ElementClassName := BTN_ENABLED;
-    self.btnEditSliders.Enabled := true;
-    self.btnEditSliders.ElementClassName := BTN_ENABLED;
-    self.btnEditSpSliders.Enabled := false;
-    self.btnEditSpSliders.ElementClassName := BTN_ENABLED;
+    self.enablePlotEditBtn;
+    self.enableSliderEditBtns;
     end;
 end;
 
@@ -2607,8 +2612,76 @@ begin
   else Result := false;
 end;
 
+function  TMainForm.disableSliderEditBtns(): boolean; // true: success, disable param and species btns
+begin
+  if assigned(self.pnlEditSliders) then
+    begin
+    self.btnEditSliders.Enabled := false;
+    self.btnEditSliders.ElementClassName := BTN_DISABLED;
+    self.btnEditSpSliders.Enabled := false;
+    self.btnEditSpSliders.ElementClassName := BTN_DISABLED;
+    Result := true;
+    end
+  else Result := false;
+end;
+function  TMainForm.enableSliderEditBtns(): boolean; // true: success
+begin
+  if assigned(self.pnlEditSliders) then
+    begin
+    self.btnEditSliders.Enabled := true;
+    self.btnEditSliders.ElementClassName := BTN_ENABLED;
+    self.btnEditSpSliders.Enabled := true;
+    self.btnEditSpSliders.ElementClassName := BTN_ENABLED;
+    Result := true;
+    end
+  else Result := false;
+end;
+
+function  TMainForm.disablePlotEditBtn(): boolean; // true: success
+begin
+  if assigned(self.pnlEditGraph) then
+    begin
+    self.btnEditGraph.Enabled := false;
+    self.btnEditGraph.ElementClassName := BTN_DISABLED;
+    Result := true;
+    end
+  else Result := false;
+end;
+
+function  TMainForm.enablePlotEditBtn(): boolean; // true: success
+begin
+  if assigned(self.pnlEditGraph) then
+    begin
+    self.btnEditGraph.Enabled := true;
+    self.btnEditGraph.ElementClassName := BTN_ENABLED;
+    Result := true;
+    end
+  else Result := false;
+end;
+
+function  TMainForm.disableInfoBtn(): boolean;     // true: success
+begin
+  if assigned(self.pnlModelInfo) then
+    begin
+    self.btnModelInfo.Enabled := false;
+    self.btnModelInfo.ElementClassName := BTN_DISABLED;
+    Result := true;
+    end
+  else Result := false;
+end;
+
+function  TMainForm.enableInfoBtn(): boolean;
+begin
+  if assigned(self.pnlModelInfo) then
+    begin
+    self.btnModelInfo.Enabled := true;
+    self.btnModelInfo.ElementClassName := BTN_ENABLED;
+    Result := true;
+    end
+  else Result := false;
+end;
+
 procedure TMainForm.setTopPanelSpacing;
-//var btnWidth: integer;
 begin
   self.setLoadPnlSpacing;
   self.setRunPausePnlSpacing;
