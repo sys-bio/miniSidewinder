@@ -1,8 +1,9 @@
 # miniSidewinder
-Initial demo for a stripped down version of sidewinder.
-- Google sites demo: https://sites.google.com/view/interactive-modeling/home  
+A client side web application for simulating biological reactions using models written in SBML (Systems Biology Markup Language).
 
+miniSidewinder is a Delphi, Object Pascal based, client-side browser application that makes use of TMS Web Core to convert Delphi to javascript code. The application consists of html, css, javascript, and wasm files.
+- Google sites demo: https://sites.google.com/view/interactive-modeling/home  
 
 - Demo embedded in simple webpage: https://sys-bio.github.io/miniSidewinder/
 
-- For more information on Sidewinder see: https://github.com/sys-bio/sidewinder
+- For more information on Sidewinder, a web application for building and simulating of biological reactions, see: https://github.com/sys-bio/sidewinder
