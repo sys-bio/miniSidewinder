@@ -13,4 +13,5 @@ The following tools are needed to build miniSidewinder:
 - Delphi 11.1, https://www.embarcadero.com/products/delphi
 - TMS Web Core version 2.0.2 or greater, https://www.tmssoftware.com/site/tmswebcoreintro.asp
 - TMS FNC UI pack, https://www.tmssoftware.com/site/tmsfncuipack.asp
+
 The build incorporates a web assembly (wasm) library libsbml.wasm that may need to be updated from time to time. Please see https://github.com/sys-bio/libsbmljs for further information. Currently the libsbml.wasm and libsbml.js files are kept in the ../sbml/ directory.
