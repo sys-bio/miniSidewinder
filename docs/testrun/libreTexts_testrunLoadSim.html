@@ -59,8 +59,7 @@ var xLabel = 'sec';
 
 <script type="text/javascript">
 window.addEventListener('message',function (event) {
-  // Note: This gets called twice? (Not sure why), first time JSON data not loaded. 
-  if (event.origin != 'https://bio.libretexts.org') {
+    if (event.origin != 'https://bio.libretexts.org') {
     // something not from libretexts domain, ignore it
 	console.log("*****Unknown data :", event.data);
     return;
