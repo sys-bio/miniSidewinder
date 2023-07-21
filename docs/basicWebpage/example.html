@@ -1,4 +1,12 @@
 <html>
+<head>
+<style>
+</style>
+</head> 
+<body>
+<p>
+Below is miniSidewinder demo. 
+</p>
 <script type="text/javascript">
  if (typeof window !== 'undefined') {
   // Perform sessionStorage action
@@ -25,7 +33,6 @@
   getModel(modelURL,newRT,newSS,staticRun,sliders,spPlot,xLabel,yLabel, simURL,newFrame);
   return;
  } 
- 
 async function getModel(modelURL,newRT,newSS,staticRun,sliders,spPlot,xLabel,yLabel,simURL,newFrame) {
 // Load SBML model located at some modelURL:
 //fetch('http://localhost/models/simpleRXN.xml')
@@ -53,31 +60,17 @@ fetch(modelURL)
  } 
  </script> 
  
-<head>
-<style>
-
-#sidewinderFrameSize {
-        border: 3px line;
-        width: 90%;
-        height: 90%;
-    }
-</style>
-</head> 
-<body>
-<p>
-Below is miniSidewinder demo. 
-</p>
- 
  <p>
-  <button onclick="runModelName('sidewinderFrameSize')">Load feedback model, real time sim. </button>
-<!--  <script type="text/javascript"> 
+  <button onclick="runModelName('sidewinderFrame')">Load feedback model, real time sim. </button>
+ <!-- <script type="text/javascript"> 
   // If you want to load simulation upon page load then just call the function directly:
-  runModelName('sidewinderFrameSize');
+  window.onload = function() {
+    runModelName('sidewinderFrame');
+	};
   </script>  -->
  </p>
- 
  <p>
- <iframe id='sidewinderFrameSize' > </iframe> 
+ <iframe id='sidewinderFrame' height="90%" width="90%" > </iframe> 
  </p>
 </body>
 
