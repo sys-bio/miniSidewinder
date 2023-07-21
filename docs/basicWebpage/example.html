@@ -1,0 +1,77 @@
+<html>
+<head>
+<style>
+</style>
+</head> 
+<body>
+<p>
+Below is miniSidewinder demo. 
+</p>
+<script type="text/javascript">
+ if (typeof window !== 'undefined') {
+  // Perform sessionStorage action
+    const item = sessionStorage.getItem('key')
+ }
+
+ async function runModelName(newFrame) { 
+// ******************************************
+// **** Simulation info to fill out: ********
+  const modelURL = '../models/feedback.xml'; // Location of sbml model file on your website
+  const newRT = '10';       // Length of run in model time units
+  const newSS = '0.10';     // integrator step size, total pts = newRt/newSS, 100 points: (10/0.10)
+  const staticRun = 'true'; // Display after all calculations are done.
+  const sliders = 'VM1,Keq1,h,V4, KS4,X0,S1,S2';// Parameter and species sliders, exact id match, '' for first up to 8 params and first 4 species of model.
+  const spPlot = 'S1,S2,S3,S4'; // Species to plot, exact id match, '' for first up to 8 species.
+  const yLabel = 'conc (uM)';   // Plot label, displayed at bottom as: yLabel vs. xLabel
+  const xLabel = 'sec';
+// *** END of Simulation info to fill out ***
+// ******************************************
+//
+// Simulator location (adjust as needed):
+  const simURL = "../simulator/index.html";
+// ******************************************
+  getModel(modelURL,newRT,newSS,staticRun,sliders,spPlot,xLabel,yLabel, simURL,newFrame);
+  return;
+ } 
+async function getModel(modelURL,newRT,newSS,staticRun,sliders,spPlot,xLabel,yLabel,simURL,newFrame) {
+// Load SBML model located at some modelURL:
+//fetch('http://localhost/models/simpleRXN.xml')
+//fetch('models/feedback.xml')
+fetch(modelURL)
+  .then(response => response.text())
+  .then((data) => {
+    //console.log(data);  
+	try {
+     sessionStorage.setItem("MODEL", data);
+     sessionStorage.setItem('RUNTIME', newRT);
+     sessionStorage.setItem('STEPSIZE', newSS);
+     sessionStorage.setItem('STATIC', staticRun);
+     sessionStorage.setItem('SLIDERS', sliders);
+     sessionStorage.setItem('PLOT_SPECIES', spPlot);
+     sessionStorage.setItem('X_LABEL', xLabel);
+     sessionStorage.setItem('Y_LABEL', yLabel); 
+     try { document.getElementById(newFrame).src = simURL + '?'; } // Sim page to put in iFrame.
+	  catch(err) { let errMsg = 'newFrame: ' + newFrame + ', does not match iframe id! ' + err; alert(errMsg); }
+	}
+	catch(err) { console.log('Issue setting simulation parameters: ', err); }
+	
+  })
+  
+ } 
+ </script> 
+ 
+ <p>
+  <button onclick="runModelName('sidewinderFrame')">Load feedback model, real time sim. </button>
+ <!-- <script type="text/javascript"> 
+  // If you want to load simulation upon page load then just call the function directly:
+  window.onload = function() {
+    runModelName('sidewinderFrame');
+	};
+  </script>  -->
+ </p>
+ <p>
+ <iframe id='sidewinderFrame' height="90%" width="90%" > </iframe> 
+ </p>
+</body>
+
+</html>
