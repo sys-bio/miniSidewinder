@@ -1,7 +1,8 @@
 # miniSidewinder
 A client side web application for simulating biological reactions using models written in SBML (Systems Biology Markup Language).
 
-miniSidewinder is a Delphi, Object Pascal based, client-side browser application that makes use of TMS Web Core to convert Delphi to javascript code. The compiled application consists of html, css, javascript, and wasm files and is run completely within the client (user) browser.
+MiniSidewinder is a Delphi, Object Pascal based, client-side browser application that makes use of TMS Web Core to convert Delphi to javascript code. The compiled application consists of html, css, javascript, and wasm files and is run completely within the client (user) browser. This project was funded by NIH/NIGMS (R01-GM123032-04).
+
 - Google sites demo: https://sites.google.com/view/interactive-modeling/home  
 
 - Demo embedded in simple webpage: https://sys-bio.github.io/miniSidewinder/
