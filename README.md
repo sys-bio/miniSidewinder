@@ -11,7 +11,7 @@ MiniSidewinder is a Delphi, Object Pascal based, client-side browser application
 
 ## Using miniSidewinder in your website
 To embed miniSidewinder in your website and simulate SBML models, follow the steps below:
-- Copy the `../simulator/` folder over to a location on your website. This contains the actual miniSidewinder executable code.
+- Copy the `../docs/simulator/` folder over to a location on your website. This contains the actual miniSidewinder executable code.
 - Place your SBML formatted models to a location on your website (ex: /models/)
 - Fill out a copy of `basicTemplate.html` in the `../docs/basicWebpage/` directory and insert it into the webpage on your site. A very basic webpage example is `example.html` and can be viewed through your web browser at https://sys-bio.github.io/miniSidewinder/basicWebpage/example.html
 
