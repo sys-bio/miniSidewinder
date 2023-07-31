@@ -14,7 +14,20 @@ To embed miniSidewinder in your website and simulate SBML models, follow the ste
 - Copy the `../docs/simulator/` folder over to a location on your website. This contains the actual miniSidewinder executable code.
 - Place your SBML formatted models to a location on your website (ex: /models/)
 - Fill out a copy of `basicTemplate.html` in the `../docs/basicWebpage/` directory and insert it into the webpage on your site. A very basic webpage example is `example.html` and can be viewed through your web browser at https://sys-bio.github.io/miniSidewinder/basicWebpage/example.html
-
+- Below is the information you need to fill out in `basicTemplate.html`:
+  
+  - `const modelURL = '../models/sbmlmodelname.xml';` Location of sbml model file on your website.
+  - `const newRT = '10';` Length of run in model time units.
+  - `const newSS = '0.10';` Integrator step size, total pts = newRt/newSS, 100 points: (10/0.10)
+  - `const staticRun = 'true';` Display after all calculations are done.
+  - `const sliders = 'VM1,Keq1,h,V4,S1,S2';` Parameter and species sliders, exact id match, '' defaults to first 8 params and first 4 species of model.
+  - `const spPlot = 'S1,S2,S3,S4';` Species to plot, exact id match, '' defaults to first up to 8 species.
+  - `const yLabel = 'conc (uM)';`   Plot label, displayed at bottom as: yLabel vs. xLabel.
+  - `const xLabel = 'sec';`
+  
+  Simulator location on web server (adjust as needed):
+  - `const simURL = "../simulator/index.html"; `
+   
 If you want to place the miniSidewinder code on a different server from the model webpage then you must deal with Same-origin policy for browsers.  See: Same-origin policy [mozilla.org] (https://developer.mozilla.org/en-US/docs/Web/Security/Same-origin_policy) . For an example of a work around, see our implementation on Google Sites: https://sites.google.com/view/interactive-modeling/home . In the Google Sites example miniSidewinder and the SBML model file are on a different website (GitHub) from the model webpage. The web page code and template is in the `../docs/sysbiomodels/` directory. The pertinent files are `sysbioLoadSim.html` and `sysbioTemplate.html`.
 
 ## Building miniSidewinder
