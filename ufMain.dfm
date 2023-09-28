@@ -199,8 +199,8 @@ object MainForm: TMainForm
       object lblSpeedMult: TWebLabel
         Left = 10
         Top = 5
-        Width = 112
-        Height = 15
+        Width = 142
+        Height = 20
         Hint = 'Speed up/down simulation'
         Caption = 'Sim Speed Multiplier:'
         HeightPercent = 100.000000000000000000
@@ -209,8 +209,8 @@ object MainForm: TMainForm
       object lblSpeedMultVal: TWebLabel
         Left = 112
         Top = 5
-        Width = 12
-        Height = 15
+        Width = 15
+        Height = 20
         Caption = '1x'
         HeightPercent = 100.000000000000000000
         WidthPercent = 100.000000000000000000
@@ -218,8 +218,8 @@ object MainForm: TMainForm
       object lblSpeedMultMin: TWebLabel
         Left = 10
         Top = 23
-        Width = 21
-        Height = 15
+        Width = 26
+        Height = 20
         Caption = '0.1x'
         HeightPercent = 100.000000000000000000
         WidthPercent = 100.000000000000000000
@@ -227,8 +227,8 @@ object MainForm: TMainForm
       object lblSpeedMultMax: TWebLabel
         Left = 115
         Top = 23
-        Width = 12
-        Height = 15
+        Width = 15
+        Height = 20
         Caption = '3x'
         HeightPercent = 100.000000000000000000
         WidthPercent = 100.000000000000000000
@@ -261,8 +261,8 @@ object MainForm: TMainForm
       object lblRunTime: TWebLabel
         Left = 5
         Top = 5
-        Width = 53
-        Height = 15
+        Width = 65
+        Height = 20
         Caption = 'Run Time:'
         HeightPercent = 100.000000000000000000
         WidthPercent = 100.000000000000000000
