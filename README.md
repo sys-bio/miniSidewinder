@@ -43,7 +43,6 @@ MiniSidewinder does not support the full SBML specification (https://sbml.org/do
 - There are no SBML packages supported.
 - SBML **piecewise** and **event** objects are unsupported.
 - There currently is no support for reactions that involve species in different compartments.
-- Many MathML contructs are currently not supported, such as **piece, factorial, sin, cos, tan, sec, csc, cot sech, csch, coth, arcsin, arccos,
- arctan, arcsec, arccsc, arccot, arcsinh, arccosh, arctanh, arcsech, arccsch, arccoth**.
+- Currently supported MathML constructs: **pow, ln, log, exp, abs, pi**.
 
 Please submit an **Issue** if you would like an unsupport SBML feature added to miniSidewinder. As time permits, new features will be added.
