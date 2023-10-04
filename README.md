@@ -45,4 +45,4 @@ MiniSidewinder does not support the full SBML specification (https://sbml.org/do
 - There currently is no support for reactions that involve species in different compartments.
 - Currently supported MathML constructs: **pow, ln, log, exp, abs, pi**.
 
-Please submit an **Issue** if you would like an unsupport SBML feature added to miniSidewinder. As time permits, new features will be added.
+Please submit an **Issue** if you would like an unsupported SBML feature added to miniSidewinder. As time permits, new features are added.
