@@ -524,7 +524,7 @@ begin
   curTime := self.getCurrTime; // ?
   self.currSpeciesInitVals.Free;
   self.currSpeciesInitVals := TVarNameValList.create;
-  self.currSpeciesInitVals.copy(self.runSim.getS_Vals);
+  self.currSpeciesInitVals.copy(self.runSim.getS_NameValList);
   self.createSimulation();
   self.setCurrTime(curTime);
   for i := 0 to length(self.sbmlmodel.getS_initVals) -1 do
