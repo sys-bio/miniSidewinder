@@ -80,7 +80,7 @@ type
    function  getSBMLspecies(i:integer): TSBMLSpecies; overload;
    function  getSBMLspecies(spId:string): TSBMLSpecies; overload;
    function  getSBMLspeciesAr(): array of TSBMLSpecies;  // All species
-   function  getSBML_BC_SpeciesAr(): array of TSBMLSpecies; // Just species listed as boundary condition for a species
+   function  getSBML_BC_SpeciesAr(): array of TSBMLSpecies; // Just species listed as boundary condition and constant for a species
    function  getSBMLFloatSpeciesAr(): array of TSBMLSpecies;  // return species that are not a bc or amt (not conc) is constant.
    function  getCompNumb(): integer;
    function  getSBMLcompartmentsArr(): array of TSBMLcompartment;
@@ -325,7 +325,7 @@ procedure TModel.SBML_UpdateEvent();
    Result:= self.modelFuncDefList;
  end;
 
-
+ // Need to fix this to support general FuncDefs and work with rate and assignment rules   <-----------------------------------
  // Convert any SBML func defs that are used for reaction kinetic laws:
  // Used to generate list of ODE equations to integrate.
 function TModel.convertFuncDefToKineticLaw(sKineticLaw: string): string;
@@ -343,7 +343,7 @@ begin
       formula := '';
       if strNewKLaw.Contains(self.modelFuncDefList[i].getId) then
         begin
-        formula := '(' + self.modelFuncDefList[i].getFuncFormula + ')';
+        formula := '(' + self.modelFuncDefList[i].getFuncFormula + ')'; //<-- Need a func to replace all func var ids with kinetic var ids.
         strNewKLaw := strNewKLaw.Replace(self.modelFuncDefList[i].getFullFuncLabel, formula);
         end;
 
@@ -392,14 +392,14 @@ end;
    Result:= nil;
  end;
 
- // Just species listed as boundary condition for a species
+ // Just species listed as boundary condition and is constant for a species
  function TModel.getSBML_BC_SpeciesAr(): array of TSBMLSpecies;
  var i, j: integer;
  begin
   j := 0;
   for i := 0 to Length(self.modelSpecies)-1 do
      begin
-       if self.modelSpecies[i].getBoundaryCondition() then
+       if self.modelSpecies[i].getBoundaryCondition() and self.modelSpecies[i].getConstant then
        begin
          Result[j] := TSBMLSpecies.create(self.modelSpecies[i]);
          inc(j);
@@ -408,14 +408,15 @@ end;
      end;
  end;
 
- // return species that are not a bc or amt (not conc) is constant.
+ // return species that amt (not conc) is not constant.
  function TModel.getSBMLFloatSpeciesAr(): array of TSBMLSpecies;
  var i, j: integer;
  begin
   j := 0;
   for i := 0 to Length(self.modelSpecies)-1 do
      begin
-       if Not(self.modelSpecies[i].getBoundaryCondition) and Not( self.modelSpecies[i].getConstant) then
+      // if Not(self.modelSpecies[i].getBoundaryCondition) and Not( self.modelSpecies[i].getConstant) then
+       if Not( self.modelSpecies[i].getConstant) then
        begin
          Result[j] := TSBMLSpecies.create(self.modelSpecies[i]);
          inc(j);
