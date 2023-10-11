@@ -820,8 +820,8 @@ begin
       end;
     end;
 
-  if (not bSliderInList) and  (length(self.varForSliders) < 1)
-    then self.addAllSpeciesSliders; // No sliders added and prepopulated list is empty.
+ // if (not bSliderInList) and  (length(self.varForSliders) < 1)    ???? why is thi here ?
+ //   then self.addAllSpeciesSliders; // No sliders added and prepopulated list is empty.
   self.varForSliders := ''; // clear it out, assumes all par sliders have been set up
 
 end;
