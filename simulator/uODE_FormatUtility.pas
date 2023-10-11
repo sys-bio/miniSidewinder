@@ -4,6 +4,7 @@ unit uODE_FormatUtility;
 // An array of equation strings with the names replaced with simple array names.
 // array lists is in same order ans size as lists of species and parameters that were passed in.
 // Convert basic math functions to javascript notation (ie pow() -> Math.pow() )
+// * Only support species rate rule for now.
 
 interface
 uses System.SysUtils, System.StrUtils, System.Types, web, uSBMLClasses, uModel,
@@ -34,6 +35,9 @@ TFormatODEs = class
   function  buildODE_LHS( rxn: SBMLreaction ): array of String; // build the 'dydt_s[]=' or '-dydt_s[]=', store in rhsSymbols
   function  getODEeqLoc(Speciesdydt : String): Integer; // return index of Species in odeEqs.
   procedure BuildAssignmentEqs(model: TModel);
+  procedure Buildeqs(model: TModel); // Build Assignment, rate rules and reaction ->kinetic Law equations for each species.
+  function  replaceVarStrWithIndex( lhsSymbol: String; spStrAr: array of String ): String;
+  function replaceSymbolsInRxnEq(newODE: String; newRxnComp: String; lhsSymbols: array of String; count: Integer ): Integer;
   procedure buildInitialAssignEqs(model: TModel); // generate init Assignment eqs (valid only at t=0).
   function spBoundaryCondition(speciesId: String): boolean;
 
@@ -65,13 +69,7 @@ function JSMathConvert(eqStr: String): String;
 implementation
 
 constructor TFormatODEs.create (model: TModel);
-var i, j,k,  count: Integer;
-    curODE: String;
-    odeStrs: array of String;
-    lhsSymbols: array of String; // contains the 'dydt_s[]=' argument.
-    found_dydt: Integer;
-    splitStrAr: TStringDynArray;
-    rxnComp: string;  // compartment id that rxn is in
+var i, j,k: Integer;
 begin
   self.assignParamEqs := nil;
   self.assignSpeciesEqs := nil;
@@ -80,8 +78,6 @@ begin
   setLength(self.speciesAr,Length(model.getSBMLspeciesAr()));
   self.speciesAr := model.getSBMLspeciesAr();
   setLength(paramsStrAr, Length(model.getSBMLparameterAr()));
-  setLength(odeStrs, model.getNumReactions());
-  count := 0;
   self.speciesStrAr := model.getS_Names;
   self.sVals := model.getS_Vals;
   self.paramsStrAr := model.getP_Names;
@@ -90,43 +86,145 @@ begin
   self.buildInitialAssignEqs(model);
   //self.compartments := TList<String>.create;
   // *******************************************************************
-  // go through each reaction eq and replace all species and params in arrays:
-  rxns:= Copy(model.getReactions(), 0, model.getNumReactions());
-  for j := 0 to Length(rxns)-1 do
-      begin
-      rxnComp := '';
-      if rxns[j].isSetKineticLaw() then
-         begin
-         lhsSymbols := buildODE_LHS(rxns[j]);  // check if existing LHS, then just // add eq to it.
-         curODE := rxns[j].getKineticLaw().getFormula();
-         curODE := model.convertFuncDefToKineticLaw(curODE); // Get any Func Def that kin law uses, and substiute
-         end
-      else odeStrs[j] := '';
-      if rxns[j].isSetCompartment then
-        begin
-        rxnComp := rxns[j].getCompartment;
-      //  if not self.compartments.Contains(rxnComp) then
-      //    self.compartments.Add(rxnComp);
-        end;
-      // For equations using species concentrations then need compartment in denomenator:
-      //  ds/st = 1/Comp * (curODE);
-      if rxnComp <> '' then
-         curODE := '(1/' + rxnComp + ') *(' + curODE + ')';
-     // console.log(' TFormatODEs.create: ', curODE);
-      odeStrs[j] := replaceStrNames(speciesStrAr, curODE,'s');
-      odeStrs[j] := replaceStrNames(paramsStrAr, odeStrs[j],'p');
-      setLength (odeEqs,length(lhsSymbols) + count);
+  // put Assignment rules, rate rules, reaction.kinetic laws into a list of eqs to be solved by integrator (LSODA):
+  self.Buildeqs(model);
 
+end;
+
+procedure TFormatODEs.BuildEqs(model: TModel); // Build rate rules and reaction ->kinetic Law equations for each species.
+var i, j,k,  count: Integer;
+    curODE ,odeStr, templhsStr, tempSp: String;
+    lhsSymbols: array of String; // contains the 'dydt_s[]=' argument.
+    splitStrAr: TStringDynArray;
+    rxnComp: string;  // compartment id that rxn is in
+begin
+  count := 0;
+  lhsSymbols := nil;
+ // go through each rate rule and reaction eq and replace all species and params in arrays:
+ // Rate rules:
+  for j := 0 to Length(model.getSBMLmodelRules) -1 do
+    begin
+    curODE := '';
+    templhsStr := '';
+    if model.getSBMLRule(j).isRate then
+      begin
+      if model.getSBMLRule(j).isSetFormula then
+        begin   // Only support species rate rule for now:
+        if model.getSBMLRule(j).isSpeciesConcentration or model.getSBMLRule(j).isSpeciesReference then
+          begin
+          SetLength(lhsSymbols, length(lhsSymbols) +1);
+          curODE := model.getSBMLRule(j).getFormula;
+          curODE := model.convertFuncDefToKineticLaw(curODE); // Get any Func Def that rate rule uses, and substiute
+          lhsSymbols[length(lhsSymbols)-1] := ODESTART + model.getSBMLRule(j).getVariable + ']= ';
+          curODE := '(' + curODE + ')';
+          odeStr := replaceStrNames(self.speciesStrAr, curODE,'s');// Replace names in string with array names ('species1' -> 's[0]')
+          odeStr := replaceStrNames(self.paramsStrAr, odeStr,'p');
+
+          templhsStr := replaceVarStrWithIndex( lhsSymbols[length(lhsSymbols)-1], self.speciesStrAr );
+          console.log('LHS: ', templhsStr);
+          odeStr := templhsStr + odeStr; // equate lhs with odeStr
+          count := length(lhsSymbols);
+          setLength (self.odeEqs,length(lhsSymbols));
+          self.odeEqs[length(lhsSymbols)-1] := odeStr;
+          end;
+        end;
+
+      end;
+
+    end;
+
+
+ // setLength(odeStrs, model.getNumReactions());
+  self.rxns:= Copy(model.getReactions(), 0, model.getNumReactions());
+  for j := 0 to Length(rxns)-1 do
+    begin
+    rxnComp := '';
+    if rxns[j].isSetKineticLaw() then
+       begin
+       lhsSymbols := buildODE_LHS(rxns[j]);  // check if existing LHS, then just // add eq to it.
+       curODE := rxns[j].getKineticLaw().getFormula();
+       curODE := model.convertFuncDefToKineticLaw(curODE); // Get any Func Def that kin law uses, and substiute
+       end;
+    // else odeStrs[j] := '';
+    if rxns[j].isSetCompartment then
+      begin
+      rxnComp := rxns[j].getCompartment;
+    //  if not self.compartments.Contains(rxnComp) then
+    //    self.compartments.Add(rxnComp);
+      end;
+    setLength (self.odeEqs,length(lhsSymbols) + count);
+  // Make a Common function call:
+    count := self.replaceSymbolsInRxnEq(curODE, rxnComp, lhsSymbols, count);
+
+    end;
+  // *********************************************************************************
+  // Now replace math operators in all equations, including assignment rules:
+  for i := 0 to Length(odeEqs)-1 do
+      begin
+      self.odeEqs[i] := JSMathConvert(odeEqs[i]);
+      end;
+  buildLSODAeqs();
+
+end;
+
+   // spStrAr: array of variable names, return array index of posiiton where name found in lhsSymbol.
+ function TFormatODEs.replaceVarStrWithIndex( lhsSymbol: String; spStrAr: array of String ): String;
+ var i: integer;
+    newLHS: String;
+    tempSp: String;
+    found: boolean;
+ begin
+   Result := '';
+   newLHS := '';
+   found := false;
+   for i := 0 to length(spStrAr) -1 do
+            begin
+            if not found then
+              begin
+              if lhsSymbol.Contains(spStrAr[i]) then
+                begin
+                tempSp := intToStr(i);
+                newLHS := StringReplace(lhsSymbol, spStrAr[i], tempSp,[] );
+                console.log('LHS: ', newLHS);
+                found := true;
+                end;
+              end;
+            end;
+   Result := newLHS;
+ end;
+
+
+
+// Find all Species in Rxns and insert rate law eqs based on whether product or reactant.
+// Ex: S1 -> S2; (10 * S1 - 2 * S2) / (1 + S1 + S2);
+// dS1/dt = - (10 * S1 - 2 * S2) / (1 + S1 + S2)
+// dS2/dt =  (10 * S1 - 2 * S2) / (1 + S1 + S2);
+function TFormatODEs.replaceSymbolsInRxnEq(newODE: String; newRxnComp: String; lhsSymbols: array of String; count: Integer ): Integer;
+var k: Integer;
+    odeStr: String;
+    found_dydt: Integer;
+    splitStrAr: TStringDynArray;
+begin
+  odeStr := '';
+  // For equations using species concentrations then need compartment in denomenator:
+  //  ds/st = 1/Comp * (curODE);
+  if newRxnComp <> '' then
+     newODE := '(1/' + newRxnComp + ') *(' + newODE + ')';
+  // console.log(' TFormatODEs.create: ', curODE);
+  odeStr := replaceStrNames(self.speciesStrAr, newODE,'s');// Replace names in string with array names ('species1' -> 's[0]')
+  odeStr := replaceStrNames(self.paramsStrAr, odeStr,'p');
+  // setLength (odeEqs,length(lhsSymbols) + count);
+      found_dydt := -1; // not found
       for k := 0 to length(lhsSymbols)-1 do
           begin
-          found_dydt :=  getODEeqLoc(lhsSymbols[k] );
+          found_dydt :=  self.getODEeqLoc(lhsSymbols[k] );
          // console.log(' found_dydt: ', found_dydt);
           if found_dydt < 0 then // not found
              begin
              if lhsSymbols[k] = '' then
                 self.odeEqs[count] := ''   // Do not add ODE eq for this species
              else
-                self.odeEqs[count] := lhsSymbols[k] + odeStrs[j] + ')';  // rhs inclosed in perenthesis.
+                self.odeEqs[count] := lhsSymbols[k] + odeStr + ')';  // rhs inclosed in perenthesis.
              count := count + 1;  // count: Total number of eqs: Sum(prod+reactants per rxn)
              end
           else
@@ -138,7 +236,7 @@ begin
             if Length(splitStrAr) > 1 then
               begin
             //  console.log('-1 on lhs: ', splitStrAr[1]);
-               self.odeEqs[found_dydt] := self.odeEqs[found_dydt] + '+ ' + splitStrAr[1]+ odeStrs[j] + ')' ;
+               self.odeEqs[found_dydt] := self.odeEqs[found_dydt] + '+ ' + splitStrAr[1]+ odeStr + ')' ;
               end;
 
             end
@@ -147,19 +245,12 @@ begin
             //splitStrAr := nil;
             //splitStrAr := SplitString(lhsSymbols[k],'='); // grab the stoich coeff
             if Length(splitStrAr) > 1 then
-              self.odeEqs[found_dydt] := self.odeEqs[found_dydt] + '+ ' + splitStrAr[1] + odeStrs[j] + ')';
+              self.odeEqs[found_dydt] := self.odeEqs[found_dydt] + '+ ' + splitStrAr[1] + odeStr + ')';
             end;
          // console.log('current odeEqs: ', self.odeEqs[found_dydt]);
           end;
         end;
-      end;
-
-  // Now replace math operators:
-  for i := 0 to Length(odeEqs)-1 do
-      begin
-      odeEqs[i] := JSMathConvert(odeEqs[i]);
-      end;
-  buildLSODAeqs();
+  Result := count;
 end;
 
 
@@ -436,9 +527,11 @@ end;
     replStr:String;
     editStr: String;
    begin
-   for i := 0 to Length(self.odeEqs)-1 do
+   for j := 0 to Length(self.svals)-1 do
+  // for i := 0 to Length(self.odeEqs)-1 do
      begin
-     for j := 0 to Length(self.svals)-1 do
+     for i := 0 to Length(self.odeEqs)-1 do
+     //for j := 0 to Length(self.svals)-1 do
        begin
        editStr:= 'dydt_s['+intToStr(j)+']=';
        replStr:= 'dydt_s.setVal('+intToStr(j+1)+','; // LSODA Uses TVector which start at 1, not 0.
@@ -455,6 +548,7 @@ end;
  procedure TFormatODEs.BuildAssignmentEqs(model: TModel);
  var i : integer;
      currString: String;
+     currLHS, templhsStr: string;
      rules: array of TSBMLrule;
  begin
    rules:= model.getSBMLmodelRules();
@@ -463,17 +557,31 @@ end;
      for i := 0 to Length(rules) - 1 do
        begin
          currString:= '';
+         currLHS := '';
          if rules[i].isAssignment then
          begin
 
            if rules[i].isSetVariable then
            begin
-             currString:= rules[i].getVariable() + ' = '; // Start building assignment
+           templhsStr := '';
+             //currLHS := rules[i].getVariable() + '= '; // Start building assignment
+             if rules[i].isSpeciesConcentration() or rules[i].isSpeciesReference then
+               begin
+               currLHS := 's['+ rules[i].getVariable() + ']= '; // Start building assignment
+               templhsStr := self.replaceVarStrWithIndex( currLHS, self.speciesStrAr ); // replace spname with s[#]
+               console.log('templhsStr: ', templhsStr);
+               end
+             else if rules[i].isParameter then
+               begin
+               currLHS := 'p[' + rules[i].getVariable() + ']= '; // Start building assignment p[#]=
+               templhsStr := self.replaceVarStrWithIndex( currLHS, self.paramsStrAr );
+               end;
              if rules[i].isSetFormula then
                currString:= currString + rules[i].getFormula()
              else currString:= currString + '0';
              currString:= replaceStrNames(self.speciesStrAr, currString,'s');
              currString:= replaceStrNames(self.paramsStrAr, currString,'p');
+             currString := templhsStr + currString;
              currString:= JSMathConvert(currString);
            end;
            if rules[i].isParameter then
@@ -482,7 +590,7 @@ end;
              self.assignParamEqs[Length(assignParamEqs)-1]:= currString;
             // console.log(' param Assign eq: ',self.assignParamEqs[Length(assignParamEqs)-1]);
            end
-           else if rules[i].isSpeciesConcentration then
+           else if rules[i].isSpeciesConcentration or rules[i].isSpeciesReference then
                 begin
                   SetLength(self.assignSpeciesEqs, Length(self.assignSpeciesEqs)+1);
                   self.assignSpeciesEqs[Length(self.assignSpeciesEqs)-1]:= currString;
@@ -541,22 +649,71 @@ end;
  end;
    // Build up final ODE eqs list as one string for use by solver
  procedure TFormatODEs.buildFinalEqSet();
- var i:Integer;
+ var i,lsodaInt:Integer;
+     leftHS: string;
+     leftHS_2, tempStr: String;
+     tempStrAr: TArray<String>;
+     spArValStr: TArray<String>;
+     spArNum: string;
+     delimitAr : Array[0..1] of Char;
  begin
   self.odeEqSet:= '';
+  leftHS_2 := '';
   self.odeEqSet2:= self.odeEqSet2 + 'let dydt_s = pas.uVector.TVector.$create("create$1",[s.length]); ';  // Eq set for LSODA
 
-  if Length(self.assignParamEqs)>0 then
-  begin
-    for i := 0 to Length(self.assignParamEqs)-1 do
+  // Stick parameter and species assignments in front of ODE calcs:
+   if Length(self.assignParamEqs)>0 then
+   begin
+     for i := 0 to Length(self.assignParamEqs)-1 do
+     begin
+       self.odeEqSet:= self.odeEqSet + self.assignParamEqs[i] + ';' ;
+       self.odeEqSet2:= self.odeEqSet2 + self.assignParamEqs[i] + ';' ;
+     end;
+
+   end;
+
+  // Make Species Assignment rules into differences, so only the change is returned, to match the ODEs.
+  // NO: Thinking too much, remove this part. Assignments are calculated in uSimulation -> updateAssignedSValues()
+  //if Length(self.assignSpeciesEqs) >0 then
+  //  begin
+ {   for i := 0 to Length(self.assignSpeciesEqs)-1 do
     begin
-      self.odeEqSet:= self.odeEqSet + self.assignParamEqs[i] + ';' ;
-      self.odeEqSet2:= self.odeEqSet2 + self.assignParamEqs[i] + ';' ;
-    end;
+     // tempStrAr := ;
+      delimitAr[0] := '[';
+      delimitAr[1] := ']';
+      spArNum := '';
+      leftHs := '';
+      tempStrAr := SplitString(self.assignSpeciesEqs[i],'=');// tempStrAr[0] = 's[#]'
+      if length(tempStrAr) = 2 then
+        begin
+        spArValStr := trim(tempStrAr[0]).Split( delimitAr);
+        if Length(spArValStr) > 1 then
+          begin
+          try
+           lsodaInt := strToInt(spArValStr[1]);
+           spArNum := spArValStr[1];
+          except
+            on Exception : EConvertError do
+            console.log('uODE_FormatUtility, issue with forming assignment rule');
+          end;
 
-  end;
+          end;
+        leftHS := ODESTART + spArNum +']= ' + tempStrAr[0]+' - ('+ tempStrAr[1]+'));';     // does not work: spArNum
+        inc(lsodaInt); // LSODA algo array starts at 1 not 0:
+        leftHS_2 := 'dydt_s.setVal(' + intToStr(lsodaInt) + ',(' + tempStrAr[0] +' - ('+ tempStrAr[1]+')));';
+        console.log('spArNum:',spArNum);
+        console.log('leftHS_2:', leftHS_2);
+        console.log('tempStrAr[0]',tempStrAr[0]);
+        console.log('tempStrAr[1]',tempStrAr[1]);
 
-  for i := 0 to Length(self.ODEeqs)-1 do
+        end;
+
+      // self.odeEqSet:= self.odeEqSet + leftHS;
+      // self.odeEqSet2:= self.odeEqSet2 + leftHS_2;  // do not use for now
+      // self.odeEqSet2:= self.odeEqSet2 + self.assignSpeciesEqs[i] + ';';
+    end; }
+
+   for i := 0 to Length(self.ODEeqs)-1 do
     begin
       if Length(self.ODEeqs[i])>1 then  // Do not add empty statements
       begin
@@ -568,8 +725,6 @@ end;
     // Run Simulation using info from odeFormat:
    odeEqSet:= odeEqSet + ' return dydt_s ;' ;
    odeEqSet2:= odeEqSet2 + ' return dydt_s;';  // Add eqs LSODA list.
-  // console.log('*** Final odeEqSetVal: *****');
-  // console.log(odeEqSet);
   // console.log(' ** LSODA eqs: **');
   // console.log(odeEqSet2);
  end;
