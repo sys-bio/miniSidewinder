@@ -6,7 +6,7 @@
       <compartment id="COMpartment_" spatialDimensions="3" size="1" constant="true"/>
     </listOfCompartments>
     <listOfSpecies>
-      <species id="S1" compartment="COMpartment_" initialConcentration="10" hasOnlySubstanceUnits="false" boundaryCondition="true" constant="false"/>
+      <species id="S1" compartment="COMpartment_" initialConcentration="1" hasOnlySubstanceUnits="false" boundaryCondition="true" constant="false"/>
       <species id="S2" compartment="COMpartment_" initialConcentration="2" hasOnlySubstanceUnits="false" boundaryCondition="true" constant="false"/>
       <species id="S3" compartment="COMpartment_" hasOnlySubstanceUnits="false" boundaryCondition="true" constant="false"/>
     </listOfSpecies>
@@ -22,7 +22,6 @@
             <times/>
             <ci> k1 </ci>
             <ci> S2 </ci>
-            <ci> tau4 </ci>
           </apply>
         </math>
       </rateRule>
