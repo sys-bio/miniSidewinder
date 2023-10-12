@@ -242,7 +242,7 @@ getRules(tModela, tRule) {
     return tModela;
   }
 
-  getReactions(tModela){
+  getReactions(tModela){   // does not check if species stoich is constant or not
     var i;
     for( i=0; i< this.model.getNumReactions(); i++) {
       var numTotalSpecies;

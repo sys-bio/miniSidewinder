@@ -80,7 +80,7 @@ type
    function  getSBMLspecies(i:integer): TSBMLSpecies; overload;
    function  getSBMLspecies(spId:string): TSBMLSpecies; overload;
    function  getSBMLspeciesAr(): array of TSBMLSpecies;  // All species
-   function  getSBML_BC_SpeciesAr(): array of TSBMLSpecies; // Just species listed as boundary condition and constant for a species
+   function  getSBML_ConstBC_SpeciesAr(): array of TSBMLSpecies; // Just species listed as boundary condition and constant for a species
    function  getSBMLFloatSpeciesAr(): array of TSBMLSpecies;  // return species that are not a bc or amt (not conc) is constant.
    function  getCompNumb(): integer;
    function  getSBMLcompartmentsArr(): array of TSBMLcompartment;
@@ -393,7 +393,7 @@ end;
  end;
 
  // Just species listed as boundary condition and is constant for a species
- function TModel.getSBML_BC_SpeciesAr(): array of TSBMLSpecies;
+ function TModel.getSBML_ConstBC_SpeciesAr(): array of TSBMLSpecies;
  var i, j: integer;
  begin
   j := 0;
@@ -674,11 +674,13 @@ begin
        self.p_NameValAr.Add(currNameVal);
        end;
 
-     // now look at species, put species boundary conditions and species constants in parameter list.
+   // now look at species, put species that are a boundary condition and constant in parameter list.
+   // All other species will be in species list in case (initial)assignments, rate rules what to change them.
   for i := 0 to Length(self.getSBMLspeciesAr())-1 do
       begin
 
-      if self.getSBMLspeciesAr()[i].getBoundaryCondition or self.getSBMLspeciesAr()[i].getConstant then
+   //   if self.getSBMLspeciesAr()[i].getBoundaryCondition or self.getSBMLspeciesAr()[i].getConstant then
+      if self.getSBMLspeciesAr()[i].getBoundaryCondition and self.getSBMLspeciesAr()[i].getConstant then
         begin
           currNameVal := TVarNameVal.create();
           paramLen := Length(p_Names);

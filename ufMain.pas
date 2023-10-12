@@ -2374,14 +2374,14 @@ begin
       end;
     end;
 
-  boundarySpeciesAr := self.mainController.getModel.getSBML_BC_SpeciesAr;
+  boundarySpeciesAr := self.mainController.getModel.getSBML_ConstBC_SpeciesAr;
   for i := 0 to length(boundarySpeciesAr) -1 do
     begin
     temp := '';
     curId := '';
     curVal := 0.0;
     curId := boundarySpeciesAr[i].getId;
-    temp := 'Boundary species ' + curId + ' = ';
+    temp := 'Const boundary species ' + curId + ' = ';
     if self.mainController.getModel.getInitialAssignmentWithSymbolId(curId) <> nil then
       begin
       temp := temp + self.mainController.getModel.getInitialAssignmentWithSymbolId(curId).getFormula;
