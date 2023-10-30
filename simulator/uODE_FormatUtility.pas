@@ -19,7 +19,7 @@ TFormatODEs = class
     odeEqSet:String;  // Contains all eqs as one String
     odeEqSet2:String; // LSODA specific
     assignParamEqs: array of String; // List of SBML param assignment formulas, to be added to final odeEqSet.
-    assignSpeciesEqs: array of String; // List of SBML spec assignment formulas, to be added to final odeEqSet.
+    assignSpeciesEqs: array of String; // List of SBML spec assignment formulas, to be added to final odeEqSet
     initialAssignParamEqs: TList<string>; // Only used at t=0
     initialAssignSpeciesEqs: TList<string>;//  "          "
     rxns: array of SBMLreaction;
@@ -106,10 +106,10 @@ begin
     begin
     curODE := '';
     templhsStr := '';
-    if model.getSBMLRule(j).isRate then
+    if model.getSBMLRule(j).isRate then  // CHeck if rate rule.
       begin
       if model.getSBMLRule(j).isSetFormula then
-        begin   // Only support species rate rule for now:
+        begin                            // Only support species rate rules.
         if model.getSBMLRule(j).isSpeciesConcentration or model.getSBMLRule(j).isSpeciesReference then
           begin
           SetLength(lhsSymbols, length(lhsSymbols) +1);
@@ -128,13 +128,10 @@ begin
           self.odeEqs[length(lhsSymbols)-1] := odeStr;
           end;
         end;
-
       end;
-
     end;
 
-
- // setLength(odeStrs, model.getNumReactions());
+ // Get reactions:
   self.rxns:= Copy(model.getReactions(), 0, model.getNumReactions());
   for j := 0 to Length(rxns)-1 do
     begin
@@ -145,7 +142,6 @@ begin
        curODE := rxns[j].getKineticLaw().getFormula();
        curODE := model.convertFuncDefToKineticLaw(curODE); // Get any Func Def that kin law uses, and substiute
        end;
-    // else odeStrs[j] := '';
     if rxns[j].isSetCompartment then
       begin
       rxnComp := rxns[j].getCompartment;
@@ -621,7 +617,6 @@ end;
        begin
        curEq:= '';
        curSymbol := model.getInitialAssignment(i).getSymbol;
-       //if model.isParameterIdinList(curSymbol) then
        if curSymbol <> '' then
          begin
          curEq:= model.getInitialAssignment(i).getSymbol + ' = '; // Start building assignment
@@ -640,11 +635,8 @@ end;
             self.initialAssignSpeciesEqs.Add(curEq);
 
          end;
-
        end;
-
      end;
-
 
  end;
    // Build up final ODE eqs list as one string for use by solver
@@ -672,46 +664,15 @@ end;
 
    end;
 
-  // Make Species Assignment rules into differences, so only the change is returned, to match the ODEs.
-  // NO: Thinking too much, remove this part. Assignments are calculated in uSimulation -> updateAssignedSValues()
-  //if Length(self.assignSpeciesEqs) >0 then
-  //  begin
- {   for i := 0 to Length(self.assignSpeciesEqs)-1 do
-    begin
-     // tempStrAr := ;
-      delimitAr[0] := '[';
-      delimitAr[1] := ']';
-      spArNum := '';
-      leftHs := '';
-      tempStrAr := SplitString(self.assignSpeciesEqs[i],'=');// tempStrAr[0] = 's[#]'
-      if length(tempStrAr) = 2 then
-        begin
-        spArValStr := trim(tempStrAr[0]).Split( delimitAr);
-        if Length(spArValStr) > 1 then
-          begin
-          try
-           lsodaInt := strToInt(spArValStr[1]);
-           spArNum := spArValStr[1];
-          except
-            on Exception : EConvertError do
-            console.log('uODE_FormatUtility, issue with forming assignment rule');
-          end;
+   if Length(self.assignSpeciesEqs)>0 then
+   begin
+     for i := 0 to Length(self.assignSpeciesEqs)-1 do
+     begin
+       self.odeEqSet:= self.odeEqSet + self.assignSpeciesEqs[i] + ';' ;
+       self.odeEqSet2:= self.odeEqSet2 + self.assignSpeciesEqs[i] + ';' ;
+     end;
 
-          end;
-        leftHS := ODESTART + spArNum +']= ' + tempStrAr[0]+' - ('+ tempStrAr[1]+'));';     // does not work: spArNum
-        inc(lsodaInt); // LSODA algo array starts at 1 not 0:
-        leftHS_2 := 'dydt_s.setVal(' + intToStr(lsodaInt) + ',(' + tempStrAr[0] +' - ('+ tempStrAr[1]+')));';
-        console.log('spArNum:',spArNum);
-        console.log('leftHS_2:', leftHS_2);
-        console.log('tempStrAr[0]',tempStrAr[0]);
-        console.log('tempStrAr[1]',tempStrAr[1]);
-
-        end;
-
-      // self.odeEqSet:= self.odeEqSet + leftHS;
-      // self.odeEqSet2:= self.odeEqSet2 + leftHS_2;  // do not use for now
-      // self.odeEqSet2:= self.odeEqSet2 + self.assignSpeciesEqs[i] + ';';
-    end; }
+   end;
 
    for i := 0 to Length(self.ODEeqs)-1 do
     begin
