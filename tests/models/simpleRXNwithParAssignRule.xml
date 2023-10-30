@@ -8,14 +8,14 @@
     <listOfSpecies>
       <species id="S1" compartment="default_compartment" initialConcentration="10" hasOnlySubstanceUnits="false" boundaryCondition="false" constant="false"/>
       <species id="S2" compartment="default_compartment" initialConcentration="10" hasOnlySubstanceUnits="false" boundaryCondition="false" constant="false"/>
-      <species id="S3" compartment="default_compartment" hasOnlySubstanceUnits="false" boundaryCondition="false" constant="false"/>
     </listOfSpecies>
     <listOfParameters>
-      <parameter id="tau" value="0.2" constant="true"/>
-      <parameter id="k1" value="0.1" constant="true"/>
+      <parameter id="p3" constant="false"/>
+      <parameter id="tau" value="0.4" constant="true"/>
+      <parameter id="k1" value="0.2" constant="true"/>
     </listOfParameters>
     <listOfRules>
-      <assignmentRule variable="S3">
+      <assignmentRule variable="p3">
         <math xmlns="http://www.w3.org/1998/Math/MathML">
           <apply>
             <times/>
@@ -33,9 +33,6 @@
         <listOfProducts>
           <speciesReference species="S2" stoichiometry="1" constant="true"/>
         </listOfProducts>
-        <listOfModifiers>
-          <modifierSpeciesReference species="S3"/>
-        </listOfModifiers>
         <kineticLaw>
           <math xmlns="http://www.w3.org/1998/Math/MathML">
             <apply>
@@ -45,7 +42,7 @@
                 <ci> k1 </ci>
                 <ci> S1 </ci>
               </apply>
-              <ci> S3 </ci>
+              <ci> p3 </ci>
             </apply>
           </math>
         </kineticLaw>
