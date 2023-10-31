@@ -1,14 +1,14 @@
 unit uSidewinderTypes;
 
 interface
-uses System.Generics.Collections, Vcl.Dialogs, ufAbout;
+uses System.Generics.Collections, Vcl.Dialogs, ufAbout, Web;
 
 const
   SLIDERPHEIGHT = 50; // Param Sliders WebPanel height
   DEFAULTSPECIESPLOTHT = 10; // Default y range for plotting species
   SLIDER_RANGE_MULT = 10;  // Default range multiplier for param slider
   PLOT_WIDTH_PERCENTAGE = 0.6; // This means a plot extends to 60% of the right panel width
-
+  DEBUG = false; // set true if want to print out debugMsg() in console window.
 type
   TDoubleArray = array of double;
   TIntegerArray = array of integer;
@@ -60,6 +60,7 @@ type
 
   // Utilities:
   procedure notifyUser( msg: string );
+  procedure debugMsg( msg: string);
 
 implementation
  constructor TVarNameVal.create() overload;
@@ -212,11 +213,6 @@ implementation
    self.varNV_List.copy(newVarList);
  end;
 
-// procedure notifyUser( msg: string);
-// begin
-//   ShowMessage(msg);
-// end;
-
  procedure notifyUser(msg: string);
 var fAbout: TfAbout;
 
@@ -233,6 +229,13 @@ begin
   fAbout.Popup := true;
   //fAbout.ShowClose := true;
   fAbout.PopupOpacity := 0.3;
+end;
+
+
+procedure debugMsg( msg: string);
+begin
+  if DEBUG then
+    console.log(msg);
 end;
 
 end.
