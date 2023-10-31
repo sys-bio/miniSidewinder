@@ -502,42 +502,28 @@ procedure TControllerMain.resetSimParamValues(); // Reset p values to model vals
 var i: integer;
 begin
 //console.log('TControllerMain.resetSimParamValues');
- // for i := 0 to self.sbmlmodel.getP_NameValAr.getNumPairs -1 do
- //   self.changeSimParameterVal( i, self.sbmlmodel.getP_Vals()[i] );
   self.currParVals.free;
   self.currParVals := TVarNameValList.create;
   self.currParVals.copy( self.sbmlmodel.getP_NameValAr );
   self.runSim.updateP_Vals(self.currParVals);
 end;
 
-procedure TControllerMain.changeSimSpeciesVal(pos: Integer; newVal: Double );
+procedure TControllerMain.changeSimSpeciesVal(pos: Integer; newVal: Double ); // TODO: change to TVarNameVal
 begin      // Update all as simulator gets reset each run and loses previous changes.
   self.currSpeciesInitVals.setVal( pos, newVal );
-  self.runSim.updateS_Val( pos, newVal );
+  self.runSim.updateS_Val(self.currSpeciesInitVals.getNameVal(pos));
 end;
 
 procedure TControllerMain.resetSimSpeciesValues(); // Reset s values to model vals.
 var curTime: double;
     i: integer;
-
 begin
   curTime := self.getCurrTime; // ?
   self.currSpeciesInitVals.Free;
   self.currSpeciesInitVals := TVarNameValList.create;
-  self.currSpeciesInitVals.copy(self.runSim.getS_NameValList);
+  self.currSpeciesInitVals.copy(self.sbmlmodel.getS_initNameValAr);
   self.createSimulation();
-  self.setCurrTime(curTime);
-  for i := 0 to length(self.sbmlmodel.getS_initVals) -1 do
-    begin
-    self.changeSimSpeciesVal(i,self.sbmlModel.getS_initVals[i]);
-    end;
-
-  {
-  for i := 0 to length(curSpeciesVals) -1 do
-    begin
-      self.changeSimSpeciesVal(i,curSpeciesVals[i]);
-    end;
-   }
+  self.setCurrTime(curTime); // ??
 end;
 
 procedure TControllerMain.writeSimData(fileName: string; data: TStrings);

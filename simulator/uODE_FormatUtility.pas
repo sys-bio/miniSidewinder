@@ -8,12 +8,15 @@ unit uODE_FormatUtility;
 
 interface
 uses System.SysUtils, System.StrUtils, System.Types, web, uSBMLClasses, uModel,
-uSBMLClasses.rule, System.Generics.Collections;
+uSBMLClasses.rule, System.Generics.Collections, uSidewinderTypes;
+
+const ODESTART = 'dydt_s[';  // Used for building up ODE eqs.
+      LSODA_ODESTART = 'dydt_s.setVal('; // use this with lsoda integrator
 
 type
 TFormatODEs = class
   private
-  const ODESTART: String='dydt_s[';  // Used for building up ODE eqs.
+
   var odeEqs: array of String; // list of ODE eqs using std notation
     odeEqs2: array of String; // LSODA list of eqs.
     odeEqSet:String;  // Contains all eqs as one String
@@ -42,7 +45,7 @@ TFormatODEs = class
   function spBoundaryCondition(speciesId: String): boolean;
 
  public
-  constructor create( model: TModel);
+  constructor create( model: TModel );
   function  replaceStrNames(names: array of String; stringtoedit: String; prefixStr: String):String;
   function  StrInArray(const Value : String; const ArrayOfString : Array of String) : Integer;
   function  testStrReplace( ): String;  // testing....
@@ -82,6 +85,7 @@ begin
   self.sVals := model.getS_Vals;
   self.paramsStrAr := model.getP_Names;
   self.pVals := model.getP_Vals;
+
   self.BuildAssignmentEqs(model);
   self.buildInitialAssignEqs(model);
   //self.compartments := TList<String>.create;
@@ -529,8 +533,10 @@ end;
      for i := 0 to Length(self.odeEqs)-1 do
      //for j := 0 to Length(self.svals)-1 do
        begin
-       editStr:= 'dydt_s['+intToStr(j)+']=';
-       replStr:= 'dydt_s.setVal('+intToStr(j+1)+','; // LSODA Uses TVector which start at 1, not 0.
+       editStr:= ODESTART +intToStr(j)+']=';
+       //editStr:= 'dydt_s['+intToStr(j)+']=';
+       //replStr:= 'dydt_s.setVal('+intToStr(j+1)+','; // LSODA Uses TVector which start at 1, not 0.
+       replStr:= LSODA_ODESTART + intToStr(j+1)+','; // LSODA Uses TVector which start at 1, not 0.
        if ContainsText(self.odeEqs[i],editStr) then
          begin
          self.odeEqs2[i]:= StringReplace(self.odeEqs[i],editStr,replStr,[])+')';

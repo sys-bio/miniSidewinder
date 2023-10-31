@@ -21,9 +21,9 @@ type
     dydt: TDoubleDynArray;
     s_Vals: array of Double; // species, Changes, one to one correlation: s_Vals[n] <=> s_Names[n]
     s_Names: array of String; // Use species ID as name
-    s_NameValAr: TVarNameValList;  // user can change
+    s_NameValAr: TVarNameValList;  // user can change, Ar of species used in Rate rules and Rxns (Have ODEs associated with them).
     s_AssignNameValAr: TVarNameValList; // holds species that have assignment rules, these become params in simulation.
-
+    s_modelInitValsAr: TVarNameValList; // Holds original model species list, includes species with assignment rules.
     s_assignRules: array of integer; // s_NameValAr indexes of species with Assignment rules only.
     s_odes: array of integer; // s_NameValAr indexes of species solved through ODEs (need integrator).
     s_InitAssignEqs: string; // Assignment Eqs to be eval at t = 0
@@ -49,8 +49,6 @@ type
     procedure WebTimer1Timer(Sender: TObject);
     procedure buildSpeciesNameValAr(); // Creates s_NameValAr and s_AssignNameValAr
     procedure buildParameterNameValAr(); // Create p_NameValAr: includes species with assignment rules.
-
-   // procedure setSpeciesWithAssignmentRules(); // Needed?populate s_assignRules to be removed from species ode equations to be solved.
     procedure updateLSODAeqsWithNewPSymbols(); // update LSODAeqs with species with assign rules treated as parameters.
     procedure updateSpeciesAssignmentEqsWithNewPSymbols();
 
@@ -82,9 +80,9 @@ type
     procedure stopTimer();
     procedure startTimer();
     function  getTime():double;
-    // TODO: ??procedure updateInitialAssignments(); If any InitAssignments, calc them here then set param, species init vals to these.
     procedure setRuntime( newRunTime: double );
     procedure setTime( newTime: double );
+
     procedure startSimulation();
     procedure startStaticSimulation();
     procedure updateSimulation();
@@ -92,7 +90,7 @@ type
     procedure updateP_Val( index: integer; newVal: double );
     function  getP_Vals(): TVarNameValList;
     procedure updateS_Vals(newS_ValList:TVarNameValList);
-    procedure updateS_Val( index: integer; newVal: double );
+    procedure updateS_Val( newVal: TVarNameVal );
     function  getS_NameValList(): TVarNameValList;
     procedure setInitValues(); // set init Assignment vals of params. species at t=0
     procedure updateAssignedPValues(); // update p_NameValAr from assignment rules before sending to integrator
@@ -130,7 +128,6 @@ begin
 
   // update LSODAeq with speceies with assignment rules made into parameters.
   // ie. Only want species in reactions and rate rules to be solved by integrator.
-  //self.setSpeciesWithAssignmentRules;
   setLength(self.p,self.np);
   self.p := self.p_NameValAr.getValAr;  // get parameter values array for integrator
 
@@ -174,7 +171,7 @@ begin
     self.updateAssignedSValues;   // update val for species with Assignment rule.
   self.p := self.p_NameValAr.getValAr;
   self.ODEready := true;
-  //console.log('Init time: ', self.time);
+  debugMsg('Init time: ' + floattostr(self.time));
   self.updateSimulation;
 end;
 
@@ -191,7 +188,7 @@ begin
 
   if self.s_AssignEqs <> '' then
     self.updateAssignedSValues;   // update val for species with Assignment rule.
-  self.p := self.p_NameValAr.getValAr;   // Only first element is defined here.... <-----
+  self.p := self.p_NameValAr.getValAr;
 
   self.StaticSimRun := true;
   if self.simResultsList <> nil then self.simResultsList.free
@@ -201,7 +198,7 @@ begin
     begin
     self.updateSimulation;
     end;
- // console.log('Simulation done: iter: ', i); // Now notify listener....
+  debugMsg('Simulation done: iter: ' + inttostr(i)); // Now notify listener....
   if Assigned(FStaticSimResults) then
        begin
        FStaticSimResults( self.simResultsList );
@@ -221,7 +218,7 @@ begin
         self.updateAssignedPValues;
         end;
       self.p := self.p_NameValAr.getValAr;
-      //  console.log('updateSimulation: self.time, s[0]: ',self.time,', ',self.s_Vals);
+      // console.log('updateSimulation: self.time, s[0]: ' , self.time, ', ',  self.s_Vals);
       self.nextEval(self.time, self.s_Vals, self.p);
     end
     // else error msg needed?
@@ -324,7 +321,7 @@ begin
       self.updateAssignedSValues;   // ??? Calc assignment rules after rxns and rate rules
       end;
 
-    console.log('eval2 after integration: s vals: ', s);
+    //console.log('eval2 after integration: s vals: ', s);
     self.updateVals(self.time,s);
     if self.lode.istate < 0 then
       begin
@@ -337,24 +334,24 @@ begin
 
  procedure TSimulationJS.buildSpeciesNameValAr(); // Creates s_NameValAr and s_AssignNameValAr
  var i: integer;
-    tempNameValAr: TVarNameValList;
+  //  tempNameValAr: TVarNameValList;
  begin
     self.s_NameValAr := TVarNameValList.create;
     self.s_AssignNameValAr := TVarNameValList.create;
-    tempNameValAr := TVarNameValList.create;
-    tempNameValAr.copy(self.model.getS_initNameValAr); // List of species in model
-    for i := 0 to tempNameValAr.getNumPairs -1 do
+    self.s_modelInitValsAr := TVarNameValList.create;
+    self.s_modelInitValsAr.copy(self.model.getS_initNameValAr); // List of species in model
+    for i := 0 to self.s_modelInitValsAr.getNumPairs -1 do
       begin
-      if (self.model.getSBMLRuleWithVarId(tempNameValAr.getNameVal(i).getId) <> nil )
-       and self.model.getSBMLRuleWithVarId(tempNameValAr.getNameVal(i).getId).isAssignment then
+      if (self.model.getSBMLRuleWithVarId(self.s_modelInitValsAr.getNameVal(i).getId) <> nil )
+       and self.model.getSBMLRuleWithVarId(self.s_modelInitValsAr.getNameVal(i).getId).isAssignment then
         begin
-        self.s_AssignNameValAr.add(tempNameValAr.getNameVal(i));
+        self.s_AssignNameValAr.add(self.s_modelInitValsAr.getNameVal(i));
         setLength(self.s_assignRules, length(self.s_assignRules) +1);
         self.s_assignRules[length(self.s_assignRules) - 1] := i;// Save index to species solved through Assignment rule
         end
       else
         begin
-        self.s_NameValAr.add(tempNameValAr.getNameVal(i));
+        self.s_NameValAr.add(self.s_modelInitValsAr.getNameVal(i));
         setLength(self.s_odes, length(self.s_odes) + 1);
         self.s_odes[length(self.s_odes) - 1] := i; // Save index to species solved through integrator.
         end;
@@ -375,69 +372,77 @@ begin
      self.p_NameValAr.add(self.s_AssignNameValAr.getNameVal(i));
  end;
 
-{ procedure TSimulationJS.setSpeciesWithAssignmentRules(); // populate s_assignRules  NOT needed, done in buildSpeciesNameValAr()
- // Create an array of species that have assignment rules assigned them.
- // Save index from self.s_NameValAr that corresponds to the species.
- // Also create array of species that are solved by integrator,
- // saving corresponding index from self.s_NameValAr
- var i: integer;
- begin
-   for i := 0 to self.s_NameValAr.getNumPairs -1 do
-     begin
-     if (self.model.getSBMLRuleWithVarId(self.s_NameValAr.getNameVal(i).getId) <> nil )
-       and self.model.getSBMLRuleWithVarId(self.s_NameValAr.getNameVal(i).getId).isAssignment then
-       begin
-       setLength(self.s_assignRules, length(self.s_assignRules) +1);
-       self.s_assignRules[length(self.s_assignRules) - 1] := i;// Save index to species solved through Assignment rule
-       end
-     else
-       begin
-       setLength(self.s_odes, length(self.s_odes) + 1);
-       self.s_odes[length(self.s_odes) - 1] := i; // Save index to species solved through integrator.
-       end;
-
-     end;
-
- end;    }
-
-
-procedure TSimulationJS.updateLSODAeqsWithNewPSymbols();
+procedure TSimulationJS.updateLSODAeqsWithNewPSymbols();// Also need to check/replace s[#] indexes that may have moved.??
 // update LSODAeqs with new param list that includes species with assign rules.
-var i: integer;
+var i, j, curIndex: integer;
     cur_sIndexStr: string; // species index to be replaced with p ( s[#] -> p[##] )
-    cur_pIndexStr: string;
+    cur_pIndexStr, new_sIndexStr: string;
     newLSODAStr: string;
 begin
    newLSODAStr := '';
    for i := 0 to length(self.s_assignRules) - 1 do
      begin
      cur_sIndexStr := 's[' + inttostr(self.s_assignRules[i]) +']';
-     console.log('LSODA eq, before: ',self.LSODAeq);
+    // console.log('LSODA eq, before: ',self.LSODAeq);
      cur_pIndexStr := 'p[' + inttostr(length(self.p_NameValAr.getValAr) - length(self.s_assignRules) + i) +']';
      newLSODAStr := ReplaceStr(self.LSODAeq,cur_sIndexStr,cur_pIndexStr);
      self.LSODAeq := newLSODAStr;
-     console.log('LSODA eq, after: ',self.LSODAeq);
+  //   console.log('LSODA eq, after: ',self.LSODAeq);
      end;
-   console.log('AssignRule pars Updated lsodaEqs: ', self.LSODAeq);
+   cur_sIndexStr := '';
+   curIndex := -1;
+   for i := 0 to length(self.s_odes) -1 do   // replace orig sp index with new ones (array with sp assign rules removed)
+     begin
+     curIndex := self.s_odes[i];
+     cur_sIndexStr := 's[' + inttostr(self.s_odes[i]) +']';
+     for j := 0 to self.s_NameValAr.getNumPairs -1 do
+       begin
+       if self.s_modelInitValsAr.getNameVal(curIndex).getId = self.s_NameValAr.getNameVal(j).getId then
+         begin
+         new_sIndexStr := 's[' + inttostr(j) +']';
+         newLSODAStr := ReplaceStr(self.LSODAeq,cur_sIndexStr,new_sIndexStr);
+         newLSODAStr := ReplaceStr(newLSODAStr, LSODA_ODESTART + inttostr(curIndex +1), LSODA_ODESTART + inttostr(j +1));
+         self.LSODAeq := newLSODAStr;
+         end;
+       end;
+
+     end;
+   debugMsg('AssignRule pars Updated lsodaEqs: ' + self.LSODAeq);
 end;
 
 
 procedure TSimulationJS.updateSpeciesAssignmentEqsWithNewPSymbols();
-var i: integer;
+var i, j, curIndex: integer;
     cur_sIndexStr: string; // species index to be replaced with p ( s[#] -> p[##] )
-    cur_pIndexStr: string;
+    cur_pIndexStr, new_sIndexStr: string;
     newAssignStr: string;
 begin
-console.log('updateSpeciesAssignmentEqsWithNewPSymbols: orig:', self.s_AssignEqs);
+//console.log('updateSpeciesAssignmentEqsWithNewPSymbols: orig:', self.s_AssignEqs);
   for i := 0 to length(self.s_assignRules) - 1 do
     begin
     cur_sIndexStr := 's[' + inttostr(self.s_assignRules[i]) +']';
     cur_pIndexStr := 'p[' + inttostr(length(self.p_NameValAr.getValAr) - length(self.s_assignRules) + i) +']';
     newAssignStr := ReplaceStr(self.s_AssignEqs, cur_sIndexStr,cur_pIndexStr);
     end;
+
+   for i := 0 to length(self.s_odes) -1 do   // replace orig sp index with new ones (array with sp assign rules removed)
+     begin
+     curIndex := self.s_odes[i];
+     cur_sIndexStr := 's[' + inttostr(self.s_odes[i]) +']';
+     for j := 0 to self.s_NameValAr.getNumPairs -1 do
+       begin
+       if self.s_modelInitValsAr.getNameVal(curIndex).getId = self.s_NameValAr.getNameVal(j).getId then
+         begin
+         new_sIndexStr := 's[' + inttostr(j) +']';
+         newAssignStr := ReplaceStr(newAssignStr,cur_sIndexStr,new_sIndexStr);
+         end;
+       end;
+
+     end;
+
   newAssignStr := ReplaceStr(newAssignStr, RETURN_S, RETURN_P);
   self.s_AssignEqs := newAssignStr;
-  console.log('updateSpeciesAssignmentEqsWithNewPSymbols- Updated:', self.s_AssignEqs);
+ // console.log('updateSpeciesAssignmentEqsWithNewPSymbols- Updated:' + self.s_AssignEqs);
 end;
 
   // return current time of run and variable values to listener:
@@ -491,7 +496,6 @@ var i, j, currentIndex: integer;
    updatedList := TVarNameValList.create;        // Bug here.... ??
      for i := 0 to Length(updatedVals) + Length(self.s_assignRules) -1 do
        begin
-     //  updatedList.add( TVarNameVal.create( self.s_Names[i], newSpVals[i] ) );  // <--- need to get sp_Assign name as well
        updatedList.add( TVarNameVal.create( newSpNames[i], newSpVals[i] ) );
        end;
 
@@ -507,9 +511,8 @@ var i, j, currentIndex: integer;
 
 
 procedure TSimulationJS.updateP_Vals(newP_ValList:TVarNameValList);
-var i, j: integer;
+var i, j: integer; // Assumes Species with Assignment rules are last in param array.
 begin
-//console.log('TSimulationJS.updateP_Vals:');
   // Updating p values so do not delete....
   for i := 0 to self.p_NameValAr.getNumPairs -1 do
     begin
@@ -524,7 +527,7 @@ begin
 end;
 
 procedure TSimulationJS.updateP_Val( index: integer; newVal: double );
-var i: integer;
+var i: integer;  // Assumes Species with Assignment rules are last in array.
 begin
   if (length(self.p) > index) and (index > -1) then
     begin
@@ -540,12 +543,18 @@ begin
 end;
 
 procedure TSimulationJS.updateS_Vals(newS_ValList:TVarNameValList);
-var i: integer;
+var i, j: integer;
 begin
-  self.s_NameValAr.Free;
-  self.s_NameValAr := TVarNameValList.create;
-  self.s_NameValAr.copy(newS_ValList);
-  setLength(self.s_Vals, self.s_NameValAr.getNumPairs);
+  for i := 0 to newS_ValList.getNumPairs - 1 do
+    begin
+    for j := 0 to self.s_NameValAr.getNumPairs - 1 do
+      begin
+      // compare sp id:
+      if newS_ValList.getNameVal(i).getId = self.s_NameValAr.getNameVal(j).getId then
+        self.s_NameValAr.getNameVal(j).setVal(newS_ValList.getNameVal(i).getVal);
+      end;
+
+    end;
   for i := 0 to self.s_NameValAr.getNumPairs -1 do
     begin
     self.s_Vals[i] := self.s_NameValAr.getNameVal(i).getVal;
@@ -553,13 +562,18 @@ begin
 
 end;
 
-procedure TSimulationJS.updateS_Val( index: integer; newVal: double );
+procedure TSimulationJS.updateS_Val( newVal: TVarNameVal );
+var j: integer;
 begin
-  if (length(self.s_Vals) > index) and (index > -1) then
-    begin
-    self.s_Vals[index] := newVal;
-    self.s_NameValAr.setVal( index, newVal );
-    end;
+  for j := 0 to self.s_NameValAr.getNumPairs - 1 do
+      begin
+      // compare sp id:
+      if newVal.getId = self.s_NameValAr.getNameVal(j).getId then
+        begin
+        self.s_NameValAr.getNameVal(j).setVal(newVal.getVal);
+        self.s_Vals[j] := newVal.getVal;
+        end;
+      end;
 
 end;
 
@@ -658,7 +672,7 @@ begin
     //  console.log(this.p_InitAssignEqs);
       var initParamFunc = new Function( 's','p', this.p_InitAssignEqs);
       this.p = initParamFunc(this.s_Vals, this.p);
-    //  console.log('new p: ', this.p);
+    //  console.log('new p: ' + this.p);
     end
     end;
   // Now check if species init vals need to be calculated:
@@ -691,7 +705,7 @@ begin
     //  console.log(this.s_InitAssignEqs);
       var assignParFunc = new Function( 's','p', this.s_AssignEqs);
       new_pVals = assignParFunc(this.s_Vals, this.p);
-      console.log('new Species Assignment vals for p vals: ', new_pVals);
+     // console.log('new Species Assignment vals for p vals: ' + new_pVals);
     end
     end;
   for i := 0 to self.getP_Vals.getNumPairs -1 do
@@ -710,7 +724,7 @@ begin
     //  console.log(this.s_InitAssignEqs);
       var assignParFunc = new Function( 's','p', this.p_AssignEqs);
       this.p = assignParFunc(this.s_Vals, this.p);
-      console.log('new Assignment for p vals: ', this.p);
+    //  console.log('new Assignment for p vals: ', this.p);
     end
     end;
   for i := 0 to self.getP_Vals.getNumPairs -1 do
