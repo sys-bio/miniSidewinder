@@ -212,7 +212,10 @@ function TPlaneXY.niceNumY(val: double): String;
 begin
   if val > 9999 then   // scientific format for nums > 9999
     Result := Format('%.5e', [val])
-  else Result := Format('%.2f', [val]);
+  else
+    if val >99 then
+      Result := Format('%.1f', [val])
+    else Result := Format('%.2f', [val]);
   Result := Format('%.6g', [StrToFloat(Result)]);
 end;
 function countZeros(s: String): Integer;
