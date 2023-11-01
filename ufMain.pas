@@ -12,7 +12,7 @@ uses
   VCL.TMSFNCCustomControl, VCL.TMSFNCScrollBar, Vcl.Menus, ufModelInfo, ufLabelPopUp,
   WEBLib.Menus, WEBLib.WebCtrls, ufChkGroupEditPlot, ufAbout, ufInputText;
 
-const SIDEWINDER_VERSION = 'MiniSidewinder Version 0.9.2';
+const SIDEWINDER_VERSION = 'MiniSidewinder Version 0.9.4';
       COPYRIGHT = 'Copyright 2023, Bartholomew Jardine and Herbert M. Sauro, University of Washington, USA';
       GRANT_INFO = 'This project was funded by NIH/NIGMS (R01-GM123032-04).';
       DEFAULT_RUNTIME = 10000;
@@ -820,8 +820,8 @@ begin
       end;
     end;
 
-  if (not bSliderInList) and  (length(self.varForSliders) < 1)
-    then self.addAllSpeciesSliders; // No sliders added and prepopulated list is empty.
+ // if (not bSliderInList) and  (length(self.varForSliders) < 1)    ???? why is thi here ?
+ //   then self.addAllSpeciesSliders; // No sliders added and prepopulated list is empty.
   self.varForSliders := ''; // clear it out, assumes all par sliders have been set up
 
 end;
@@ -2374,14 +2374,14 @@ begin
       end;
     end;
 
-  boundarySpeciesAr := self.mainController.getModel.getSBML_BC_SpeciesAr;
+  boundarySpeciesAr := self.mainController.getModel.getSBML_ConstBC_SpeciesAr;
   for i := 0 to length(boundarySpeciesAr) -1 do
     begin
     temp := '';
     curId := '';
     curVal := 0.0;
     curId := boundarySpeciesAr[i].getId;
-    temp := 'Boundary species ' + curId + ' = ';
+    temp := 'Const boundary species ' + curId + ' = ';
     if self.mainController.getModel.getInitialAssignmentWithSymbolId(curId) <> nil then
       begin
       temp := temp + self.mainController.getModel.getInitialAssignmentWithSymbolId(curId).getFormula;

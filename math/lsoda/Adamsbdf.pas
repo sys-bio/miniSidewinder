@@ -1670,7 +1670,7 @@ begin
    If *istate > 1 but the flag init shows that initialization has not
    yet been done, an error return occurs.
    If *istate = 1 and tout = t, return immediately. }
-
+  // console.log('execute: y: ', y);
    if (istate=1) then
     begin
      illin:=0; init:=0; ntrep:=0; ixpr:=0;
@@ -1717,7 +1717,7 @@ begin
    It contains checking of all inputs and various initializations.
    First check legality of the non-optional inputs neq, itol, iopt,
    jt, ml, and mu. }
-
+ //   console.log('block b - y: ', y);
    if ( istate = 1) OR (istate = 3 ) then
     begin
       ntrep := 0;
@@ -1920,6 +1920,7 @@ begin
    and the calculation of the initial step size.
    The error weights in ewt are inverted after being loaded. }
 
+// console.log('block C - y: ', y);
    if ( istate = 1 ) then
     begin
       tn := t;
@@ -1951,8 +1952,10 @@ begin
       maxcor := 3;
       msbp := 20;
       mxncf := 10;
+    // console.log('line 1954, initial call to FDerivatives: y_arr: ', y_arr);
+    // console.log('line 1954, initial call to FDerivatives: y: ', y);
 
-      { Initial call to fonction  }
+      { Initial call to function  }
       //yh[2]:= FDerivatives (t, y);
       y_arr:= tVectorToArray(y);
       dy_tv:= TVector.create(yh[2].size);
@@ -2057,6 +2060,7 @@ begin
    The next code block is for continuation calls only ( *istate = 2 or 3 )
    and is to check stop conditions before taking a step. }
 
+ // console.log('block d- y: ', y);
    if ( istate = 2) OR (istate = 3 ) then
     begin
       nslast := nst;
@@ -2065,7 +2069,9 @@ begin
          begin
           if ( ( tn - tout ) * h >= 0. ) then
            begin
+        //   console.log('block d intdy - y: ', y);
             intdy( tout, 0, y, iflag );
+        //    console.log('block d after intdy - y: ', y);
             if ( iflag <> 0 ) then
              begin
                if ( prfl=1 ) then
@@ -2171,7 +2177,7 @@ begin
    First check for too many steps being taken, update ewt ( if not at
    start of problem).  Check for too much accuracy being requested, and
    check for h below the roundoff level in *t. }
-
+ //  console.log('ln 2174 block e: y: ', y);
    while (1=1 ) do
     begin
       if ( istate <> 1) OR (nst <> 0 ) then
@@ -2263,7 +2269,7 @@ begin
    set jstart to -1 to signal stoda to complete the switch,
    and do extra printing of data if ixpr != 0.
    Then, in any case, check for stop conditions. }
-
+   //    console.log('Block f: y: ', y);
          init := 1;
          if ( meth <> mused ) then
           begin
@@ -2399,8 +2405,8 @@ begin
                imxer := i;
              end;
           end;
+        //   console.log('End of execute(): y: ', y);
 
-        //  console.log('line ~ 2348, y[1]: ', y[1]);
          terminate2( y, t );
          exit;
        end;     {   end if ( kflag == -1 || kflag == -2 )   }

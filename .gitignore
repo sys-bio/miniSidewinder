@@ -47,3 +47,6 @@ __recovery/uSidewinderTypes.pas
 __recovery/uControllerMain.pas
 __recovery/ufModelInfo.pas
 __recovery/ufModelInfo.dfm
+simulator/__recovery/__recovery.ini
+simulator/__recovery/uSimulation.pas
+simulator/__recovery/uODE_FormatUtility.pas
